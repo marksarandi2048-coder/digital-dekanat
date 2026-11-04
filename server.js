@@ -138,7 +138,15 @@ app.get('/contact', (req, res) => {
 app.get(['/verify', '/verify/:code'], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'verify.html'));
 });
-app.use(express.static(PUBLIC_DIR, { index: false }));
+// Стили и скрипты: браузер каждый раз сверяется с сервером (по ETag),
+// чтобы после обновления сайта не показывать страницу со старыми стилями.
+// Если файл не менялся, сервер отвечает коротким «304», без повторной загрузки.
+app.use(
+  express.static(PUBLIC_DIR, {
+    index: false,
+    setHeaders: (res) => res.set('Cache-Control', 'no-cache'),
+  }),
+);
 
 // Общий обработчик ошибок: подробности — в консоль, пользователю — коротко.
 app.use((err, req, res, _next) => {

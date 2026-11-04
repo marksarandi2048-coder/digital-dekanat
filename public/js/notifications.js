@@ -29,9 +29,16 @@
       const a = el('a', 'deadline__link');
       a.href = d.link;
       const left = el('div', 'deadline__when');
-      left.append(el('span', 'deadline__count', D.countdown(d.daysLeft)), el('span', 'deadline__date', D.dayMonth(d.date)));
+      // Скрытые разделители не дают словам слипнуться без стилей.
+      const count = el('span', 'deadline__count', D.countdown(d.daysLeft));
+      count.append(el('span', 'visually-hidden', ', '));
+      const date = el('span', 'deadline__date', D.dayMonth(d.date));
+      date.append(el('span', 'visually-hidden', ' — '));
+      left.append(count, date);
       const right = el('div', 'deadline__what');
-      right.append(el('span', 'deadline__title', d.title), el('span', 'deadline__note', d.note));
+      const title = el('span', 'deadline__title', d.title);
+      title.append(el('span', 'visually-hidden', '. '));
+      right.append(title, el('span', 'deadline__note', d.note));
       a.append(left, right);
       li.append(a);
       ul.append(li);

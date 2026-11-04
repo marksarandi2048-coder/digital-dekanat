@@ -34,7 +34,11 @@
       for (const d of soon) {
         const a = el('a', `today-deadline${d.daysLeft <= 3 ? ' today-deadline--soon' : ''}`);
         a.href = d.link;
-        a.append(el('span', 'today-deadline__count', D.countdown(d.daysLeft)), el('span', 'today-deadline__title', d.title));
+        // Разделитель « — » скрыт стилями, но не даёт словам слипнуться,
+        // если стили не загрузились, и читается программами экранного доступа.
+        const count = el('span', 'today-deadline__count', D.countdown(d.daysLeft));
+        count.append(el('span', 'visually-hidden', ' — '));
+        a.append(count, el('span', 'today-deadline__title', d.title));
         card.append(a);
       }
       parts.push(card);
