@@ -35,6 +35,7 @@
   --color-bad-bg: #fdecea;
   --meter-track: #e4e7ef;
   --meter-fill: var(--color-primary);
+  --meter-possible: #a9b8e3;
 
   --font-main: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-size: 16px;
@@ -1064,4 +1065,56 @@ a.week-nav__note {
 
 .meter__value--pending {
   color: var(--color-pending);
+}
+
+/* Рейтинг, пока семестр идёт */
+.meter__track {
+  position: relative;
+}
+
+.meter__possible,
+.meter__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+}
+
+.meter__possible {
+  border-radius: 4px;
+  background: var(--meter-possible);
+}
+
+.meter-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.meter-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.meter-legend__swatch {
+  width: 12px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.meter-legend__swatch--fill { background: var(--meter-fill); }
+.meter-legend__swatch--possible { background: var(--meter-possible); }
+.meter-legend__swatch--track { background: var(--meter-track); }
+
+.rating__line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.rating__empty {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
 }

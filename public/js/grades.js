@@ -70,22 +70,85 @@
     return out;
   }
 
-  // note — подпись вместо «0 из N», если баллы этой части ещё не выставлены.
-  function meter(block, note) {
+  // Полоска одной части рейтинга.
+  // Пока семестр идёт: тёмная часть — набрано, светлая — сколько можно было набрать
+  // по уже выставленному, вся полоса — максимум за семестр.
+  // note — подпись, если в этой части ещё ничего не выставлено.
+  function meter(block, note, inProgress) {
     const wrap = el('div', 'meter');
     const head = el('div', 'meter__head');
-    head.append(
-      el('span', 'meter__label', block.label),
-      el('span', note ? 'meter__value meter__value--pending' : 'meter__value', note || `${block.key === 'bonus' ? '+' : ''}${num(block.points)} из ${block.max}`),
-    );
+    const showPossible = inProgress && block.possible !== undefined;
+    let value;
+    if (block.key === 'bonus') value = `+${num(block.points)} из ${block.max}`;
+    else if (showPossible) value = block.possible > 0 ? `${num(block.points)} из ${num(block.possible)}` : note || 'ещё не выставлено';
+    else value = note || `${num(block.points)} из ${block.max}`;
+    const pendingText = showPossible ? block.possible === 0 : Boolean(note);
+    head.append(el('span', 'meter__label', block.label), el('span', pendingText ? 'meter__value meter__value--pending' : 'meter__value', value));
+
     const track = el('div', 'meter__track');
     track.setAttribute('role', 'img');
-    track.setAttribute('aria-label', `${block.label}: ${num(block.points)} из ${block.max}`);
+    track.setAttribute(
+      'aria-label',
+      showPossible
+        ? `${block.label}: набрано ${num(block.points)} из ${num(block.possible)} возможных на сегодня, максимум за семестр ${block.max}`
+        : `${block.label}: ${num(block.points)} из ${block.max}`,
+    );
+    if (showPossible) {
+      const possible = el('div', 'meter__possible');
+      possible.style.width = `${Math.min(100, (block.possible / block.max) * 100)}%`;
+      track.append(possible);
+    }
     const fill = el('div', 'meter__fill');
     fill.style.width = `${Math.min(100, (block.points / block.max) * 100)}%`;
     track.append(fill);
     wrap.append(head, track);
     return wrap;
+  }
+
+  function meterLegend() {
+    const legend = el('div', 'meter-legend');
+    const item = (cls, text) => {
+      const i = el('span', 'meter-legend__item');
+      i.append(el('span', `meter-legend__swatch ${cls}`), document.createTextNode(text));
+      return i;
+    };
+    legend.append(item('meter-legend__swatch--fill', 'набрано'), item('meter-legend__swatch--possible', 'можно было набрать на сегодня'), item('meter-legend__swatch--track', 'максимум за семестр'));
+    return legend;
+  }
+
+  // Крупный блок с рейтингом.
+  function renderHero(data) {
+    const s = data.summary;
+    const r = data.rating;
+    const hero = el('div', 'rating');
+
+    if (s.isFinal) {
+      const n = el('p', 'rating__number');
+      n.append(el('span', 'rating__value', num(r.total)), el('span', 'rating__max', ` из ${r.max} + надбавка`));
+      hero.append(el('p', 'rating__label', 'Рейтинг за семестр'), n, el('span', 'tag tag--now', 'Итоговый'));
+      return hero;
+    }
+
+    // Семестр идёт: главное — как студент справляется с тем, что уже выставлено.
+    hero.append(el('p', 'rating__label', 'Набрано на сегодня'));
+    if (r.soFar.percent === null) {
+      hero.append(el('p', 'rating__empty', 'Оценок за этот семестр ещё нет'));
+    } else {
+      const n = el('p', 'rating__number');
+      n.append(el('span', 'rating__value', num(r.soFar.points)), el('span', 'rating__max', ` из ${num(r.soFar.possible)} возможных`));
+      const line = el('div', 'rating__line');
+      line.append(el('span', 'tag tag--now', `${r.soFar.percent} % от возможного`));
+      if (r.bonus > 0) line.append(el('span', 'tag', `+${num(r.bonus)} надбавка`));
+      hero.append(n, line);
+    }
+    hero.append(
+      el(
+        'p',
+        'rating__hint',
+        `Рейтинг за семестр: ${num(r.total)} из ${r.max} — предварительный, невыставленное пока считается как 0.`,
+      ),
+    );
+    return hero;
   }
 
   function renderSummary(data) {
@@ -100,17 +163,7 @@
     for (const [tone, text] of verdicts(data)) v.append(el('p', `verdict verdict--${tone}`, text));
     card.append(v);
 
-    // Рейтинг — крупным числом.
-    const hero = el('div', 'rating');
-    const num1 = el('p', 'rating__number');
-    num1.append(el('span', 'rating__value', num(data.rating.total)), el('span', 'rating__max', ` из ${data.rating.max} + надбавка`));
-    hero.append(
-      el('p', 'rating__label', 'Рейтинг за семестр'),
-      num1,
-      el('span', s.isFinal ? 'tag tag--now' : 'tag', s.isFinal ? 'Итоговый' : 'Предварительный'),
-    );
-    if (!s.isFinal) hero.append(el('p', 'rating__hint', 'Пока выставлено не всё: то, что ещё не выставлено, считается как 0.'));
-    card.append(hero);
+    card.append(renderHero(data));
 
     const meters = el('div', 'meters');
     const socialStatus = data.social && data.social.status;
@@ -119,8 +172,9 @@
       if (b.key === 'social' && socialStatus && socialStatus.state !== 'set') {
         note = socialStatus.state === 'pending' ? `ожидается до ${D.dayMonth(socialStatus.due)}` : 'срок прошёл';
       }
-      meters.append(meter(b, note));
+      meters.append(meter(b, note, !s.isFinal));
     }
+    if (!s.isFinal) meters.append(meterLegend());
     card.append(meters);
 
     // Короткие цифры.
