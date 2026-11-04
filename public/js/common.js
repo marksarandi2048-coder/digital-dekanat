@@ -38,6 +38,25 @@ window.Dekanat = (function () {
   const weekdayLong = (d) => formatDate(d, { weekday: 'long' });
   const weekdayShort = (d) => formatDate(d, { weekday: 'short' });
   const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const fullDate = (d) => formatDate(d, { day: 'numeric', month: 'long', year: 'numeric' });
+  // «ГГГГ-ММ-ДД ЧЧ:ММ» → «3 ноября, 15:40»
+  const dateTime = (stamp) => (stamp ? `${dayMonth(stamp.slice(0, 10))}, ${stamp.slice(11, 16)}` : '');
+
+  // Отправка данных на сервер. Возвращает { ok, data }.
+  async function postJSON(url, body) {
+    let res;
+    try {
+      res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    } catch {
+      return { ok: false, data: { error: 'Нет связи с сервером. Попробуйте ещё раз.' } };
+    }
+    if (res.status === 401) {
+      window.location.href = '/';
+      return new Promise(() => {});
+    }
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, data };
+  }
 
   function plural(n, one, few, many) {
     const m10 = n % 10;
@@ -198,5 +217,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { el, fetchJSON, dayMonth, weekdayLong, capitalize, plural, renderDay, setupGroup };
+  return { el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, capitalize, plural, renderDay, setupGroup };
 })();

@@ -132,6 +132,70 @@ db.exec(`
     points      REAL    NOT NULL CHECK (points > 0),
     awarded_on  TEXT    NOT NULL
   );
+
+  -- ---------- Заявки и справки ----------
+  -- Время везде — московское, в формате «ГГГГ-ММ-ДД ЧЧ:ММ».
+  CREATE TABLE IF NOT EXISTS requests (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id    INTEGER NOT NULL REFERENCES users(id),
+    type          TEXT    NOT NULL
+                  CHECK (type IN ('study_certificate', 'enrollment_certificate', 'order_extract', 'appeal')),
+    format        TEXT    CHECK (format IS NULL OR format IN ('paper', 'electronic')),
+    purpose       TEXT,
+    order_ref     TEXT,
+    copies        INTEGER CHECK (copies IS NULL OR copies BETWEEN 1 AND 5),
+    subject       TEXT,
+    comment       TEXT,
+    status        TEXT    NOT NULL DEFAULT 'accepted'
+                  CHECK (status IN ('accepted', 'in_progress', 'ready', 'issued', 'answered', 'rejected')),
+    reject_reason TEXT,
+    pickup_place  TEXT,
+    pickup_hours  TEXT,
+    created_at    TEXT    NOT NULL,
+    updated_at    TEXT    NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS requests_student ON requests (student_id);
+  CREATE INDEX IF NOT EXISTS requests_status ON requests (status);
+
+  -- История статусов: по строке на каждый шаг (даты для «трекера»).
+  CREATE TABLE IF NOT EXISTS request_events (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    request_id INTEGER NOT NULL REFERENCES requests(id),
+    status     TEXT    NOT NULL,
+    at         TEXT    NOT NULL,
+    actor_id   INTEGER REFERENCES users(id),
+    note       TEXT
+  );
+  CREATE INDEX IF NOT EXISTS request_events_request ON request_events (request_id);
+
+  -- Переписка по заявке (ответ сотрудника, уточнение студента).
+  CREATE TABLE IF NOT EXISTS request_messages (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    request_id INTEGER NOT NULL REFERENCES requests(id),
+    author_id  INTEGER NOT NULL REFERENCES users(id),
+    text       TEXT    NOT NULL,
+    created_at TEXT    NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS request_messages_request ON request_messages (request_id);
+
+  -- Реестр электронных справок. code — длинный случайный секрет для QR-проверки.
+  -- Данные студента — снимок на момент выдачи.
+  CREATE TABLE IF NOT EXISTS e_certificates (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    request_id  INTEGER NOT NULL UNIQUE REFERENCES requests(id),
+    code        TEXT    NOT NULL UNIQUE,
+    number      TEXT    NOT NULL UNIQUE,
+    full_name   TEXT    NOT NULL,
+    faculty     TEXT    NOT NULL,
+    program     TEXT,
+    course      INTEGER,
+    study_form  TEXT    NOT NULL,
+    purpose     TEXT,
+    issued_at   TEXT    NOT NULL,
+    valid_until TEXT    NOT NULL,
+    signed_by   TEXT    NOT NULL,
+    revoked_at  TEXT
+  );
 `);
 }
 

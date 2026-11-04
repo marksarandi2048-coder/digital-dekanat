@@ -38,4 +38,10 @@ function mondayOf(str) {
   return addDays(str, day === 0 ? -6 : 1 - day);
 }
 
-module.exports = { nowInMoscow, isValidDate, addDays, mondayOf };
+// Текущее время в Москве строкой «ГГГГ-ММ-ДД ЧЧ:ММ».
+function nowStamp() {
+  const n = nowInMoscow();
+  return `${n.date} ${n.time}`;
+}
+
+module.exports = { nowInMoscow, nowStamp, isValidDate, addDays, mondayOf };

@@ -23,7 +23,7 @@
   // ---------- Статус оценки ----------
   function contactLink(topic) {
     const a = el('a', 'button button--danger', 'Написать в деканат');
-    a.href = `/contact?topic=${encodeURIComponent(topic)}`;
+    a.href = `/requests/new?type=appeal&topic=${encodeURIComponent(topic)}`;
     return a;
   }
 

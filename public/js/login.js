@@ -29,11 +29,11 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login, password }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        window.location.href = '/today';
+        window.location.href = data.user && data.user.role === 'staff' ? '/requests' : '/today';
         return;
       }
-      const data = await res.json().catch(() => ({}));
       showError(data.error || 'Не удалось войти');
     } catch {
       showError('Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.');

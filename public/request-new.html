@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Новая заявка — Цифровой деканат</title>
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="has-bottom-nav">
+  <p class="concept-note">Концепт для конкурса MGIMO×AI Challenge, не официальный сервис МГИМО</p>
+
+  <header class="app-header">
+    <div class="app-header__inner">
+      <a class="logo" href="/today">
+        <img src="/img/logo.svg" alt="" width="32" height="32">
+        Цифровой деканат
+      </a>
+      <nav class="nav" aria-label="Разделы">
+        <a class="nav__item" href="/today">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.5" fill="currentColor"/></svg>
+          Сегодня
+        </a>
+        <a class="nav__item" href="/week">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h2M11 14h2M15 14h2M7 17h2M11 17h2"/></svg>
+          Неделя
+        </a>
+        <a class="nav__item" href="/grades">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 5-10 5L2 8z"/><path d="M6 10.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 8v6"/></svg>
+          Оценки
+        </a>
+        <a class="nav__item" href="/requests" aria-current="page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>
+          Заявки
+        </a>
+        <a class="nav__item" href="/profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+          Профиль
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <a class="back-link" href="/requests">← Мои заявки</a>
+    <h1 class="page-title">Новая заявка</h1>
+    <p class="state" id="state-loading">Загружаем…</p>
+    <p class="state state--error" id="state-error" role="alert" hidden></p>
+    <form id="request-form" class="request-form" novalidate hidden>
+      <fieldset class="form-block">
+        <legend class="form-block__title">Что нужно</legend>
+        <div class="choice-list" id="type-list"></div>
+      </fieldset>
+      <div id="fields"></div>
+      <p class="alert" id="form-error" role="alert" hidden></p>
+      <button class="button" type="submit" id="submit-button">Отправить заявку</button>
+    </form>
+  </main>
+
+  <footer class="app-footer">Все данные вымышлены</footer>
+  <script src="/js/common.js"></script>
+  <script src="/js/request-new.js"></script>
+</body>
+</html>
