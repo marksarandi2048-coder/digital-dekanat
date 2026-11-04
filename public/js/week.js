@@ -38,6 +38,9 @@
     }
 
     D.setupGroup(data);
+    if (data.groups && data.group) {
+      document.getElementById('ics-link').href = `/api/schedule/calendar.ics?group=${encodeURIComponent(data.group)}`;
+    }
 
     // Переключатель недель.
     const weekEndShown = addDays(data.weekStart, 5); // подпись: пн – сб

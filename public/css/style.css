@@ -2228,3 +2228,22 @@ a.req-card__title {
     -webkit-print-color-adjust: exact;
   }
 }
+
+/* «Добавить в календарь телефона» */
+.calendar-export {
+  margin-bottom: var(--space-4);
+}
+
+.calendar-export .button {
+  gap: var(--space-2);
+}
+
+.calendar-export .button svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.calendar-export .muted {
+  margin: var(--space-2) 0 0;
+}

@@ -61,6 +61,13 @@
       <a class="week-nav__arrow" id="week-next" href="#" aria-label="Следующая неделя">›</a>
     </nav>
     <p class="notice" id="changes-banner" role="status" hidden></p>
+    <div class="calendar-export">
+      <a class="button button--secondary" id="ics-link" href="/api/schedule/calendar.ics" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>
+        Добавить в календарь телефона
+      </a>
+      <p class="muted">Файл с вашими парами на семестр. Откройте его на телефоне — календарь предложит добавить занятия. Если расписание изменится, скачайте файл заново.</p>
+    </div>
     <p class="state" id="state-loading">Загружаем расписание…</p>
     <p class="state state--error" id="state-error" role="alert" hidden></p>
     <div id="content" hidden></div>

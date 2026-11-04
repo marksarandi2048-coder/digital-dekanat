@@ -4,6 +4,8 @@ const express = require('express');
 const { requireAuth } = require('../access');
 const { getSchedule, listGroups } = require('../schedule');
 const { nowInMoscow, isValidDate, addDays, mondayOf } = require('../dates');
+const { listSemesters } = require('../grades');
+const { buildCalendar } = require('../ics');
 
 const router = express.Router();
 router.use('/schedule', requireAuth);
@@ -43,6 +45,30 @@ router.get('/schedule/week', (req, res) => {
     isCurrentWeek: weekStart === mondayOf(now.date),
     ...data,
   });
+});
+
+// Файл .ics с занятиями на текущий семестр — «Добавить в календарь телефона».
+// Группа — как везде: студенту только своя (из сессии), сотруднику — выбранная.
+router.get('/schedule/calendar.ics', (req, res) => {
+  const { group } = resolveGroup(req);
+  if (!group) return res.status(404).json({ error: 'Расписание не найдено' });
+  const today = nowInMoscow().date;
+  const semester = listSemesters(today).find((s) => s.isCurrent);
+  const from = semester ? semester.startsOn : today;
+  const to = semester ? semester.endsOn : addDays(today, 120);
+  const { lessons, pairs } = getSchedule(group, from, to);
+  const fmt = (d) => new Intl.DateTimeFormat('ru-RU', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'long' }).format(new Date(`${d}T00:00:00Z`));
+  const body = buildCalendar({ group, lessons, fmtSlot: (date, pair) => `${fmt(date)}, ${pair} пара (${pairs[pair].start})` });
+
+  // Запасное имя файла латиницей (для старых браузеров): МЭО-3-07 → MEO-3-07.
+  const LAT = { А: 'A', Б: 'B', В: 'V', Г: 'G', Д: 'D', Е: 'E', Ё: 'E', Ж: 'Zh', З: 'Z', И: 'I', Й: 'Y', К: 'K', Л: 'L', М: 'M', Н: 'N', О: 'O', П: 'P', Р: 'R', С: 'S', Т: 'T', У: 'U', Ф: 'F', Х: 'Kh', Ц: 'Ts', Ч: 'Ch', Ш: 'Sh', Щ: 'Sch', Ы: 'Y', Э: 'E', Ю: 'Yu', Я: 'Ya' };
+  const latin = [...group.toUpperCase()].map((c) => LAT[c] ?? c).join('').replace(/[^A-Za-z0-9-]/g, '');
+  const ascii = `raspisanie-${latin || 'gruppa'}.ics`;
+  res.set({
+    'Content-Type': 'text/calendar; charset=utf-8',
+    'Content-Disposition': `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(`Расписание ${group}.ics`)}`,
+  });
+  res.send(body);
 });
 
 module.exports = router;
