@@ -70,50 +70,48 @@
     return out;
   }
 
-  // Полоска одной части рейтинга.
-  // Пока семестр идёт: тёмная часть — набрано, светлая — сколько можно было набрать
-  // по уже выставленному, вся полоса — максимум за семестр.
+  // Полоска одной части рейтинга. Подпись и полоска всегда про одно и то же:
+  //  - семестр идёт: «набрано из возможного на сегодня» (как крупное число вверху),
+  //    а максимум за семестр — мелкой припиской под полоской;
+  //  - семестр закрыт: «набрано из максимума за семестр».
   // note — подпись, если в этой части ещё ничего не выставлено.
   function meter(block, note, inProgress) {
     const wrap = el('div', 'meter');
     const head = el('div', 'meter__head');
-    const showPossible = inProgress && block.possible !== undefined;
+    const byPossible = inProgress && block.possible !== undefined;
+    const scale = byPossible ? block.possible : block.max; // от чего считается полоска
+    const empty = byPossible && block.possible === 0;
+
     let value;
     if (block.key === 'bonus') value = `+${num(block.points)} из ${block.max}`;
-    else if (showPossible) value = block.possible > 0 ? `${num(block.points)} из ${num(block.possible)}` : note || 'ещё не выставлено';
+    else if (empty) value = note || 'ещё не выставлено';
+    else if (byPossible) value = `${num(block.points)} из ${num(block.possible)}`;
     else value = note || `${num(block.points)} из ${block.max}`;
-    const pendingText = showPossible ? block.possible === 0 : Boolean(note);
-    head.append(el('span', 'meter__label', block.label), el('span', pendingText ? 'meter__value meter__value--pending' : 'meter__value', value));
+    head.append(
+      el('span', 'meter__label', block.label),
+      el('span', empty || (!byPossible && note) ? 'meter__value meter__value--pending' : 'meter__value', value),
+    );
 
+    const share = scale > 0 ? Math.min(1, block.points / scale) : 0;
     const track = el('div', 'meter__track');
     track.setAttribute('role', 'img');
     track.setAttribute(
       'aria-label',
-      showPossible
-        ? `${block.label}: набрано ${num(block.points)} из ${num(block.possible)} возможных на сегодня, максимум за семестр ${block.max}`
-        : `${block.label}: ${num(block.points)} из ${block.max}`,
+      empty
+        ? `${block.label}: ещё не выставлено`
+        : byPossible
+          ? `${block.label}: ${num(block.points)} из ${num(block.possible)} возможных на сегодня, ${Math.round(share * 100)} %`
+          : `${block.label}: ${num(block.points)} из ${block.max}`,
     );
-    if (showPossible) {
-      const possible = el('div', 'meter__possible');
-      possible.style.width = `${Math.min(100, (block.possible / block.max) * 100)}%`;
-      track.append(possible);
-    }
     const fill = el('div', 'meter__fill');
-    fill.style.width = `${Math.min(100, (block.points / block.max) * 100)}%`;
+    fill.style.width = `${share * 100}%`;
     track.append(fill);
     wrap.append(head, track);
-    return wrap;
-  }
 
-  function meterLegend() {
-    const legend = el('div', 'meter-legend');
-    const item = (cls, text) => {
-      const i = el('span', 'meter-legend__item');
-      i.append(el('span', `meter-legend__swatch ${cls}`), document.createTextNode(text));
-      return i;
-    };
-    legend.append(item('meter-legend__swatch--fill', 'набрано'), item('meter-legend__swatch--possible', 'можно было набрать на сегодня'), item('meter-legend__swatch--track', 'максимум за семестр'));
-    return legend;
+    if (byPossible && block.key !== 'bonus') {
+      wrap.append(el('p', 'meter__note', empty ? `максимум за семестр — ${block.max}` : `${Math.round(share * 100)} % · максимум за семестр — ${block.max}`));
+    }
+    return wrap;
   }
 
   // Крупный блок с рейтингом.
@@ -174,7 +172,6 @@
       }
       meters.append(meter(b, note, !s.isFinal));
     }
-    if (!s.isFinal) meters.append(meterLegend());
     card.append(meters);
 
     // Короткие цифры.
