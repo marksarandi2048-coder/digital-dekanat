@@ -38,6 +38,18 @@ window.Dekanat = (function () {
   const weekdayLong = (d) => formatDate(d, { weekday: 'long' });
   const weekdayShort = (d) => formatDate(d, { weekday: 'short' });
   const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  // «ЧЧ:ММ» → минуты между двумя моментами одного дня.
+  const toMinutes = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+  const minutesBetween = (from, to) => toMinutes(to) - toMinutes(from);
+  // 25 → «25 мин», 80 → «1 ч 20 мин», 120 → «2 ч»
+  function duration(min) {
+    if (min < 1) return 'меньше минуты';
+    if (min < 60) return `${min} мин`;
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return m ? `${h} ч ${m} мин` : `${h} ч`;
+  }
   const fullDate = (d) => formatDate(d, { day: 'numeric', month: 'long', year: 'numeric' });
   // «ГГГГ-ММ-ДД ЧЧ:ММ» → «3 ноября, 15:40»
   const dateTime = (stamp) => (stamp ? `${dayMonth(stamp.slice(0, 10))}, ${stamp.slice(11, 16)}` : '');
@@ -104,8 +116,12 @@ window.Dekanat = (function () {
 
     const tags = el('div', 'lesson__tags');
     if (lesson.status !== 'normal') tags.append(el('span', 'badge badge--' + lesson.status, BADGE[lesson.status]));
-    if (mark === 'now') tags.append(el('span', 'tag tag--now', 'Идёт сейчас'));
-    if (mark === 'next') tags.append(el('span', 'tag', 'Следующая'));
+    // mark — { type: 'now', left } для текущей пары или { type: 'next', in } для следующей.
+    if (mark && mark.type === 'now') {
+      card.classList.add('lesson--current');
+      tags.append(el('span', 'tag tag--now', `Сейчас идёт · ещё ${duration(mark.left)}`));
+    }
+    if (mark && mark.type === 'next') tags.append(el('span', 'tag tag--next', `Следующая через ${duration(mark.in)}`));
     if (tags.childElementCount) body.append(tags);
 
     body.append(el('h3', 'lesson__title', lesson.discipline));
@@ -159,23 +175,26 @@ window.Dekanat = (function () {
         .map((l) => ({ pair: l.change.oldPair, ghost: l })),
     ].sort((a, b) => a.pair - b.pair || (a.ghost ? 1 : -1));
 
-    // Отметки «идёт сейчас» / «следующая» — только для сегодняшнего дня.
-    let nowId = null;
-    let nextId = null;
+    // Отметки «сейчас идёт» / «следующая через N минут» — только для сегодняшнего дня.
+    // Время берётся московское, с сервера (data.now.time).
+    const marks = {};
+    let finished = false;
     if (date === data.now.date) {
-      for (const { lesson } of items) {
-        if (!lesson || lesson.status === 'cancelled') continue;
-        if (lesson.time.start <= data.now.time && data.now.time < lesson.time.end) nowId = lesson.id;
-        else if (!nextId && lesson.time.start > data.now.time) nextId = lesson.id;
-      }
+      const now = data.now.time;
+      const real = items.filter((i) => i.lesson && i.lesson.status !== 'cancelled').map((i) => i.lesson);
+      const current = real.find((l) => l.time.start <= now && now < l.time.end);
+      const next = real.find((l) => l.time.start > now);
+      if (current) marks[current.id] = { type: 'now', left: minutesBetween(now, current.time.end) };
+      if (next) marks[next.id] = { type: 'next', in: minutesBetween(now, next.time.start) };
+      finished = real.length > 0 && !current && !next;
     }
 
     const list = el('div', 'lesson-list');
     for (const item of items) {
       if (item.ghost) list.append(renderMovedAway(item.ghost));
-      else list.append(renderLesson(item.lesson, item.lesson.id === nowId ? 'now' : item.lesson.id === nextId ? 'next' : undefined));
+      else list.append(renderLesson(item.lesson, marks[item.lesson.id]));
     }
-    return { list, count: items.length };
+    return { list, count: items.length, finished };
   }
 
   // ---------- Выбор группы (только для сотрудника) и подпись группы ----------

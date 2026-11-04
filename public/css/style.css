@@ -2167,3 +2167,20 @@ a.req-card__title {
   color: var(--color-muted);
   font-size: 12px;
 }
+
+/* «Сейчас идёт» / «Следующая через N минут» */
+.lesson--current {
+  border-color: var(--color-now);
+  box-shadow: 0 0 0 2px var(--color-now-bg);
+}
+
+.tag--next {
+  background: var(--color-pending-bg);
+  color: var(--color-pending);
+}
+
+.notice--calm {
+  background: var(--color-bg);
+  color: var(--color-muted);
+  border: 1px dashed var(--color-border);
+}

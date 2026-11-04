@@ -30,9 +30,12 @@
       banner.hidden = false;
     }
 
-    const { list, count } = D.renderDay(data.date, data);
+    const { list, count, finished } = D.renderDay(data.date, data);
     if (count) {
-      content.replaceChildren(list);
+      const parts = [];
+      if (finished) parts.push(D.el('p', 'notice notice--calm', 'Пары на сегодня закончились.'));
+      parts.push(list);
+      content.replaceChildren(...parts);
     } else {
       const empty = D.el('div', 'empty');
       empty.append(D.el('p', 'empty__title', 'Сегодня занятий нет'));
@@ -46,4 +49,9 @@
   }
 
   load();
+
+  // Раз в минуту обновляем «сейчас идёт / следующая через N минут» без перезагрузки страницы.
+  setInterval(() => {
+    if (document.visibilityState === 'visible') load();
+  }, 60 * 1000);
 })();
