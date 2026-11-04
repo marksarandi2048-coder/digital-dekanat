@@ -1,10 +1,13 @@
 'use strict';
 // Заполнение базы вымышленными данными: npm run seed
-// Все люди, группы и логины выдуманы. Скрипт можно запускать повторно —
-// тестовые пользователи создаются заново.
+// Все люди, группы, логины и преподаватели выдуманы. Скрипт можно запускать
+// повторно — данные создаются заново. Расписание строится от текущей недели,
+// поэтому изменения всегда видны «на этой неделе».
 const bcrypt = require('bcrypt');
 const { db, DB_PATH } = require('../src/db');
+const { nowInMoscow, addDays, mondayOf } = require('../src/dates');
 
+// ---------- Пользователи ----------
 const users = [
   {
     login: 'v.aksenova',
@@ -36,12 +39,97 @@ const users = [
   },
 ];
 
-const insert = db.prepare(`
+// ---------- Преподаватели (вымышленные) ----------
+const teachers = {
+  belyaev: ['Беляев Игорь Сергеевич', 'доцент'],
+  koroleva: ['Королёва Анна Викторовна', 'профессор'],
+  dubrovin: ['Дубровин Павел Олегович', 'старший преподаватель'],
+  shestakova: ['Шестакова Мария Юрьевна', 'старший преподаватель'],
+  rudnev: ['Руднев Константин Ильич', 'доцент'],
+  zimina: ['Зимина Елена Аркадьевна', 'доцент'],
+  orlov: ['Орлов Денис Валерьевич', 'преподаватель'],
+  gromova: ['Громова Ирина Львовна', 'профессор'],
+  savchenko: ['Савченко Артём Николаевич', 'доцент'],
+  lebedeva: ['Лебедева Ксения Романовна', 'старший преподаватель'],
+  fomin: ['Фомин Сергей Дмитриевич', 'доцент'],
+  egorova: ['Егорова Татьяна Борисовна', 'доцент'],
+};
+
+// ---------- Недельная сетка по группам ----------
+// day: 0 — понедельник … 5 — суббота; pair — номер пары.
+const L = (day, pair, discipline, kind, teacher, building, room) => ({ day, pair, discipline, kind, teacher, building, room });
+
+const templates = {
+  'МО-2-03': [
+    L(0, 1, 'Теория международных отношений', 'lecture', 'koroleva', 'Корпус 1', '201'),
+    L(0, 2, 'Теория международных отношений', 'seminar', 'belyaev', 'Корпус 1', '312'),
+    L(0, 3, 'Английский язык', 'practice', 'shestakova', 'Корпус 2', '418'),
+    L(1, 1, 'История международных отношений', 'lecture', 'rudnev', 'Корпус 1', '201'),
+    L(1, 2, 'Французский язык', 'practice', 'zimina', 'Корпус 2', '407'),
+    L(1, 3, 'Экономическая теория', 'seminar', 'savchenko', 'Корпус 1', '305'),
+    L(2, 1, 'Международное право', 'lecture', 'gromova', 'Корпус 1', '101'),
+    L(2, 2, 'Английский язык', 'practice', 'shestakova', 'Корпус 2', '418'),
+    L(2, 3, 'История международных отношений', 'seminar', 'rudnev', 'Корпус 1', '310'),
+    L(3, 2, 'Экономическая теория', 'lecture', 'savchenko', 'Корпус 1', '101'),
+    L(3, 3, 'Международное право', 'seminar', 'dubrovin', 'Корпус 1', '214'),
+    L(3, 4, 'Физическая культура', 'practice', 'orlov', 'Спорткомплекс', 'Зал 2'),
+    L(4, 1, 'Французский язык', 'practice', 'zimina', 'Корпус 2', '407'),
+    L(4, 2, 'Английский язык', 'practice', 'shestakova', 'Корпус 2', '418'),
+    L(5, 2, 'Введение в дипломатическую практику', 'seminar', 'dubrovin', 'Корпус 1', '214'),
+  ],
+  'МЭО-3-07': [
+    L(0, 2, 'Макроэкономика', 'lecture', 'fomin', 'Корпус 1', '102'),
+    L(0, 3, 'Макроэкономика', 'seminar', 'lebedeva', 'Корпус 3', '509'),
+    L(0, 4, 'Английский язык', 'practice', 'egorova', 'Корпус 2', '421'),
+    L(1, 1, 'Эконометрика', 'lecture', 'savchenko', 'Корпус 1', '102'),
+    L(1, 2, 'Эконометрика', 'practice', 'lebedeva', 'Корпус 3', 'Компьютерный класс 3'),
+    L(1, 3, 'Мировая экономика', 'seminar', 'koroleva', 'Корпус 3', '512'),
+    L(2, 2, 'Финансовые рынки', 'lecture', 'fomin', 'Корпус 1', '102'),
+    L(2, 3, 'Английский язык', 'practice', 'egorova', 'Корпус 2', '421'),
+    L(2, 4, 'Мировая экономика', 'lecture', 'koroleva', 'Корпус 1', '101'),
+    L(3, 1, 'Международные валютно-кредитные отношения', 'lecture', 'gromova', 'Корпус 1', '102'),
+    L(3, 2, 'Финансовые рынки', 'seminar', 'fomin', 'Корпус 3', '506'),
+    L(3, 3, 'Физическая культура', 'practice', 'orlov', 'Спорткомплекс', 'Зал 1'),
+    L(4, 2, 'Международные валютно-кредитные отношения', 'seminar', 'savchenko', 'Корпус 3', '509'),
+    L(4, 3, 'Английский язык', 'practice', 'egorova', 'Корпус 2', '421'),
+  ],
+};
+
+// ---------- Изменения на текущей неделе ----------
+// Для каждой группы — по одному примеру каждого вида изменения.
+const changes = {
+  'МО-2-03': [
+    { day: 0, pair: 2, type: 'room_changed', building: 'Корпус 1', room: '408', note: 'В аудитории 312 ремонт проектора' },
+    { day: 1, pair: 2, type: 'teacher_changed', teacher: 'lebedeva', note: 'Преподаватель на конференции' },
+    { day: 2, pair: 3, type: 'cancelled', note: 'Преподаватель заболел. Задание — в электронном курсе' },
+    { day: 3, pair: 3, type: 'moved', toDay: 4, toPair: 3, note: 'Перенос по просьбе преподавателя' },
+  ],
+  'МЭО-3-07': [
+    { day: 0, pair: 4, type: 'room_changed', building: 'Корпус 2', room: '415', note: 'Аудитория занята на конференции' },
+    { day: 1, pair: 3, type: 'teacher_changed', teacher: 'egorova', note: 'Замена на время командировки' },
+    { day: 2, pair: 4, type: 'cancelled', note: 'Лекция будет восполнена позже' },
+    { day: 3, pair: 2, type: 'moved', toDay: 4, toPair: 4, note: 'Совпадение с мероприятием факультета' },
+  ],
+};
+
+const WEEKS_BEFORE = 2; // сколько прошлых недель заполнить
+const WEEKS_AFTER = 4; // сколько будущих недель заполнить
+
+// ---------- Запись в базу ----------
+const insertUser = db.prepare(`
   INSERT INTO users (login, password_hash, role, full_name, faculty, program, course, group_name, position)
   VALUES (@login, @password_hash, @role, @full_name, @faculty, @program, @course, @group_name, @position)
 `);
+const insertTeacher = db.prepare('INSERT INTO teachers (full_name, title) VALUES (?, ?)');
+const insertDiscipline = db.prepare('INSERT INTO disciplines (name) VALUES (?)');
+const insertLesson = db.prepare(`
+  INSERT INTO lessons (group_name, discipline_id, teacher_id, kind, date, pair, building, room,
+                       status, old_date, old_pair, old_building, old_room, old_teacher_id, change_note, changed_at)
+  VALUES (@group_name, @discipline_id, @teacher_id, @kind, @date, @pair, @building, @room,
+          @status, @old_date, @old_pair, @old_building, @old_room, @old_teacher_id, @change_note, @changed_at)
+`);
 
-const rows = users.map((u) => ({
+const userRows = users.map((u) => ({
   program: null,
   course: null,
   group_name: null,
@@ -50,13 +138,95 @@ const rows = users.map((u) => ({
   password_hash: bcrypt.hashSync(u.password, 12),
 }));
 
+const currentMonday = mondayOf(nowInMoscow().date);
+// Изменения «объявлены» в субботу перед текущей неделей.
+const changedAt = `${addDays(currentMonday, -2)} 15:30`;
+
+let lessonCount = 0;
+
 db.transaction(() => {
-  db.prepare('DELETE FROM users').run();
-  db.prepare("DELETE FROM sqlite_sequence WHERE name = 'users'").run();
-  for (const { password, ...row } of rows) insert.run(row);
+  for (const table of ['lessons', 'teachers', 'disciplines', 'users']) {
+    db.prepare(`DELETE FROM ${table}`).run();
+    db.prepare('DELETE FROM sqlite_sequence WHERE name = ?').run(table);
+  }
+
+  for (const { password, ...row } of userRows) insertUser.run(row);
+
+  const teacherId = {};
+  for (const [key, [name, title]] of Object.entries(teachers)) {
+    teacherId[key] = insertTeacher.run(name, title).lastInsertRowid;
+  }
+
+  const disciplineId = {};
+  for (const items of Object.values(templates)) {
+    for (const { discipline } of items) {
+      if (!disciplineId[discipline]) disciplineId[discipline] = insertDiscipline.run(discipline).lastInsertRowid;
+    }
+  }
+
+  for (const [group, items] of Object.entries(templates)) {
+    for (let w = -WEEKS_BEFORE; w <= WEEKS_AFTER; w += 1) {
+      const monday = addDays(currentMonday, w * 7);
+      for (const t of items) {
+        const lesson = {
+          group_name: group,
+          discipline_id: disciplineId[t.discipline],
+          teacher_id: teacherId[t.teacher],
+          kind: t.kind,
+          date: addDays(monday, t.day),
+          pair: t.pair,
+          building: t.building,
+          room: t.room,
+          status: 'normal',
+          old_date: null,
+          old_pair: null,
+          old_building: null,
+          old_room: null,
+          old_teacher_id: null,
+          change_note: null,
+          changed_at: null,
+        };
+
+        const change = w === 0 && changes[group].find((c) => c.day === t.day && c.pair === t.pair);
+        if (change) {
+          lesson.status = change.type;
+          lesson.change_note = change.note;
+          lesson.changed_at = changedAt;
+          if (change.type === 'room_changed') {
+            lesson.old_building = t.building;
+            lesson.old_room = t.room;
+            lesson.building = change.building;
+            lesson.room = change.room;
+          } else if (change.type === 'teacher_changed') {
+            lesson.old_teacher_id = lesson.teacher_id;
+            lesson.teacher_id = teacherId[change.teacher];
+          } else if (change.type === 'moved') {
+            lesson.old_date = lesson.date;
+            lesson.old_pair = lesson.pair;
+            lesson.date = addDays(monday, change.toDay);
+            lesson.pair = change.toPair;
+          }
+        }
+
+        insertLesson.run(lesson);
+        lessonCount += 1;
+      }
+    }
+  }
 })();
 
+// Проверка: в одной группе не должно быть двух занятий в одну пару.
+const clash = db
+  .prepare(`SELECT group_name, date, pair FROM lessons WHERE status != 'cancelled'
+            GROUP BY group_name, date, pair HAVING COUNT(*) > 1`)
+  .all();
+if (clash.length) {
+  console.error('Ошибка в данных: накладки в расписании', clash);
+  process.exit(1);
+}
+
 console.log(`База заполнена: ${DB_PATH}`);
+console.log(`Занятий: ${lessonCount} (недели с ${addDays(currentMonday, -WEEKS_BEFORE * 7)} по ${addDays(currentMonday, WEEKS_AFTER * 7 + 6)})`);
 for (const u of users) {
   console.log(`  ${u.role === 'staff' ? 'сотрудник' : 'студент  '}  ${u.login} / ${u.password}  — ${u.full_name}`);
 }

@@ -12,11 +12,19 @@
 
   <header class="app-header">
     <div class="app-header__inner">
-      <a class="logo" href="/profile">
+      <a class="logo" href="/today">
         <img src="/img/logo.svg" alt="" width="32" height="32">
         Цифровой деканат
       </a>
       <nav class="nav" aria-label="Разделы">
+        <a class="nav__item" href="/today">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.5" fill="currentColor"/></svg>
+          Сегодня
+        </a>
+        <a class="nav__item" href="/week">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h2M11 14h2M15 14h2M7 17h2M11 17h2"/></svg>
+          Неделя
+        </a>
         <a class="nav__item" href="/profile" aria-current="page">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
           Профиль
@@ -50,6 +58,7 @@
   </main>
 
   <footer class="app-footer">Все данные вымышлены</footer>
+  <script src="/js/common.js"></script>
   <script src="/js/profile.js"></script>
 </body>
 </html>

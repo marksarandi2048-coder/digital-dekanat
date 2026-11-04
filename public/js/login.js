@@ -30,7 +30,7 @@
         body: JSON.stringify({ login, password }),
       });
       if (res.ok) {
-        window.location.href = '/profile';
+        window.location.href = '/today';
         return;
       }
       const data = await res.json().catch(() => ({}));

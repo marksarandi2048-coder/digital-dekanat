@@ -5,15 +5,14 @@ const { requireAuth, canViewProfile } = require('../access');
 const { findById, toProfile } = require('../users');
 
 const router = express.Router();
-router.use(requireAuth);
 
 // Мой профиль.
-router.get('/me', (req, res) => {
+router.get('/me', requireAuth, (req, res) => {
   res.json({ user: toProfile(req.user) });
 });
 
 // Профиль по id — с проверкой прав.
-router.get('/users/:id/profile', (req, res) => {
+router.get('/users/:id/profile', requireAuth, (req, res) => {
   const id = Number(req.params.id);
   const target = Number.isSafeInteger(id) && id > 0 ? findById(id) : undefined;
 

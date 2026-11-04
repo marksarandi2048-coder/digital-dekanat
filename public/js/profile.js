@@ -10,7 +10,6 @@
     fullName: document.getElementById('full-name'),
     role: document.getElementById('role'),
     fields: document.getElementById('fields'),
-    logout: document.getElementById('logout-button'),
   };
 
   function showError(text) {
@@ -80,15 +79,6 @@
     }
     render(data.user, !id);
   }
-
-  els.logout.addEventListener('click', async () => {
-    els.logout.disabled = true;
-    try {
-      await fetch('/api/logout', { method: 'POST' });
-    } finally {
-      window.location.href = '/';
-    }
-  });
 
   load();
 })();

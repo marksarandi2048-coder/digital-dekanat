@@ -7,6 +7,7 @@ const session = require('express-session');
 require('./src/db'); // создаёт файл базы и таблицы, если их ещё нет
 const authRoutes = require('./src/routes/auth');
 const profileRoutes = require('./src/routes/profile');
+const scheduleRoutes = require('./src/routes/schedule');
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 if (!SESSION_SECRET) {
@@ -64,17 +65,21 @@ app.use('/api', (req, res, next) => {
 });
 app.use('/api', authRoutes);
 app.use('/api', profileRoutes);
+app.use('/api', scheduleRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Не найдено' }));
 
 // Страницы.
 app.get('/', (req, res) => {
-  if (req.session.userId) return res.redirect('/profile');
+  if (req.session.userId) return res.redirect('/today');
   res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
-app.get('/profile', (req, res) => {
-  if (!req.session.userId) return res.redirect('/');
-  res.sendFile(path.join(PUBLIC_DIR, 'profile.html'));
-});
+// Страницы только для вошедших. Сами данные всё равно защищены на уровне API.
+for (const page of ['today', 'week', 'profile']) {
+  app.get(`/${page}`, (req, res) => {
+    if (!req.session.userId) return res.redirect('/');
+    res.sendFile(path.join(PUBLIC_DIR, `${page}.html`));
+  });
+}
 app.use(express.static(PUBLIC_DIR, { index: false }));
 
 // Общий обработчик ошибок: подробности — в консоль, пользователю — коротко.

@@ -27,6 +27,43 @@ db.exec(`
     position      TEXT,
     created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS disciplines (
+    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
+  );
+
+  CREATE TABLE IF NOT EXISTS teachers (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    full_name TEXT NOT NULL,
+    title     TEXT
+  );
+
+  -- Каждое занятие — отдельная строка с конкретной датой и номером пары.
+  -- Если занятие изменили, в полях old_* лежит то, как было раньше.
+  CREATE TABLE IF NOT EXISTS lessons (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_name     TEXT    NOT NULL,
+    discipline_id  INTEGER NOT NULL REFERENCES disciplines(id),
+    teacher_id     INTEGER NOT NULL REFERENCES teachers(id),
+    kind           TEXT    NOT NULL CHECK (kind IN ('lecture', 'seminar', 'practice')),
+    date           TEXT    NOT NULL,              -- ГГГГ-ММ-ДД
+    pair           INTEGER NOT NULL CHECK (pair BETWEEN 1 AND 7),
+    building       TEXT    NOT NULL,
+    room           TEXT    NOT NULL,
+    status         TEXT    NOT NULL DEFAULT 'normal'
+                   CHECK (status IN ('normal', 'moved', 'teacher_changed', 'room_changed', 'cancelled')),
+    old_date       TEXT,
+    old_pair       INTEGER,
+    old_building   TEXT,
+    old_room       TEXT,
+    old_teacher_id INTEGER REFERENCES teachers(id),
+    change_note    TEXT,
+    changed_at     TEXT
+  );
+
+  CREATE INDEX IF NOT EXISTS lessons_group_date ON lessons (group_name, date);
+  CREATE INDEX IF NOT EXISTS lessons_group_old_date ON lessons (group_name, old_date);
 `);
 
 module.exports = { db, DB_PATH };
