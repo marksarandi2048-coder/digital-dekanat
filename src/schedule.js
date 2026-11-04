@@ -1,7 +1,7 @@
 'use strict';
 // Чтение расписания из базы.
 const { db } = require('./db');
-const { PAIRS } = require('./pairs');
+const { pairsFor } = require('./pairs');
 
 // Занятия группы за период, а также занятия, которые были в этом периоде,
 // но их перенесли (чтобы на старом месте показать «перенесено на …»).
@@ -19,14 +19,15 @@ const rangeQuery = db.prepare(`
   ORDER BY l.date, l.pair
 `);
 
-const groupsQuery = db.prepare('SELECT DISTINCT group_name FROM lessons ORDER BY group_name');
+const groupsQuery = db.prepare('SELECT name FROM groups ORDER BY name');
+const facultyQuery = db.prepare('SELECT faculty FROM groups WHERE name = ?');
 
-function toLesson(row) {
+function toLesson(row, pairs) {
   const lesson = {
     id: row.id,
     date: row.date,
     pair: row.pair,
-    time: PAIRS[row.pair],
+    time: pairs[row.pair],
     discipline: row.discipline,
     kind: row.kind,
     teacher: row.teacher,
@@ -39,7 +40,7 @@ function toLesson(row) {
     lesson.change = {
       oldDate: row.old_date,
       oldPair: row.old_pair,
-      oldTime: row.old_pair ? PAIRS[row.old_pair] : null,
+      oldTime: row.old_pair ? pairs[row.old_pair] : null,
       oldBuilding: row.old_building,
       oldRoom: row.old_room,
       oldTeacher: row.old_teacher,
@@ -50,20 +51,27 @@ function toLesson(row) {
   return lesson;
 }
 
+// Расписание звонков зависит от факультета группы.
+function pairsForGroup(group) {
+  const row = facultyQuery.get(group);
+  return pairsFor(row ? row.faculty : null);
+}
+
 function getSchedule(group, from, to) {
+  const pairs = pairsForGroup(group);
   const rows = rangeQuery.all({ group, from, to });
   const lessons = [];
   const movedAway = [];
   for (const row of rows) {
-    const lesson = toLesson(row);
+    const lesson = toLesson(row, pairs);
     if (row.date >= from && row.date <= to) lessons.push(lesson);
     if (row.status === 'moved' && row.old_date >= from && row.old_date <= to) movedAway.push(lesson);
   }
-  return { lessons, movedAway };
+  return { pairs, lessons, movedAway };
 }
 
 function listGroups() {
-  return groupsQuery.all().map((r) => r.group_name);
+  return groupsQuery.all().map((r) => r.name);
 }
 
-module.exports = { getSchedule, listGroups, PAIRS };
+module.exports = { getSchedule, listGroups };

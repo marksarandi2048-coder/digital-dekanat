@@ -2,7 +2,7 @@
 // Расписание: сегодня и неделя.
 const express = require('express');
 const { requireAuth } = require('../access');
-const { getSchedule, listGroups, PAIRS } = require('../schedule');
+const { getSchedule, listGroups } = require('../schedule');
 const { nowInMoscow, isValidDate, addDays, mondayOf } = require('../dates');
 
 const router = express.Router();
@@ -21,8 +21,8 @@ function resolveGroup(req) {
 router.get('/schedule/today', (req, res) => {
   const { group, groups } = resolveGroup(req);
   const now = nowInMoscow();
-  const data = group ? getSchedule(group, now.date, now.date) : { lessons: [], movedAway: [] };
-  res.json({ group, groups, now, date: now.date, pairs: PAIRS, ...data });
+  const data = group ? getSchedule(group, now.date, now.date) : { pairs: null, lessons: [], movedAway: [] };
+  res.json({ group, groups, now, date: now.date, ...data });
 });
 
 router.get('/schedule/week', (req, res) => {
@@ -31,7 +31,7 @@ router.get('/schedule/week', (req, res) => {
   const base = isValidDate(req.query.start) ? req.query.start : now.date;
   const weekStart = mondayOf(base);
   const weekEnd = addDays(weekStart, 6);
-  const data = group ? getSchedule(group, weekStart, weekEnd) : { lessons: [], movedAway: [] };
+  const data = group ? getSchedule(group, weekStart, weekEnd) : { pairs: null, lessons: [], movedAway: [] };
   res.json({
     group,
     groups,
@@ -41,7 +41,6 @@ router.get('/schedule/week', (req, res) => {
     prevWeek: addDays(weekStart, -7),
     nextWeek: addDays(weekStart, 7),
     isCurrentWeek: weekStart === mondayOf(now.date),
-    pairs: PAIRS,
     ...data,
   });
 });

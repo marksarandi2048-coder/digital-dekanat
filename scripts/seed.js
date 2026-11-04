@@ -4,7 +4,7 @@
 // повторно — данные создаются заново. Расписание строится от текущей недели,
 // поэтому изменения всегда видны «на этой неделе».
 const bcrypt = require('bcrypt');
-const { db, DB_PATH } = require('../src/db');
+const { db, DB_PATH, createSchema } = require('../src/db');
 const { nowInMoscow, addDays, mondayOf } = require('../src/dates');
 
 // ---------- Пользователи ----------
@@ -38,6 +38,12 @@ const users = [
     position: 'Специалист по учебно-методической работе',
   },
 ];
+
+// ---------- Группы ----------
+const groups = {
+  'МО-2-03': 'Факультет международных отношений',
+  'МЭО-3-07': 'Факультет международных экономических отношений',
+};
 
 // ---------- Преподаватели (вымышленные) ----------
 const teachers = {
@@ -120,6 +126,12 @@ const insertUser = db.prepare(`
   INSERT INTO users (login, password_hash, role, full_name, faculty, program, course, group_name, position)
   VALUES (@login, @password_hash, @role, @full_name, @faculty, @program, @course, @group_name, @position)
 `);
+// Таблица занятий пересоздаётся: так в уже существующей базе обновляются
+// ограничения (например, допустимые номера пар). Данные в ней — только тестовые.
+db.exec('DROP TABLE IF EXISTS lessons');
+createSchema();
+
+const insertGroup = db.prepare('INSERT INTO groups (name, faculty) VALUES (?, ?)');
 const insertTeacher = db.prepare('INSERT INTO teachers (full_name, title) VALUES (?, ?)');
 const insertDiscipline = db.prepare('INSERT INTO disciplines (name) VALUES (?)');
 const insertLesson = db.prepare(`
@@ -145,12 +157,13 @@ const changedAt = `${addDays(currentMonday, -2)} 15:30`;
 let lessonCount = 0;
 
 db.transaction(() => {
-  for (const table of ['lessons', 'teachers', 'disciplines', 'users']) {
+  for (const table of ['lessons', 'teachers', 'disciplines', 'groups', 'users']) {
     db.prepare(`DELETE FROM ${table}`).run();
     db.prepare('DELETE FROM sqlite_sequence WHERE name = ?').run(table);
   }
 
   for (const { password, ...row } of userRows) insertUser.run(row);
+  for (const [name, faculty] of Object.entries(groups)) insertGroup.run(name, faculty);
 
   const teacherId = {};
   for (const [key, [name, title]] of Object.entries(teachers)) {

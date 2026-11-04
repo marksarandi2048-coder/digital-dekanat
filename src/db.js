@@ -11,6 +11,9 @@ const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
+// Создание таблиц (если их ещё нет). Вызывается при запуске; seed может
+// пересоздать таблицы с тестовыми данными и вызвать её снова.
+function createSchema() {
 // Один пользователь — одна строка. Поля студента (направление, курс, группа)
 // у сотрудника пустые, а поле «должность» — наоборот.
 db.exec(`
@@ -26,6 +29,12 @@ db.exec(`
     group_name    TEXT,
     position      TEXT,
     created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Учебные группы. Факультет группы определяет расписание звонков.
+  CREATE TABLE IF NOT EXISTS groups (
+    name    TEXT PRIMARY KEY,
+    faculty TEXT NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS disciplines (
@@ -48,7 +57,7 @@ db.exec(`
     teacher_id     INTEGER NOT NULL REFERENCES teachers(id),
     kind           TEXT    NOT NULL CHECK (kind IN ('lecture', 'seminar', 'practice')),
     date           TEXT    NOT NULL,              -- ГГГГ-ММ-ДД
-    pair           INTEGER NOT NULL CHECK (pair BETWEEN 1 AND 7),
+    pair           INTEGER NOT NULL CHECK (pair BETWEEN 1 AND 8),
     building       TEXT    NOT NULL,
     room           TEXT    NOT NULL,
     status         TEXT    NOT NULL DEFAULT 'normal'
@@ -65,5 +74,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS lessons_group_date ON lessons (group_name, date);
   CREATE INDEX IF NOT EXISTS lessons_group_old_date ON lessons (group_name, old_date);
 `);
+}
 
-module.exports = { db, DB_PATH };
+createSchema();
+
+module.exports = { db, DB_PATH, createSchema };
