@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход — Цифровой деканат</title>
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="login-page">
+  <p class="concept-note">Концепт для конкурса MGIMO×AI Challenge, не официальный сервис МГИМО</p>
+
+  <main class="app-main">
+    <div class="login-brand">
+      <span class="logo">
+        <img src="/img/logo.svg" alt="" width="44" height="44">
+        Цифровой деканат
+      </span>
+    </div>
+
+    <form class="card" id="login-form" novalidate>
+      <h1 class="page-title">Вход</h1>
+      <p class="alert" id="login-error" role="alert" hidden></p>
+
+      <div class="field">
+        <label for="login">Логин</label>
+        <input id="login" name="login" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="password">Пароль</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="button" type="submit" id="login-button">Войти</button>
+    </form>
+  </main>
+
+  <footer class="app-footer">Все данные вымышлены</footer>
+  <script src="/js/login.js"></script>
+</body>
+</html>

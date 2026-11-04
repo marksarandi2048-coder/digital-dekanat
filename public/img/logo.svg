@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Оригинальный логотип проекта: щит с открытой книгой и звездой -->
+  <path d="M32 3 L57 12 V32 C57 47 46 57 32 61 C18 57 7 47 7 32 V12 Z" fill="#1f3a8a" stroke="#c8a24a" stroke-width="3"/>
+  <path d="M16 40 C22 37 27 37 32 40 C37 37 42 37 48 40 V25 C42 22 37 22 32 25 C27 22 22 22 16 25 Z" fill="#ffffff"/>
+  <path d="M32 25 V40" stroke="#1f3a8a" stroke-width="2"/>
+  <path d="M32 9 L34 14 L39 14 L35 17 L36.5 22 L32 19 L27.5 22 L29 17 L25 14 L30 14 Z" fill="#c8a24a"/>
+</svg>
