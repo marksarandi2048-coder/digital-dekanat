@@ -73,6 +73,65 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS lessons_group_date ON lessons (group_name, date);
   CREATE INDEX IF NOT EXISTS lessons_group_old_date ON lessons (group_name, old_date);
+
+  -- ---------- Успеваемость ----------
+  CREATE TABLE IF NOT EXISTS semesters (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    name      TEXT NOT NULL,
+    starts_on TEXT NOT NULL,
+    ends_on   TEXT NOT NULL
+  );
+
+  -- Что группа сдаёт в семестре: дисциплина, форма контроля и сроки.
+  CREATE TABLE IF NOT EXISTS assessments (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    semester_id   INTEGER NOT NULL REFERENCES semesters(id),
+    group_name    TEXT    NOT NULL,
+    discipline_id INTEGER NOT NULL REFERENCES disciplines(id),
+    teacher_id    INTEGER NOT NULL REFERENCES teachers(id),
+    control       TEXT    NOT NULL CHECK (control IN ('exam', 'credit')),
+    current_max   INTEGER NOT NULL CHECK (current_max > 0),
+    current_due   TEXT    NOT NULL,  -- до какого числа выставят баллы за работу в семестре
+    result_due    TEXT    NOT NULL,  -- до какого числа выставят оценку за экзамен / зачёт
+    exam_date     TEXT,
+    UNIQUE (semester_id, group_name, discipline_id)
+  );
+
+  -- Оценки студента: одна строка на студента и дисциплину. Пусто = ещё не выставлено.
+  CREATE TABLE IF NOT EXISTS results (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id     INTEGER NOT NULL REFERENCES users(id),
+    assessment_id  INTEGER NOT NULL REFERENCES assessments(id),
+    current_points REAL,
+    current_set_at TEXT,
+    grade          TEXT CHECK (grade IS NULL OR grade IN ('5', '4', '3', '2', 'passed', 'failed')),
+    grade_set_at   TEXT,
+    UNIQUE (student_id, assessment_id)
+  );
+
+  -- Общественная активность (в нынешнем ЛК — Б3).
+  CREATE TABLE IF NOT EXISTS social_scores (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id  INTEGER NOT NULL REFERENCES users(id),
+    semester_id INTEGER NOT NULL REFERENCES semesters(id),
+    points      REAL,
+    max_points  INTEGER NOT NULL,
+    note        TEXT,
+    set_at      TEXT,
+    due         TEXT    NOT NULL,
+    UNIQUE (student_id, semester_id)
+  );
+
+  -- Надбавка: каждое начисление отдельной строкой, с причиной.
+  CREATE TABLE IF NOT EXISTS bonuses (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id  INTEGER NOT NULL REFERENCES users(id),
+    semester_id INTEGER NOT NULL REFERENCES semesters(id),
+    category    TEXT    NOT NULL CHECK (category IN ('volunteering', 'sport', 'research')),
+    title       TEXT    NOT NULL,
+    points      REAL    NOT NULL CHECK (points > 0),
+    awarded_on  TEXT    NOT NULL
+  );
 `);
 }
 

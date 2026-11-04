@@ -8,6 +8,7 @@ require('./src/db'); // создаёт файл базы и таблицы, ес
 const authRoutes = require('./src/routes/auth');
 const profileRoutes = require('./src/routes/profile');
 const scheduleRoutes = require('./src/routes/schedule');
+const gradesRoutes = require('./src/routes/grades');
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 if (!SESSION_SECRET) {
@@ -66,6 +67,7 @@ app.use('/api', (req, res, next) => {
 app.use('/api', authRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', scheduleRoutes);
+app.use('/api', gradesRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Не найдено' }));
 
 // Страницы.
@@ -74,7 +76,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
 // Страницы только для вошедших. Сами данные всё равно защищены на уровне API.
-for (const page of ['today', 'week', 'profile']) {
+for (const page of ['today', 'week', 'grades', 'profile', 'contact']) {
   app.get(`/${page}`, (req, res) => {
     if (!req.session.userId) return res.redirect('/');
     res.sendFile(path.join(PUBLIC_DIR, `${page}.html`));

@@ -6,6 +6,7 @@
 const bcrypt = require('bcrypt');
 const { db, DB_PATH, createSchema } = require('../src/db');
 const { nowInMoscow, addDays, mondayOf } = require('../src/dates');
+const { seedGrades } = require('./seed-grades');
 
 // ---------- Пользователи ----------
 const users = [
@@ -159,14 +160,17 @@ const lastDate = `${today.slice(0, 4)}-12-31`;
 const changedAt = `${addDays(currentMonday, -2)} 15:30`;
 
 let lessonCount = 0;
+let resultCount = 0;
 
 db.transaction(() => {
-  for (const table of ['lessons', 'teachers', 'disciplines', 'groups', 'users']) {
+  const tables = ['bonuses', 'social_scores', 'results', 'assessments', 'semesters', 'lessons', 'teachers', 'disciplines', 'groups', 'users'];
+  for (const table of tables) {
     db.prepare(`DELETE FROM ${table}`).run();
     db.prepare('DELETE FROM sqlite_sequence WHERE name = ?').run(table);
   }
 
-  for (const { password, ...row } of userRows) insertUser.run(row);
+  const userIdByLogin = {};
+  for (const { password, ...row } of userRows) userIdByLogin[row.login] = insertUser.run(row).lastInsertRowid;
   for (const [name, faculty] of Object.entries(groups)) insertGroup.run(name, faculty);
 
   const teacherId = {};
@@ -175,10 +179,12 @@ db.transaction(() => {
   }
 
   const disciplineId = {};
+  const disciplineIdFor = (name) => {
+    if (!disciplineId[name]) disciplineId[name] = insertDiscipline.run(name).lastInsertRowid;
+    return disciplineId[name];
+  };
   for (const items of Object.values(templates)) {
-    for (const { discipline } of items) {
-      if (!disciplineId[discipline]) disciplineId[discipline] = insertDiscipline.run(discipline).lastInsertRowid;
-    }
+    for (const { discipline } of items) disciplineIdFor(discipline);
   }
 
   for (const [group, items] of Object.entries(templates)) {
@@ -231,6 +237,8 @@ db.transaction(() => {
       }
     }
   }
+
+  ({ resultCount } = seedGrades({ db, today, teacherId, disciplineIdFor, userIdByLogin }));
 })();
 
 // Проверка: в одной группе не должно быть двух занятий в одну пару.
@@ -244,6 +252,7 @@ if (clash.length) {
 }
 
 console.log(`База заполнена: ${DB_PATH}`);
+console.log(`Оценок по дисциплинам: ${resultCount} (2 семестра)`);
 console.log(`Занятий: ${lessonCount} (с ${firstMonday} по ${lastDate}, изменения на неделе с ${currentMonday})`);
 for (const u of users) {
   console.log(`  ${u.role === 'staff' ? 'сотрудник' : 'студент  '}  ${u.login} / ${u.password}  — ${u.full_name}`);
