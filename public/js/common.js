@@ -204,6 +204,38 @@ window.Dekanat = (function () {
     picker.hidden = false;
   }
 
+  // ---------- Обратный отсчёт: «сегодня», «завтра», «через 3 дня» ----------
+  function countdown(days) {
+    if (days <= 0) return 'сегодня';
+    if (days === 1) return 'завтра';
+    return `через ${days} ${plural(days, 'день', 'дня', 'дней')}`;
+  }
+
+  // ---------- Колокольчик со счётчиком непрочитанных ----------
+  async function updateBell() {
+    const bell = document.getElementById('bell');
+    if (!bell) return;
+    const badge = document.getElementById('bell-count');
+    let data;
+    try {
+      const res = await fetch('/api/notifications/count', { headers: { Accept: 'application/json' } });
+      if (!res.ok) return;
+      data = await res.json();
+    } catch {
+      return;
+    }
+    if (data.role === 'staff') {
+      bell.href = '/announcements';
+      bell.setAttribute('aria-label', 'Объявления');
+      return;
+    }
+    const n = data.count || 0;
+    badge.textContent = n > 99 ? '99+' : String(n);
+    badge.hidden = n === 0;
+    bell.setAttribute('aria-label', n ? `Уведомления: ${n} ${plural(n, 'непрочитанное', 'непрочитанных', 'непрочитанных')}` : 'Уведомления');
+  }
+  updateBell();
+
   // ---------- Выход ----------
   const logout = document.getElementById('logout-button');
   if (logout) {
@@ -217,5 +249,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, capitalize, plural, renderDay, setupGroup };
+  return { el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, capitalize, plural, countdown, updateBell, renderDay, setupGroup };
 })();

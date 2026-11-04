@@ -196,6 +196,32 @@ db.exec(`
     signed_by   TEXT    NOT NULL,
     revoked_at  TEXT
   );
+
+  -- ---------- Уведомления ----------
+  -- Объявления деканата. Кому: пустое поле = «любой». Студент видит объявление,
+  -- если подходит по ВСЕМ заполненным полям. removed_at — объявление снято.
+  CREATE TABLE IF NOT EXISTS announcements (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    author_id   INTEGER NOT NULL REFERENCES users(id),
+    title       TEXT    NOT NULL,
+    body        TEXT    NOT NULL,
+    important   INTEGER NOT NULL DEFAULT 0 CHECK (important IN (0, 1)),
+    faculty     TEXT,
+    course      INTEGER CHECK (course IS NULL OR course BETWEEN 1 AND 6),
+    group_name  TEXT,
+    deadline_on TEXT,
+    created_at  TEXT    NOT NULL,
+    removed_at  TEXT
+  );
+
+  -- Отметки «прочитано». Автоматические уведомления не хранятся — лента
+  -- собирается на лету из расписания, заявок и оценок; здесь только ключи прочитанного.
+  CREATE TABLE IF NOT EXISTS notification_reads (
+    user_id  INTEGER NOT NULL REFERENCES users(id),
+    item_key TEXT    NOT NULL,
+    read_at  TEXT    NOT NULL,
+    PRIMARY KEY (user_id, item_key)
+  );
 `);
 }
 

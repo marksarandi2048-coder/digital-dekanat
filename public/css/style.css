@@ -1842,3 +1842,352 @@ legend.form-block__title {
 legend.form-block__title + * {
   clear: both;
 }
+
+/* =================== Уведомления =================== */
+.bell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  margin-left: auto;
+  border-radius: 50%;
+  color: var(--color-primary-text);
+}
+
+.bell:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.bell svg {
+  width: 24px;
+  height: 24px;
+}
+
+.bell__count {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  border: 2px solid var(--color-primary);
+  background: var(--color-bad);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+.page-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.button-link--danger {
+  color: var(--color-bad);
+  padding-left: 0;
+  margin-top: var(--space-2);
+  min-height: 36px;
+}
+
+/* Дедлайны */
+.deadlines {
+  margin-bottom: var(--space-5);
+}
+
+.deadline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.deadline + .deadline {
+  border-top: 1px solid var(--color-border);
+}
+
+.deadline__link {
+  display: grid;
+  grid-template-columns: 116px 1fr;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.deadline__when {
+  display: grid;
+  align-content: start;
+}
+
+.deadline__count {
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--color-pending);
+}
+
+.deadline--soon .deadline__count {
+  color: var(--color-bad);
+}
+
+.deadline--waiting .deadline__count {
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.deadline__date,
+.deadline__note {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.deadline__what {
+  display: grid;
+  min-width: 0;
+}
+
+.deadline__title {
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+/* Лента */
+.notif-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.notif {
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.notif--unread {
+  background: var(--color-surface);
+  box-shadow: var(--shadow);
+}
+
+.notif--important.notif--unread {
+  border-left: 4px solid var(--color-bad);
+}
+
+.notif:hover {
+  border-color: var(--color-primary);
+}
+
+.notif__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.notif__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.notif__kind {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.notif--schedule .notif__kind { color: var(--color-moved); }
+.notif--request .notif__kind { color: var(--color-ok); }
+.notif--deadline .notif__kind { color: var(--color-bad); }
+.notif--announcement .notif__kind { color: var(--color-pending); }
+
+.notif__time {
+  margin-left: auto;
+}
+
+.notif__title {
+  margin: var(--space-1) 0 0;
+  font-weight: 400;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.notif--unread .notif__title {
+  font-weight: 700;
+}
+
+.notif__body {
+  margin: var(--space-1) 0 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+  overflow-wrap: anywhere;
+}
+
+/* Объявление */
+.announcement .page-title {
+  margin: var(--space-2) 0 var(--space-1);
+  overflow-wrap: anywhere;
+}
+
+.announcement--important {
+  border-left: 4px solid var(--color-bad);
+}
+
+.announcement .notice {
+  margin: var(--space-3) 0 0;
+}
+
+.announcement__body {
+  margin: var(--space-4) 0 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Форма сотрудника */
+.select {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+#audience-extra .field {
+  margin: var(--space-3) 0 0;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-primary);
+}
+
+.field--date {
+  margin: var(--space-2) 0 0;
+}
+
+.field--date input {
+  max-width: 220px;
+}
+
+#list-section {
+  margin-top: var(--space-5);
+}
+
+a.req-card__title {
+  color: var(--color-text);
+}
+
+/* «Сегодня»: важное и дедлайны */
+.today-important {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--color-bad);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.today-important .badge {
+  flex-shrink: 0;
+}
+
+.today-important__title {
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.today-deadlines {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.today-deadlines__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-1);
+}
+
+.today-deadlines__head a {
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
+}
+
+.today-deadlines__title {
+  margin: 0;
+  font-size: var(--font-size);
+}
+
+.today-deadline {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: var(--font-size-small);
+}
+
+.today-deadline + .today-deadline {
+  border-top: 1px solid var(--color-border);
+}
+
+.today-deadline__count {
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--color-pending);
+}
+
+.today-deadline--soon .today-deadline__count {
+  color: var(--color-bad);
+}
+
+.today-deadline__title {
+  overflow-wrap: anywhere;
+}
+
+/* День, на который ведёт уведомление */
+.day--focus .day__title {
+  color: var(--color-moved);
+}
+
+.day--focus .day__title::after {
+  content: "← из уведомления";
+  font-size: 12px;
+  font-weight: 400;
+}

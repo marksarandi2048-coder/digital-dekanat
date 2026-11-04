@@ -67,6 +67,7 @@
       if (i === 6 && !day.count) continue;
 
       const section = D.el('section', 'day' + (date === data.now.date ? ' day--today' : ''));
+      section.id = `day-${date}`;
       const head = D.el('h2', 'day__title');
       head.append(D.el('span', null, `${D.capitalize(D.weekdayLong(date))}, ${D.dayMonth(date)}`));
       if (date === data.now.date) head.append(D.el('span', 'tag tag--now', 'Сегодня'));
@@ -77,6 +78,13 @@
 
     loading.hidden = true;
     content.hidden = false;
+
+    // Пришли из уведомления (…#day-ГГГГ-ММ-ДД) — показываем нужный день.
+    const target = window.location.hash ? document.getElementById(window.location.hash.slice(1)) : null;
+    if (target) {
+      target.classList.add('day--focus');
+      target.scrollIntoView({ block: 'start' });
+    }
   }
 
   load();

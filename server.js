@@ -11,6 +11,7 @@ const scheduleRoutes = require('./src/routes/schedule');
 const gradesRoutes = require('./src/routes/grades');
 const requestsRoutes = require('./src/routes/requests');
 const verifyRoutes = require('./src/routes/verify');
+const notificationsRoutes = require('./src/routes/notifications');
 const { findById } = require('./src/users');
 const { PUBLIC_URL } = require('./src/config');
 
@@ -82,6 +83,7 @@ app.use('/api', scheduleRoutes);
 app.use('/api', gradesRoutes);
 app.use('/api', requestsRoutes);
 app.use('/api', verifyRoutes);
+app.use('/api', notificationsRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Не найдено' }));
 
 // Страницы.
@@ -102,7 +104,22 @@ const pages = {
   '/requests/new': 'request-new.html',
   '/requests/:id': 'request.html',
   '/requests/:id/certificate': 'certificate.html',
+  '/announcements/:id': 'announcement.html',
 };
+
+// Лента — у студента, объявления — у сотрудника; каждого ведём на «своё».
+app.get('/notifications', (req, res) => {
+  const user = req.session.userId ? findById(req.session.userId) : null;
+  if (!user) return res.redirect('/');
+  if (user.role === 'staff') return res.redirect('/announcements');
+  res.sendFile(path.join(PUBLIC_DIR, 'notifications.html'));
+});
+app.get('/announcements', (req, res) => {
+  const user = req.session.userId ? findById(req.session.userId) : null;
+  if (!user) return res.redirect('/');
+  if (user.role !== 'staff') return res.redirect('/notifications');
+  res.sendFile(path.join(PUBLIC_DIR, 'announcements.html'));
+});
 for (const [route, file] of Object.entries(pages)) {
   app.get(route, (req, res) => {
     if (!req.session.userId) return res.redirect('/');
