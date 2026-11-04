@@ -36,6 +36,17 @@
   --meter-track: #e4e7ef;
   --meter-fill: var(--color-primary);
 
+  /* Цвета дисциплин (8 оттенков, проверенных на различимость, в т. ч. при нарушениях цветового зрения).
+     Метка всегда стоит рядом с названием — цвет только помогает узнать предмет с одного взгляда. */
+  --disc-0: #2a78d6;
+  --disc-1: #eb6834;
+  --disc-2: #1baf7a;
+  --disc-3: #eda100;
+  --disc-4: #e87ba4;
+  --disc-5: #008300;
+  --disc-6: #6250d6;
+  --disc-7: #e34948;
+
   --font-main: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-size: 16px;
   --font-size-small: 14px;
@@ -2183,4 +2194,37 @@ a.req-card__title {
   background: var(--color-bg);
   color: var(--color-muted);
   border: 1px dashed var(--color-border);
+}
+
+/* Цветная метка дисциплины */
+.disc-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: var(--space-2);
+  border-radius: 3px;
+  vertical-align: -1px;
+  flex-shrink: 0;
+}
+
+.disc-0 { background: var(--disc-0); }
+.disc-1 { background: var(--disc-1); }
+.disc-2 { background: var(--disc-2); }
+.disc-3 { background: var(--disc-3); }
+.disc-4 { background: var(--disc-4); }
+.disc-5 { background: var(--disc-5); }
+.disc-6 { background: var(--disc-6); }
+.disc-7 { background: var(--disc-7); }
+
+/* У отменённой пары метка бледнее, название зачёркнуто */
+.lesson--cancelled .disc-dot,
+.lesson--ghost .disc-dot {
+  opacity: 0.45;
+}
+
+@media print {
+  .disc-dot {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }

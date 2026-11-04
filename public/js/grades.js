@@ -214,7 +214,7 @@
     const overdue = d.currentStatus.state === 'overdue' || d.gradeStatus.state === 'overdue';
     const card = el('article', `subject${overdue ? ' subject--overdue' : ''}${isDebt(d.grade) ? ' subject--debt' : ''}`);
     const head = el('div', 'subject__head');
-    head.append(el('h3', 'subject__title', d.discipline), el('span', 'badge', CONTROL[d.control]));
+    head.append(D.disciplineTitle('h3', 'subject__title', d.discipline, d.color), el('span', 'badge', CONTROL[d.control]));
     card.append(head);
 
     const meta = [d.teacher.replace(/^(\S+)\s+(\S)\S*\s+(\S)\S*$/, '$1 $2. $3.')];

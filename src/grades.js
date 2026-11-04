@@ -2,13 +2,14 @@
 // Чтение успеваемости студента из базы и сборка сводки «как у меня дела».
 const { db } = require('./db');
 const { calculate, statusOf } = require('./rating');
+const { colorOf } = require('./colors');
 
 const semestersQuery = db.prepare('SELECT * FROM semesters ORDER BY starts_on DESC');
 
 // Дисциплины группы студента в семестре + его оценки (если есть).
 const disciplinesQuery = db.prepare(`
   SELECT a.id, a.control, a.current_max, a.current_due, a.result_due, a.exam_date,
-         d.name AS discipline, t.full_name AS teacher,
+         d.name AS discipline, d.color AS discipline_color, a.discipline_id, t.full_name AS teacher,
          r.current_points, r.current_set_at, r.grade, r.grade_set_at
   FROM assessments a
   JOIN disciplines d ON d.id = a.discipline_id
@@ -36,6 +37,7 @@ function semesterData(student, semesterId, today) {
   const disciplines = rows.map((r) => ({
     id: r.id,
     discipline: r.discipline,
+    color: colorOf(r),
     teacher: r.teacher,
     control: r.control,
     examDate: r.exam_date,

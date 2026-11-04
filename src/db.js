@@ -227,4 +227,12 @@ db.exec(`
 
 createSchema();
 
+// Небольшие доработки схемы для уже существующей базы (без потери данных).
+function migrate() {
+  const has = (table, column) => db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === column);
+  // Цвет дисциплины (номер цвета из палитры) — одинаковый в расписании и в оценках.
+  if (!has('disciplines', 'color')) db.exec('ALTER TABLE disciplines ADD COLUMN color INTEGER');
+}
+migrate();
+
 module.exports = { db, DB_PATH, createSchema };

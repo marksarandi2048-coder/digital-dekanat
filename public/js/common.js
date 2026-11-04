@@ -109,6 +109,15 @@ window.Dekanat = (function () {
     return col;
   }
 
+  // Название дисциплины с цветной меткой (цвет — подсказка, название всегда рядом).
+  function disciplineTitle(tag, className, name, color) {
+    const title = el(tag, className);
+    const dot = el('span', `disc-dot disc-${Number.isInteger(color) ? color : 0}`);
+    dot.setAttribute('aria-hidden', 'true');
+    title.append(dot, document.createTextNode(name));
+    return title;
+  }
+
   // Карточка занятия. mark: 'now' | 'next' | undefined.
   function renderLesson(lesson, mark) {
     const card = el('article', `lesson lesson--${lesson.status}`);
@@ -124,7 +133,7 @@ window.Dekanat = (function () {
     if (mark && mark.type === 'next') tags.append(el('span', 'tag tag--next', `Следующая через ${duration(mark.in)}`));
     if (tags.childElementCount) body.append(tags);
 
-    body.append(el('h3', 'lesson__title', lesson.discipline));
+    body.append(disciplineTitle('h3', 'lesson__title', lesson.discipline, lesson.color));
 
     const teacherLine = el('p', 'lesson__meta');
     teacherLine.append(document.createTextNode(`${KIND[lesson.kind] || ''} · `));
@@ -159,7 +168,7 @@ window.Dekanat = (function () {
     tags.append(el('span', 'badge badge--moved', 'Перенесено'));
     body.append(
       tags,
-      el('h3', 'lesson__title', lesson.discipline),
+      disciplineTitle('h3', 'lesson__title', lesson.discipline, lesson.color),
       el('p', 'lesson__change', `Перенесено на ${slot(lesson.date, lesson.pair, lesson.time)}`),
     );
     card.append(timeColumn(lesson.change.oldPair, lesson.change.oldTime), body);
@@ -268,5 +277,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, capitalize, plural, countdown, updateBell, renderDay, setupGroup };
+  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, capitalize, plural, countdown, updateBell, renderDay, setupGroup };
 })();
