@@ -118,8 +118,9 @@ const changes = {
   ],
 };
 
-const WEEKS_BEFORE = 2; // сколько прошлых недель заполнить
-const WEEKS_AFTER = 4; // сколько будущих недель заполнить
+// Период расписания: с понедельника за 2 недели до текущей и до 31 декабря
+// текущего года. Изменения — на текущей неделе (той, в которую запущен seed).
+const WEEKS_BEFORE = 2;
 
 // ---------- Запись в базу ----------
 const insertUser = db.prepare(`
@@ -150,7 +151,10 @@ const userRows = users.map((u) => ({
   password_hash: bcrypt.hashSync(u.password, 12),
 }));
 
-const currentMonday = mondayOf(nowInMoscow().date);
+const today = nowInMoscow().date;
+const currentMonday = mondayOf(today);
+const firstMonday = addDays(currentMonday, -WEEKS_BEFORE * 7);
+const lastDate = `${today.slice(0, 4)}-12-31`;
 // Изменения «объявлены» в субботу перед текущей неделей.
 const changedAt = `${addDays(currentMonday, -2)} 15:30`;
 
@@ -178,9 +182,10 @@ db.transaction(() => {
   }
 
   for (const [group, items] of Object.entries(templates)) {
-    for (let w = -WEEKS_BEFORE; w <= WEEKS_AFTER; w += 1) {
-      const monday = addDays(currentMonday, w * 7);
+    for (let monday = firstMonday; monday <= lastDate; monday = addDays(monday, 7)) {
+      const isCurrentWeek = monday === currentMonday;
       for (const t of items) {
+        if (addDays(monday, t.day) > lastDate) continue; // после 31 декабря занятий нет
         const lesson = {
           group_name: group,
           discipline_id: disciplineId[t.discipline],
@@ -200,7 +205,7 @@ db.transaction(() => {
           changed_at: null,
         };
 
-        const change = w === 0 && changes[group].find((c) => c.day === t.day && c.pair === t.pair);
+        const change = isCurrentWeek && changes[group].find((c) => c.day === t.day && c.pair === t.pair);
         if (change) {
           lesson.status = change.type;
           lesson.change_note = change.note;
@@ -239,7 +244,7 @@ if (clash.length) {
 }
 
 console.log(`База заполнена: ${DB_PATH}`);
-console.log(`Занятий: ${lessonCount} (недели с ${addDays(currentMonday, -WEEKS_BEFORE * 7)} по ${addDays(currentMonday, WEEKS_AFTER * 7 + 6)})`);
+console.log(`Занятий: ${lessonCount} (с ${firstMonday} по ${lastDate}, изменения на неделе с ${currentMonday})`);
 for (const u of users) {
   console.log(`  ${u.role === 'staff' ? 'сотрудник' : 'студент  '}  ${u.login} / ${u.password}  — ${u.full_name}`);
 }
