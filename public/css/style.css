@@ -195,87 +195,88 @@
 }
 
 /* ================= Тема 2: «Тёмный» =================
-   Тёмный фон, яркие акценты, мягкий контраст — удобно вечером. Шрифт Inter. */
+   Мягкая тёмная: глубокий тёмно-синий фон (не чёрный), карточки чуть светлее,
+   текст не чисто белый, акценты приглушены — удобно вечером. Шрифт Inter. */
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --color-bg: #0e131f;
-  --color-surface: #171e2e;
-  --color-text: #e8ebf4;
-  --color-muted: #a0a8bc;
-  --color-border: #2a3348;
-  --color-primary: #8ea8ff;
-  --color-primary-hover: #b0c2ff;
-  --color-primary-text: #0b1020;
-  --color-accent: #ffcb5c;
-  --color-danger: #ff8a80;
-  --color-danger-hover: #ffb0a8;
-  --color-danger-bg: rgba(255, 138, 128, 0.14);
-  --color-notice-bg: #33290f;
-  --color-notice-text: #ffd98a;
-  --color-badge-bg: #ff5a4e;
-  --color-badge-text: #1a0b09;
-  --color-border-strong: #66739a;
-  --focus-ring: #ffcb5c;
-  --focus-ring-on-dark: #ffcb5c;
+  --color-bg: #1a2033;
+  --color-surface: #232a40;
+  --color-text: #e6e8ef;
+  --color-muted: #a9b0c4;
+  --color-border: #343d57;
+  --color-primary: #94a9e6;
+  --color-primary-hover: #aebcef;
+  --color-primary-text: #161b2c;
+  --color-accent: #e2c071;
+  --color-danger: #f0a39b;
+  --color-danger-hover: #f5bdb7;
+  --color-danger-bg: rgba(240, 163, 155, 0.13);
+  --color-notice-bg: #3a3424;
+  --color-notice-text: #ecd49a;
+  --color-badge-bg: #e5675e;
+  --color-badge-text: #1d0f0d;
+  --color-border-strong: #76819f;
+  --focus-ring: #e2c071;
+  --focus-ring-on-dark: #e2c071;
 
-  --header-bg: #121827;
-  --header-text: #d5dbea;
-  --header-border: #232b3e;
-  --header-hover-bg: rgba(255, 255, 255, 0.06);
-  --header-active-bg: rgba(142, 168, 255, 0.16);
-  --header-active-text: #ffffff;
-  --nav-active-mark: inset 3px 0 0 #8ea8ff;
+  --header-bg: #171c2d;
+  --header-text: #cfd4e2;
+  --header-border: #2a3249;
+  --header-hover-bg: rgba(255, 255, 255, 0.05);
+  --header-active-bg: rgba(148, 169, 230, 0.15);
+  --header-active-text: #eef0f6;
+  --nav-active-mark: inset 3px 0 0 #94a9e6;
 
-  --illu-ink: #a9bdff;
-  --illu-paper: #1f2940;
-  --illu-fill: #222c43;
-  --illu-soft: #6f7fa8;
-  --illu-accent: #ffcb5c;
-  --illu-on-accent: #1a1406;
+  --illu-ink: #a8b8e6;
+  --illu-paper: #2a3249;
+  --illu-fill: #2c3450;
+  --illu-soft: #7480a3;
+  --illu-accent: #e2c071;
+  --illu-on-accent: #211a09;
 
-  --skeleton: #212a3f;
-  --skeleton-shine: #2b3550;
+  --skeleton: #2b334b;
+  --skeleton-shine: #343d58;
 
-  --hero-bg: linear-gradient(135deg, #1c2847 0%, #26385f 100%);
-  --hero-text: #ffffff;
-  --hero-muted: #c0cae6;
-  --hero-accent: #ffd47a;
-  --hero-track: rgba(255, 255, 255, 0.16);
-  --hero-fill: #8ea8ff;
+  --hero-bg: linear-gradient(135deg, #2a3557 0%, #313f66 100%);
+  --hero-text: #eef0f6;
+  --hero-muted: #c3cae0;
+  --hero-accent: #e8c97f;
+  --hero-track: rgba(255, 255, 255, 0.15);
+  --hero-fill: #a3b5ea;
 
-  --tile-icon-bg: rgba(142, 168, 255, 0.16);
-  --tile-icon-color: #a9bdff;
+  --tile-icon-bg: rgba(148, 169, 230, 0.15);
+  --tile-icon-color: #b0c0ec;
   --label-transform: uppercase;
   --label-spacing: 0.05em;
 
-  --color-moved: #ffb46b;
-  --color-moved-bg: rgba(255, 180, 107, 0.12);
-  --color-teacher: #c3b2ff;
-  --color-teacher-bg: rgba(195, 178, 255, 0.12);
-  --color-room: #5fd6cc;
-  --color-room-bg: rgba(95, 214, 204, 0.12);
-  --color-cancelled: #ff8a80;
-  --color-cancelled-bg: rgba(255, 138, 128, 0.12);
-  --color-now: #5ee08f;
-  --color-now-bg: rgba(94, 224, 143, 0.13);
+  --color-moved: #eeb07c;
+  --color-moved-bg: rgba(238, 176, 124, 0.11);
+  --color-teacher: #c5b9f0;
+  --color-teacher-bg: rgba(197, 185, 240, 0.11);
+  --color-room: #7fcfc6;
+  --color-room-bg: rgba(127, 207, 198, 0.11);
+  --color-cancelled: #f0a39b;
+  --color-cancelled-bg: rgba(240, 163, 155, 0.11);
+  --color-now: #86d4a3;
+  --color-now-bg: rgba(134, 212, 163, 0.12);
 
-  --color-ok: #5ee08f;
-  --color-ok-bg: rgba(94, 224, 143, 0.13);
-  --color-pending: #9db4ff;
-  --color-pending-bg: rgba(142, 168, 255, 0.15);
-  --color-bad: #ff8a80;
-  --color-bad-bg: rgba(255, 138, 128, 0.14);
-  --meter-track: #262f45;
+  --color-ok: #86d4a3;
+  --color-ok-bg: rgba(134, 212, 163, 0.12);
+  --color-pending: #a9bbee;
+  --color-pending-bg: rgba(148, 169, 230, 0.14);
+  --color-bad: #f0a39b;
+  --color-bad-bg: rgba(240, 163, 155, 0.13);
+  --meter-track: #313a54;
 
-  --disc-0: #5b9cf0;
-  --disc-1: #ff8a57;
-  --disc-2: #34cf96;
-  --disc-3: #ffbd2e;
-  --disc-4: #f59ac0;
-  --disc-5: #3fb83f;
-  --disc-6: #8f80ff;
-  --disc-7: #ff6b6a;
+  --disc-0: #6aa0e6;
+  --disc-1: #ec9466;
+  --disc-2: #4fc496;
+  --disc-3: #e9b64a;
+  --disc-4: #e8a1c0;
+  --disc-5: #5fb35f;
+  --disc-6: #9a8ef0;
+  --disc-7: #ec7a78;
 
   --font-main: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --font-heading: var(--font-main);
@@ -283,8 +284,8 @@
 
   --radius: 14px;
   --radius-small: 8px;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.25);
-  --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 12px 28px rgba(0, 0, 0, 0.4);
+  --shadow: 0 1px 2px rgba(5, 8, 20, 0.25), 0 6px 18px rgba(5, 8, 20, 0.18);
+  --shadow-hover: 0 2px 4px rgba(5, 8, 20, 0.3), 0 12px 26px rgba(5, 8, 20, 0.3);
 }
 
 /* Заголовки — шрифтом темы (в «классике» с засечками) */
@@ -3013,9 +3014,9 @@ a.tile:focus-visible,
   --swatch-classic-1: #13245a;
   --swatch-classic-2: #c9a24d;
   --swatch-classic-3: #f3f1ea;
-  --swatch-dark-1: #0e131f;
-  --swatch-dark-2: #8ea8ff;
-  --swatch-dark-3: #ffcb5c;
+  --swatch-dark-1: #1a2033;
+  --swatch-dark-2: #94a9e6;
+  --swatch-dark-3: #e2c071;
 }
 
 .theme-picker {
