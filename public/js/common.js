@@ -118,6 +118,18 @@ window.Dekanat = (function () {
     return title;
   }
 
+  // Что изменилось у занятия — строками («Было: …», «Вместо: …», причина).
+  function changeLines(lesson) {
+    const c = lesson.change;
+    if (!c) return [];
+    const lines = [];
+    if (lesson.status === 'moved') lines.push(`Было: ${slot(c.oldDate, c.oldPair, c.oldTime)}`);
+    if (lesson.status === 'teacher_changed') lines.push(`Вместо: ${shortName(c.oldTeacher)}`);
+    if (lesson.status === 'room_changed') lines.push(`Было: ${place(c.oldBuilding, c.oldRoom)}`);
+    if (c.note) lines.push(c.note);
+    return lines;
+  }
+
   // Пояснения к изменению. Обычно — по строке на каждое.
   // compact (на «Неделе») — одна строка с многоточием, полный текст раскрывается по нажатию.
   function changeNotes(lines, compact) {
@@ -172,15 +184,8 @@ window.Dekanat = (function () {
       el('p', 'lesson__place' + (lesson.status === 'room_changed' ? ' is-changed' : ''), place(lesson.building, lesson.room)),
     );
 
-    const c = lesson.change;
-    if (c) {
-      const lines = [];
-      if (lesson.status === 'moved') lines.push(`Было: ${slot(c.oldDate, c.oldPair, c.oldTime)}`);
-      if (lesson.status === 'teacher_changed') lines.push(`Вместо: ${shortName(c.oldTeacher)}`);
-      if (lesson.status === 'room_changed') lines.push(`Было: ${place(c.oldBuilding, c.oldRoom)}`);
-      if (c.note) lines.push(c.note);
-      body.append(...changeNotes(lines, opts.compact));
-    }
+    const lines = changeLines(lesson);
+    if (lines.length) body.append(...changeNotes(lines, opts.compact));
 
     card.append(timeColumn(lesson.pair, lesson.time), body);
     return card;
@@ -316,5 +321,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, renderDay, renderLesson, markLongNotes, setupGroup };
+  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, renderDay, renderLesson, markLongNotes, setupGroup, changeLines, shortName, place, minutesBetween, KIND, BADGE };
 })();

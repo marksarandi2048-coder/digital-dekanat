@@ -101,6 +101,14 @@
   --header-active-text: #f3d68f;
   --nav-active-mark: inset 3px 0 0 #c9a24d;
 
+  /* Главный блок «Сейчас / следующая пара» */
+  --hero-bg: linear-gradient(135deg, #13245a 0%, #1f3a8a 100%);
+  --hero-text: #ffffff;
+  --hero-muted: #cdd5ee;
+  --hero-accent: #f3d68f;
+  --hero-track: rgba(255, 255, 255, 0.2);
+  --hero-fill: #e2bc62;
+
   /* Плитки */
   --tile-icon-bg: #f5ecd6;
   --tile-icon-color: #8a6516;
@@ -192,6 +200,13 @@
   --header-active-bg: rgba(142, 168, 255, 0.16);
   --header-active-text: #ffffff;
   --nav-active-mark: inset 3px 0 0 #8ea8ff;
+
+  --hero-bg: linear-gradient(135deg, #1c2847 0%, #26385f 100%);
+  --hero-text: #ffffff;
+  --hero-muted: #c0cae6;
+  --hero-accent: #ffd47a;
+  --hero-track: rgba(255, 255, 255, 0.16);
+  --hero-fill: #8ea8ff;
 
   --tile-icon-bg: rgba(142, 168, 255, 0.16);
   --tile-icon-color: #a9bdff;
@@ -2563,9 +2578,9 @@ a.req-card__title {
 .tile {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
   min-width: 0;
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4) var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
@@ -2594,8 +2609,8 @@ a.tile:focus-visible,
 .tile__icon {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   border-radius: var(--radius-small);
   background: var(--tile-icon-bg);
@@ -2631,7 +2646,7 @@ a.tile:focus-visible,
 
 .tile__big {
   margin: 0;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
@@ -2793,6 +2808,11 @@ a.tile:focus-visible,
 @media (min-width: 1180px) {
   .tiles {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* У студента под главным блоком — 4 компактные плитки в ряд */
+  .tiles--student {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .tile--wide {
@@ -3046,4 +3066,173 @@ a.tile:focus-visible,
 .lesson__clamp:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* Стрелка «перейти» в заголовке плитки */
+.tile__go {
+  margin-left: auto;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* =================== Главная: блок «Сейчас / следующая пара» =================== */
+.tile--hero {
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--hero-bg);
+  border-color: transparent;
+  color: var(--hero-text);
+}
+
+a.tile--hero:hover {
+  border-color: var(--hero-accent);
+}
+
+.hero__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.hero__label {
+  color: var(--hero-accent);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hero__go {
+  color: var(--hero-muted);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.hero__main {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.hero__info {
+  min-width: 0;
+}
+
+.hero__badge {
+  margin-bottom: var(--space-2);
+}
+
+.hero__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  font-size: 24px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.hero__title .disc-dot {
+  width: 14px;
+  height: 14px;
+  vertical-align: 1px;
+}
+
+.hero__when {
+  margin: var(--space-2) 0 0;
+  font-size: 17px;
+}
+
+.hero__time {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero__where {
+  margin: 2px 0 0;
+  color: var(--hero-muted);
+}
+
+.hero .is-changed,
+.tile--hero .is-changed {
+  color: var(--hero-accent);
+  font-weight: 700;
+}
+
+.hero__day,
+.hero__change,
+.hero__after {
+  margin: var(--space-2) 0 0;
+  color: var(--hero-muted);
+  font-size: var(--font-size-small);
+}
+
+.hero__day {
+  margin: 0 0 var(--space-1);
+  color: var(--hero-text);
+  font-weight: 600;
+}
+
+.hero__alert {
+  display: inline-block;
+  margin: var(--space-3) 0 0;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-small);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--hero-accent);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.hero__big {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  font-size: 30px;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero__note {
+  margin: 0;
+  color: var(--hero-muted);
+  font-size: var(--font-size-small);
+}
+
+.hero__bar {
+  height: 8px;
+  margin: var(--space-2) 0 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--hero-track);
+}
+
+.hero__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--hero-fill);
+}
+
+@media (min-width: 641px) {
+  .tile--hero {
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .hero__main {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+    align-items: end;
+  }
+
+  .hero__title {
+    font-size: 30px;
+  }
+
+  .hero__countdown {
+    text-align: right;
+  }
+
+  .hero__big {
+    font-size: 36px;
+  }
 }

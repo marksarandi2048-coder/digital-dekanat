@@ -26,16 +26,24 @@
     return span;
   }
 
-  // Плитка: заголовок с иконкой, содержимое, внизу — куда ведёт.
+  // Плитка: заголовок с иконкой и стрелкой «перейти», под ним — содержимое.
   // href есть — вся плитка ссылка; нет — обычный блок (внутри свои ссылки).
+  // more — куда ведёт плитка: видна стрелка →, текст читают программы экранного доступа.
   function tile({ kind, title, iconName, href, more, wide }) {
     const node = el(href ? 'a' : 'section', `tile tile--${kind}${wide ? ' tile--wide' : ''}`);
     if (href) node.href = href;
     const head = el('div', 'tile__head');
     head.append(icon(iconName), el(href ? 'span' : 'h2', 'tile__title', title));
+    if (more) {
+      const go = el('span', 'tile__go');
+      go.append(el('span', 'visually-hidden', ` — ${more}`));
+      const arrow = el('span', null, '→');
+      arrow.setAttribute('aria-hidden', 'true');
+      go.append(arrow);
+      head.append(go);
+    }
     const body = el('div', 'tile__body');
     node.append(head, body);
-    if (more) node.append(el('span', 'tile__more', `${more} →`));
     return { node, body };
   }
 
@@ -50,42 +58,108 @@
   const num = (n) => String(n).replace('.', ',');
 
   // ---------- Студент ----------
+  // Главный блок: текущая или следующая пара — крупно.
+  function heroShell(href, label, goText) {
+    const node = el('a', 'tile tile--hero tile--full');
+    node.href = href;
+    const top = el('div', 'hero__top');
+    top.append(el('span', 'hero__label', label));
+    const go = el('span', 'hero__go', `${goText} `);
+    const arrow = el('span', null, '→');
+    arrow.setAttribute('aria-hidden', 'true');
+    go.append(arrow);
+    top.append(go);
+    const main = el('div', 'hero__main');
+    const info = el('div', 'hero__info');
+    const side = el('div', 'hero__side');
+    main.append(info, side);
+    node.append(top, main);
+    return { node, info, side };
+  }
+
+  // Дисциплина, время, аудитория, преподаватель и что изменилось.
+  function heroLesson(info, l) {
+    if (l.status !== 'normal') info.append(el('span', `badge badge--${l.status} hero__badge`, D.BADGE[l.status]));
+    info.append(D.disciplineTitle('p', 'hero__title', l.discipline, l.color));
+    const when = el('p', 'hero__when');
+    when.append(el('span', 'hero__time', `${l.time.start}–${l.time.end}`), document.createTextNode(` · ${l.pair} пара · ${D.KIND[l.kind] || ''}`));
+    info.append(when);
+    const where = el('p', 'hero__where');
+    where.append(
+      el('span', `hero__room${l.status === 'room_changed' ? ' is-changed' : ''}`, D.place(l.building, l.room)),
+      document.createTextNode(' · '),
+      el('span', l.status === 'teacher_changed' ? 'is-changed' : null, D.shortName(l.teacher)),
+    );
+    info.append(where);
+    const lines = D.changeLines(l);
+    if (lines.length) info.append(el('p', 'hero__change', lines.join(' · ')));
+  }
+
+  // Полоска «прошло 35 из 80 минут».
+  function progress(side, lesson, left) {
+    const total = D.minutesBetween(lesson.time.start, lesson.time.end);
+    const passed = Math.max(0, total - left);
+    const box = el('div', 'hero__progress');
+    box.append(el('p', 'hero__big', `ещё ${D.duration(left)}`));
+    const bar = el('div', 'hero__bar');
+    bar.setAttribute('role', 'progressbar');
+    bar.setAttribute('aria-label', 'Сколько прошло от пары');
+    bar.setAttribute('aria-valuemin', '0');
+    bar.setAttribute('aria-valuemax', String(total));
+    bar.setAttribute('aria-valuenow', String(passed));
+    bar.setAttribute('aria-valuetext', `прошло ${passed} из ${total} минут`);
+    const fill = el('span', 'hero__fill');
+    fill.style.width = `${Math.round((passed / total) * 100)}%`;
+    bar.append(fill);
+    box.append(bar, el('p', 'hero__note', `Прошло ${passed} из ${total} минут`));
+    side.append(box);
+  }
+
+  // Обратный отсчёт до начала.
+  function countdown(side, minutes) {
+    const box = el('div', 'hero__countdown');
+    box.append(el('p', 'hero__note', 'Начало через'), el('p', 'hero__big', D.duration(minutes)));
+    side.append(box);
+  }
+
   function lessonTile(s, today) {
     if (!s) {
-      const t = tile({ kind: 'lesson', title: 'Пары', iconName: 'lesson', href: '/today', more: 'Расписание на сегодня', wide: true });
-      t.body.append(el('p', 'tile__text', 'Группа не указана в профиле — обратитесь в деканат.'));
-      return t.node;
+      const h = heroShell('/today', 'Пары', 'Расписание');
+      h.info.append(el('p', 'hero__title', 'Группа не указана в профиле'), el('p', 'hero__where', 'Обратитесь в деканат.'));
+      return h.node;
     }
 
     if (s.current || s.next) {
-      const t = tile({ kind: 'lesson', title: s.current ? 'Сейчас' : 'Следующая пара', iconName: 'lesson', href: '/today', more: 'Расписание на сегодня', wide: true });
+      const h = heroShell('/today', s.current ? 'Сейчас идёт' : 'Следующая пара', 'Расписание на сегодня');
       if (s.current) {
-        t.body.append(D.renderLesson(s.current.lesson, { type: 'now', left: s.current.left }));
-        if (s.next) {
-          t.body.append(el('p', 'tile__after', `Дальше в ${s.next.lesson.time.start}: ${s.next.lesson.discipline}`));
-        }
+        heroLesson(h.info, s.current.lesson);
+        progress(h.side, s.current.lesson, s.current.left);
+        if (s.next) h.info.append(el('p', 'hero__after', `Дальше в ${s.next.lesson.time.start}: ${s.next.lesson.discipline}`));
       } else {
-        t.body.append(D.renderLesson(s.next.lesson, { type: 'next', in: s.next.in }));
+        heroLesson(h.info, s.next.lesson);
+        countdown(h.side, s.next.in);
       }
       if (s.changes) {
-        t.body.append(el('p', 'tile__alert', `Сегодня ${s.changes} ${D.plural(s.changes, 'изменение', 'изменения', 'изменений')} в расписании`));
+        h.info.append(el('p', 'hero__alert', `Сегодня ${s.changes} ${D.plural(s.changes, 'изменение', 'изменения', 'изменений')} в расписании`));
       }
-      return t.node;
+      return h.node;
     }
 
     // Сегодня пар больше нет — показываем первую пару следующего учебного дня.
     const up = s.upcoming;
     const href = up ? `/week?start=${up.date}#day-${up.date}` : '/week';
-    const t = tile({ kind: 'lesson', title: 'Следующая пара', iconName: 'lesson', href, more: 'Расписание на неделю', wide: true });
-    t.body.append(el('p', 'tile__text', s.todayCount ? 'Пары на сегодня закончились.' : 'Сегодня пар нет.'));
+    const h = heroShell(href, s.todayCount ? 'Пары на сегодня закончились' : 'Сегодня пар нет', 'Расписание на неделю');
     if (up) {
       const when = up.date === addDays(today, 1) ? 'Завтра' : D.capitalize(`${D.weekdayLong(up.date)}, ${D.dayMonth(up.date)}`);
-      t.body.append(el('p', 'tile__sub', `${when} — ${up.count} ${D.plural(up.count, 'пара', 'пары', 'пар')}, первая в ${up.lesson.time.start}`));
-      t.body.append(D.renderLesson(up.lesson));
+      h.info.append(el('p', 'hero__day', `${when} · ${up.count} ${D.plural(up.count, 'пара', 'пары', 'пар')}, первая:`));
+      heroLesson(h.info, up.lesson);
+      const box = el('div', 'hero__countdown');
+      box.append(el('p', 'hero__note', when), el('p', 'hero__big', `в ${up.lesson.time.start}`));
+      h.side.append(box);
     } else {
-      t.body.append(el('p', 'tile__sub', 'В ближайшие две недели занятий нет.'));
+      h.info.append(el('p', 'hero__title', 'Занятий в ближайшие две недели нет'));
     }
-    return t.node;
+    return h.node;
   }
 
   function addDays(dateStr, n) {
@@ -95,7 +169,7 @@
   }
 
   function deadlineTile(d) {
-    const t = tile({ kind: 'deadline', title: 'Ближайший дедлайн', iconName: 'deadline', href: '/notifications', more: 'Все сроки' });
+    const t = tile({ kind: 'deadline', title: 'Дедлайн', iconName: 'deadline', href: '/notifications', more: 'Все сроки' });
     if (!d) {
       t.body.append(el('p', 'tile__text', 'Сроков в ближайшее время нет.'));
       return t.node;
@@ -183,7 +257,7 @@
   }
 
   function renderStudent(data) {
-    content.className = 'tiles';
+    content.className = 'tiles tiles--student';
     content.replaceChildren(
       lessonTile(data.schedule, data.now.date),
       deadlineTile(data.deadline),
