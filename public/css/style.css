@@ -91,6 +91,11 @@
   --color-notice-text: #5f4500;
   --color-badge-bg: #c62a1d;
   --color-badge-text: #ffffff;
+  /* Рамки полей ввода — контраст не ниже 3:1 к фону (WCAG 1.4.11) */
+  --color-border-strong: #857f70;
+  /* Рамка фокуса при навигации с клавиатуры */
+  --focus-ring: #1f4fa8;
+  --focus-ring-on-dark: #f3d68f;
 
   /* Шапка и боковое меню */
   --header-bg: #13245a;
@@ -210,6 +215,9 @@
   --color-notice-text: #ffd98a;
   --color-badge-bg: #ff5a4e;
   --color-badge-text: #1a0b09;
+  --color-border-strong: #66739a;
+  --focus-ring: #ffcb5c;
+  --focus-ring-on-dark: #ffcb5c;
 
   --header-bg: #121827;
   --header-text: #d5dbea;
@@ -477,7 +485,7 @@ body {
 .field input {
   width: 100%;
   padding: var(--space-3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-small);
   font: inherit;
   background: var(--color-surface);
@@ -779,7 +787,7 @@ body {
 .group-picker select {
   min-height: 40px;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-small);
   background: var(--color-surface);
   color: var(--color-text);
@@ -1708,7 +1716,7 @@ a.week-nav__note {
 .field textarea {
   width: 100%;
   padding: var(--space-3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-small);
   font: inherit;
   background: var(--color-surface);
@@ -1994,7 +2002,7 @@ a.week-nav__note {
 .message-form textarea {
   width: 100%;
   padding: var(--space-3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-small);
   font: inherit;
   background: var(--color-surface);
@@ -2190,7 +2198,7 @@ a.week-nav__note {
   flex: 1 1 200px;
   min-width: 0;
   padding: var(--space-3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-small);
   font: inherit;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -2465,7 +2473,7 @@ legend.form-block__title + * {
   width: 100%;
   min-height: 44px;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-small);
   background: var(--color-surface);
   color: var(--color-text);
@@ -2703,8 +2711,8 @@ a.tile:hover {
 
 a.tile:focus-visible,
 .tile__row:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 .tile__head {
@@ -3064,8 +3072,8 @@ a.tile:focus-visible,
 }
 
 .theme-option:has(input:focus-visible) {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 /* Сам переключатель скрыт визуально, но доступен с клавиатуры и программам экранного доступа */
@@ -3171,10 +3179,6 @@ a.tile:focus-visible,
   content: "▴";
 }
 
-.lesson__clamp:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
 
 /* Стрелка «перейти» в заголовке плитки */
 .tile__go {
@@ -3591,4 +3595,64 @@ a.tile:active,
 
 .error-page .login-brand .logo {
   color: inherit;
+}
+
+/* =================== Доступность =================== */
+/* Рамка фокуса — заметная, когда переходят по странице клавишей Tab
+   (при нажатии мышью или пальцем её нет — так работает :focus-visible). */
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* На тёмно-синей шапке и боковом меню — светлая рамка */
+.app-header .logo:focus-visible,
+.bell:focus-visible,
+.skip-link:focus-visible {
+  outline-color: var(--focus-ring-on-dark);
+}
+
+@media (min-width: 900px) {
+  .has-bottom-nav .nav__item:focus-visible {
+    outline-color: var(--focus-ring-on-dark);
+    outline-offset: -3px;
+  }
+}
+
+/* Ссылка «Перейти к содержимому»: первая по Tab, видна только в фокусе */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-small);
+  background: var(--header-bg);
+  color: var(--header-text);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* Основная часть получает фокус после «Перейти к содержимому» — рамка ей не нужна */
+main[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* Подсказки в пустых полях — тем же контрастным серым, что и пояснения */
+::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+
+/* Нижнее меню на телефоне прижато к краю экрана — рамку фокуса рисуем внутри кнопки */
+@media (max-width: 899px) {
+  .nav__item:focus-visible {
+    outline-offset: -4px;
+    border-radius: var(--radius-small);
+  }
 }
