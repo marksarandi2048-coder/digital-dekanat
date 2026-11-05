@@ -177,6 +177,12 @@
   --radius: 6px;
   --radius-small: 4px;
   --shadow: 0 1px 2px rgba(19, 36, 90, 0.08);
+  --shadow-hover: 0 6px 18px rgba(19, 36, 90, 0.14);
+
+  /* Движение: длительности и плавность анимаций */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-fast: 150ms;
+  --dur: 260ms;
   --content-width: 720px;
   --content-width-wide: 1320px;
   --sidebar-width: 240px;
@@ -270,6 +276,7 @@
   --radius: 14px;
   --radius-small: 8px;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.25);
+  --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 12px 28px rgba(0, 0, 0, 0.4);
 }
 
 /* Заголовки — шрифтом темы (в «классике» с засечками) */
@@ -3410,4 +3417,140 @@ a.tile--hero:hover {
 @keyframes sk-shine {
   from { background-position: 100% 0; }
   to { background-position: -100% 0; }
+}
+
+/* =================== Анимации =================== */
+/* 1. Появление: карточки страницы мягко поднимаются по очереди */
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+#content > *,
+#top > * {
+  animation: appear var(--dur) var(--ease) backwards;
+}
+
+#content > :nth-child(2) { animation-delay: 40ms; }
+#content > :nth-child(3) { animation-delay: 80ms; }
+#content > :nth-child(4) { animation-delay: 120ms; }
+#content > :nth-child(5) { animation-delay: 160ms; }
+#content > :nth-child(6) { animation-delay: 200ms; }
+#content > :nth-child(n + 7) { animation-delay: 240ms; }
+
+/* Страницы, которые сами обновляются раз в минуту, не «прыгают» при обновлении */
+#content.is-live > * {
+  animation: none;
+}
+
+/* 2. Наведение: плитки и карточки чуть приподнимаются */
+a.tile,
+.req-card,
+.quick__item,
+.theme-option,
+.notif {
+  transition:
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease);
+}
+
+.button,
+.filter,
+.nav__item,
+.bell,
+.tile__row,
+.week-nav__arrow,
+.lesson__clamp {
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+
+.tile__go {
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.hero__fill {
+  transition: width 600ms var(--ease);
+}
+
+@media (hover: hover) {
+  a.tile:hover,
+  .req-card:hover,
+  .quick__item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  a.tile:hover .tile__go {
+    transform: translateX(3px);
+  }
+}
+
+a.tile:active,
+.req-card:active,
+.quick__item:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* 3. Переключение разделов: плавная смена страницы (в браузерах, которые это умеют).
+   Меню при этом стоит на месте. */
+@view-transition {
+  navigation: auto;
+}
+
+.app-header {
+  view-transition-name: app-header;
+}
+
+::view-transition-old(root) {
+  animation: 140ms ease-out both vt-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: var(--dur) var(--ease) both vt-fade-in;
+}
+
+@keyframes vt-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Если в системе включено «Уменьшить движение» — без анимаций */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  @view-transition {
+    navigation: none;
+  }
+
+  a.tile:hover,
+  .req-card:hover,
+  .quick__item:hover {
+    transform: none;
+  }
 }
