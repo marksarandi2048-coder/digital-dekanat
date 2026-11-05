@@ -1,18 +1,127 @@
-/* Единый стиль: все цвета, отступы и размеры — здесь, в переменных. */
-:root {
-  --color-bg: #f4f5f8;
+/* Единый стиль: все цвета, шрифты, отступы, скругления и тени — здесь, в переменных.
+   Три темы оформления меняют ТОЛЬКО эти переменные, разметка у всех одна.
+   Тема выбирается в профиле и ставится атрибутом data-theme на <html> (см. /js/theme.js). */
+
+/* ---------- Шрифты (свободная лицензия SIL OFL 1.1, файлы и лицензии — в /fonts) ----------
+   Браузер скачивает только те шрифты, которые нужны выбранной теме. */
+@font-face {
+  font-family: "PT Serif";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/pt-serif-cyrillic-700-normal.woff2") format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "PT Serif";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/pt-serif-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "PT Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/pt-sans-cyrillic-400-normal.woff2") format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "PT Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/pt-sans-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "PT Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/pt-sans-cyrillic-700-normal.woff2") format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "PT Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/pt-sans-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/manrope-cyrillic-wght-normal.woff2") format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/manrope-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-cyrillic-wght-normal.woff2") format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ================= Тема 1 (по умолчанию): «МГИМО классика» =================
+   Глубокий синий, золотые акценты, заголовки с засечками (PT Serif), строгие формы. */
+:root,
+[data-theme="classic"] {
+  color-scheme: light;
+
+  --color-bg: #f3f1ea;
   --color-surface: #ffffff;
-  --color-text: #1b1f2a;
-  --color-muted: #5b6475;
-  --color-border: #dde1ea;
-  --color-primary: #1f3a8a;
-  --color-primary-hover: #182e6e;
+  --color-text: #161d33;
+  --color-muted: #575e70;
+  --color-border: #ddd7c8;
+  --color-primary: #1a2f6b;
+  --color-primary-hover: #10204f;
   --color-primary-text: #ffffff;
-  --color-accent: #c8a24a;
+  --color-accent: #b8903a;
   --color-danger: #b42318;
+  --color-danger-hover: #8f1c13;
   --color-danger-bg: #fdecea;
-  --color-notice-bg: #fff7e0;
-  --color-notice-text: #6b4e00;
+  --color-notice-bg: #f8efd6;
+  --color-notice-text: #5f4500;
+  --color-badge-bg: #c62a1d;
+  --color-badge-text: #ffffff;
+
+  /* Шапка и боковое меню */
+  --header-bg: #13245a;
+  --header-text: #ffffff;
+  --header-border: #13245a;
+  --header-hover-bg: rgba(255, 255, 255, 0.08);
+  --header-active-bg: rgba(255, 255, 255, 0.1);
+  --header-active-text: #f3d68f;
+  --nav-active-mark: inset 3px 0 0 #c9a24d;
+
+  /* Плитки */
+  --tile-icon-bg: #f5ecd6;
+  --tile-icon-color: #8a6516;
+  --label-transform: uppercase;
+  --label-spacing: 0.06em;
 
   /* Изменения в расписании: у каждого вида свой цвет (и всегда есть подпись словами) */
   --color-moved: #9a4d00;
@@ -26,14 +135,14 @@
   --color-now: #087443;
   --color-now-bg: #e3f6ec;
 
-  /* Статусы оценок */
+  /* Статусы оценок и заявок */
   --color-ok: #087443;
   --color-ok-bg: #e3f6ec;
   --color-pending: #1f4fa8;
   --color-pending-bg: #e8effc;
   --color-bad: #b42318;
   --color-bad-bg: #fdecea;
-  --meter-track: #e4e7ef;
+  --meter-track: #e7e3d8;
   --meter-fill: var(--color-primary);
 
   /* Цвета дисциплин (8 оттенков, проверенных на различимость, в т. ч. при нарушениях цветового зрения).
@@ -47,10 +156,12 @@
   --disc-6: #6250d6;
   --disc-7: #e34948;
 
-  --font-main: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-main: "PT Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-heading: "PT Serif", Georgia, "Times New Roman", serif;
+  --heading-weight: 700;
   --font-size: 16px;
   --font-size-small: 14px;
-  --font-size-title: 22px;
+  --font-size-title: 26px;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -59,13 +170,157 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  --radius: 12px;
-  --radius-small: 8px;
-  --shadow: 0 1px 3px rgba(20, 30, 60, 0.08), 0 4px 16px rgba(20, 30, 60, 0.06);
+  --radius: 6px;
+  --radius-small: 4px;
+  --shadow: 0 1px 2px rgba(19, 36, 90, 0.08);
   --content-width: 720px;
   --content-width-wide: 1320px;
   --sidebar-width: 240px;
   --bottom-nav-height: 64px;
+}
+
+/* ================= Тема 2: «Современный светлый» =================
+   Много воздуха, мягкие пастельные акценты, крупные скругления, светлое меню. Шрифт Manrope. */
+[data-theme="modern"] {
+  color-scheme: light;
+
+  --color-bg: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-text: #1e2235;
+  --color-muted: #646a80;
+  --color-border: #e8eaf2;
+  --color-primary: #5146d8;
+  --color-primary-hover: #4037c0;
+  --color-primary-text: #ffffff;
+  --color-accent: #ff9f7a;
+  --color-danger-hover: #8f1c13;
+  --color-notice-bg: #fff4e6;
+  --color-notice-text: #7a4a00;
+
+  --header-bg: #ffffff;
+  --header-text: #3d4257;
+  --header-border: #eceef5;
+  --header-hover-bg: #f3f2ff;
+  --header-active-bg: #eceaff;
+  --header-active-text: #4037c0;
+  --nav-active-mark: none;
+
+  --tile-icon-bg: #eceaff;
+  --tile-icon-color: #5146d8;
+  --label-transform: none;
+  --label-spacing: 0;
+
+  --color-moved-bg: #fff3e6;
+  --color-teacher-bg: #f3efff;
+  --color-room-bg: #e6f7f6;
+  --color-cancelled-bg: #fff0ee;
+  --color-now-bg: #e5f8ee;
+  --color-ok-bg: #e5f8ee;
+  --color-pending: #4037c0;
+  --color-pending-bg: #eeedff;
+  --color-bad-bg: #fff0ee;
+  --meter-track: #eceef5;
+
+  --font-main: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-heading: var(--font-main);
+  --heading-weight: 800;
+  --font-size-title: 26px;
+
+  --space-4: 20px;
+  --space-5: 28px;
+  --space-6: 40px;
+
+  --radius: 22px;
+  --radius-small: 12px;
+  --shadow: 0 2px 6px rgba(30, 34, 53, 0.03), 0 10px 30px rgba(30, 34, 53, 0.06);
+}
+
+/* ================= Тема 3: «Тёмный» =================
+   Тёмный фон, яркие акценты, мягкий контраст — удобно вечером. Шрифт Inter. */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: #0e131f;
+  --color-surface: #171e2e;
+  --color-text: #e8ebf4;
+  --color-muted: #a0a8bc;
+  --color-border: #2a3348;
+  --color-primary: #8ea8ff;
+  --color-primary-hover: #b0c2ff;
+  --color-primary-text: #0b1020;
+  --color-accent: #ffcb5c;
+  --color-danger: #ff8a80;
+  --color-danger-hover: #ffb0a8;
+  --color-danger-bg: rgba(255, 138, 128, 0.14);
+  --color-notice-bg: #33290f;
+  --color-notice-text: #ffd98a;
+  --color-badge-bg: #ff5a4e;
+  --color-badge-text: #1a0b09;
+
+  --header-bg: #121827;
+  --header-text: #d5dbea;
+  --header-border: #232b3e;
+  --header-hover-bg: rgba(255, 255, 255, 0.06);
+  --header-active-bg: rgba(142, 168, 255, 0.16);
+  --header-active-text: #ffffff;
+  --nav-active-mark: inset 3px 0 0 #8ea8ff;
+
+  --tile-icon-bg: rgba(142, 168, 255, 0.16);
+  --tile-icon-color: #a9bdff;
+  --label-transform: uppercase;
+  --label-spacing: 0.05em;
+
+  --color-moved: #ffb46b;
+  --color-moved-bg: rgba(255, 180, 107, 0.12);
+  --color-teacher: #c3b2ff;
+  --color-teacher-bg: rgba(195, 178, 255, 0.12);
+  --color-room: #5fd6cc;
+  --color-room-bg: rgba(95, 214, 204, 0.12);
+  --color-cancelled: #ff8a80;
+  --color-cancelled-bg: rgba(255, 138, 128, 0.12);
+  --color-now: #5ee08f;
+  --color-now-bg: rgba(94, 224, 143, 0.13);
+
+  --color-ok: #5ee08f;
+  --color-ok-bg: rgba(94, 224, 143, 0.13);
+  --color-pending: #9db4ff;
+  --color-pending-bg: rgba(142, 168, 255, 0.15);
+  --color-bad: #ff8a80;
+  --color-bad-bg: rgba(255, 138, 128, 0.14);
+  --meter-track: #262f45;
+
+  --disc-0: #5b9cf0;
+  --disc-1: #ff8a57;
+  --disc-2: #34cf96;
+  --disc-3: #ffbd2e;
+  --disc-4: #f59ac0;
+  --disc-5: #3fb83f;
+  --disc-6: #8f80ff;
+  --disc-7: #ff6b6a;
+
+  --font-main: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-heading: var(--font-main);
+  --heading-weight: 700;
+
+  --radius: 14px;
+  --radius-small: 8px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Заголовки — шрифтом темы (в «классике» с засечками) */
+h1,
+h2,
+.logo,
+.tile__big,
+.rating__value,
+.profile-name {
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+}
+
+/* Флажки и переключатели — в цвет темы */
+:root {
+  accent-color: var(--color-primary);
 }
 
 *,
@@ -122,8 +377,9 @@ body {
 
 /* ---------- Шапка ---------- */
 .app-header {
-  background: var(--color-primary);
-  color: var(--color-primary-text);
+  background: var(--header-bg);
+  color: var(--header-text);
+  border-bottom: 1px solid var(--header-border);
 }
 
 .app-header__inner {
@@ -137,7 +393,7 @@ body {
 }
 
 .app-header .button-link {
-  color: var(--color-primary-text);
+  color: var(--header-text);
 }
 
 /* ---------- Основная часть ---------- */
@@ -331,14 +587,15 @@ body {
   border: 0;
   border-radius: var(--radius-small);
   background: none;
-  color: var(--color-primary-text);
+  color: var(--header-text);
   font: inherit;
   text-decoration: none;
   cursor: pointer;
 }
 
 .nav__item[aria-current="page"] {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--header-active-bg);
+  color: var(--header-active-text);
 }
 
 .nav__item svg {
@@ -461,12 +718,19 @@ body {
     padding: var(--space-3);
   }
 
+  .has-bottom-nav .app-header {
+    border-bottom: 0;
+    border-right: 1px solid var(--header-border);
+  }
+
   .has-bottom-nav .nav__item:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--header-hover-bg);
   }
 
   .has-bottom-nav .nav__item[aria-current="page"] {
-    background: rgba(255, 255, 255, 0.18);
+    background: var(--header-active-bg);
+    color: var(--header-active-text);
+    box-shadow: var(--nav-active-mark);
     font-weight: 600;
   }
 
@@ -479,8 +743,8 @@ body {
     margin-left: auto;
     padding: 0 6px;
     border-radius: 11px;
-    background: var(--color-bad);
-    color: #fff;
+    background: var(--color-badge-bg);
+    color: var(--color-badge-text);
     font-size: 12px;
     font-weight: 700;
     line-height: 22px;
@@ -1076,7 +1340,7 @@ a.week-nav__note {
 }
 
 .button--danger:hover {
-  background: #8f1c13;
+  background: var(--color-danger-hover);
 }
 
 .bonus-total {
@@ -1682,6 +1946,8 @@ a.week-nav__note {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-small);
   font: inherit;
+  background: var(--color-surface);
+  color: var(--color-text);
   resize: vertical;
 }
 
@@ -1877,6 +2143,8 @@ a.week-nav__note {
   border-radius: var(--radius-small);
   font: inherit;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .verify-form .button {
@@ -1937,11 +2205,11 @@ legend.form-block__title + * {
   flex-shrink: 0;
   margin-left: auto;
   border-radius: 50%;
-  color: var(--color-primary-text);
+  color: var(--header-text);
 }
 
 .bell:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--header-hover-bg);
 }
 
 .bell svg {
@@ -1957,9 +2225,9 @@ legend.form-block__title + * {
   height: 20px;
   padding: 0 5px;
   border-radius: 10px;
-  border: 2px solid var(--color-primary);
-  background: var(--color-bad);
-  color: #fff;
+  border: 2px solid var(--header-bg);
+  background: var(--color-badge-bg);
+  color: var(--color-badge-text);
   font-size: 11px;
   font-weight: 700;
   line-height: 16px;
@@ -2402,8 +2670,8 @@ a.tile:focus-visible,
   height: 32px;
   flex-shrink: 0;
   border-radius: var(--radius-small);
-  background: var(--color-pending-bg);
-  color: var(--color-primary);
+  background: var(--tile-icon-bg);
+  color: var(--tile-icon-color);
 }
 
 .tile__icon svg {
@@ -2413,10 +2681,11 @@ a.tile:focus-visible,
 
 .tile__title {
   margin: 0;
+  font-family: var(--font-main);
   font-size: var(--font-size-small);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  text-transform: var(--label-transform);
+  letter-spacing: var(--label-spacing);
 }
 
 .tile__body {
@@ -2445,6 +2714,7 @@ a.tile:focus-visible,
 }
 
 .tile__of {
+  font-family: var(--font-main);
   font-size: var(--font-size);
   font-weight: 500;
   color: var(--color-muted);
@@ -2671,4 +2941,187 @@ a.tile:focus-visible,
   .week-grid .day__empty {
     padding: var(--space-3);
   }
+}
+
+/* =================== Профиль: выбор оформления =================== */
+/* Образцы показывают цвета КАЖДОЙ темы, поэтому заданы постоянными, а не цветами текущей темы. */
+:root {
+  --swatch-classic-1: #13245a;
+  --swatch-classic-2: #c9a24d;
+  --swatch-classic-3: #f3f1ea;
+  --swatch-modern-1: #5146d8;
+  --swatch-modern-2: #ff9f7a;
+  --swatch-modern-3: #f6f7fb;
+  --swatch-dark-1: #0e131f;
+  --swatch-dark-2: #8ea8ff;
+  --swatch-dark-3: #ffcb5c;
+}
+
+.theme-picker {
+  margin: var(--space-5) 0 0;
+  min-width: 0;
+}
+
+.theme-picker__title {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  font-size: 18px;
+}
+
+.theme-picker__hint {
+  clear: both;
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-small);
+}
+
+.theme-options {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 900px) {
+  .theme-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.theme-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.theme-option:hover {
+  border-color: var(--color-muted);
+}
+
+.theme-option:has(input:checked) {
+  border-color: var(--color-primary);
+  background: var(--color-pending-bg);
+}
+
+.theme-option:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Сам переключатель скрыт визуально, но доступен с клавиатуры и программам экранного доступа */
+.theme-option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.theme-swatch {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+}
+
+.theme-swatch span:first-child {
+  grid-row: 1 / 3;
+}
+
+.theme-swatch--classic span:nth-child(1) { background: var(--swatch-classic-1); }
+.theme-swatch--classic span:nth-child(2) { background: var(--swatch-classic-2); }
+.theme-swatch--classic span:nth-child(3) { background: var(--swatch-classic-3); }
+.theme-swatch--modern span:nth-child(1) { background: var(--swatch-modern-1); }
+.theme-swatch--modern span:nth-child(2) { background: var(--swatch-modern-2); }
+.theme-swatch--modern span:nth-child(3) { background: var(--swatch-modern-3); }
+.theme-swatch--dark span:nth-child(1) { background: var(--swatch-dark-1); }
+.theme-swatch--dark span:nth-child(2) { background: var(--swatch-dark-2); }
+.theme-swatch--dark span:nth-child(3) { background: var(--swatch-dark-3); }
+
+.theme-option__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.theme-option__name {
+  font-weight: 600;
+}
+
+.theme-option__hint {
+  font-size: var(--font-size-small);
+  color: var(--color-muted);
+}
+
+/* =================== Неделя: пояснения в одну строку, раскрываются по нажатию =================== */
+.lesson__clamp {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-small);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lesson__clamp-line {
+  display: inline;
+}
+
+/* Между строками в свёрнутом виде — точка-разделитель */
+.lesson__clamp-line + .lesson__clamp-line::before {
+  content: " · ";
+}
+
+.lesson__clamp.is-long {
+  padding-right: 20px;
+  cursor: pointer;
+}
+
+.lesson__clamp.is-long::after {
+  content: "▾";
+  position: absolute;
+  top: 0;
+  right: 2px;
+  color: var(--color-primary);
+}
+
+.lesson__clamp[aria-expanded="true"] {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.lesson__clamp[aria-expanded="true"] .lesson__clamp-line {
+  display: block;
+}
+
+.lesson__clamp[aria-expanded="true"] .lesson__clamp-line + .lesson__clamp-line::before {
+  content: none;
+}
+
+.lesson__clamp[aria-expanded="true"]::after {
+  content: "▴";
+}
+
+.lesson__clamp:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }

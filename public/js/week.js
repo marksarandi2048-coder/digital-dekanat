@@ -66,7 +66,7 @@
     const days = [];
     for (let i = 0; i < 7; i += 1) {
       const date = addDays(data.weekStart, i);
-      const day = D.renderDay(date, data);
+      const day = D.renderDay(date, data, { compact: true });
       if (i === 6 && !day.count) continue;
 
       const section = D.el('section', 'day' + (date === data.now.date ? ' day--today' : ''));
@@ -81,6 +81,9 @@
 
     loading.hidden = true;
     content.hidden = false;
+    D.markLongNotes(content);
+    // Шрифт темы может догрузиться позже и поменять ширину текста — проверяем ещё раз.
+    if (document.fonts) document.fonts.ready.then(() => D.markLongNotes(content));
 
     // Пришли из уведомления (…#day-ГГГГ-ММ-ДД) — показываем нужный день.
     const target = window.location.hash ? document.getElementById(window.location.hash.slice(1)) : null;
@@ -91,4 +94,11 @@
   }
 
   load();
+
+  // Ширина колонок меняется при повороте телефона или изменении окна — заново решаем, где нужна стрелка ▾.
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => D.markLongNotes(content), 150);
+  });
 })();

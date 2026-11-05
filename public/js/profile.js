@@ -81,4 +81,13 @@
   }
 
   load();
+
+  // ---------- Оформление: три темы, меняются сразу ----------
+  const current = window.DekanatTheme ? window.DekanatTheme.get() : 'classic';
+  for (const input of document.querySelectorAll('input[name="theme"]')) {
+    input.checked = input.value === current;
+    input.addEventListener('change', () => {
+      if (input.checked && window.DekanatTheme) window.DekanatTheme.set(input.value);
+    });
+  }
 })();

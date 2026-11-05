@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Профиль — Цифровой деканат</title>
   <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <script src="/js/theme.js"></script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="has-bottom-nav">
@@ -73,6 +74,37 @@
         <dl class="fields" id="fields"></dl>
       </div>
     </div>
+
+    <fieldset class="card theme-picker">
+      <legend class="theme-picker__title">Оформление</legend>
+      <p class="muted theme-picker__hint">Меняется сразу. Выбор запоминается в этом браузере.</p>
+      <div class="theme-options">
+        <label class="theme-option">
+          <input type="radio" name="theme" value="classic">
+          <span class="theme-swatch theme-swatch--classic" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="theme-option__text">
+            <span class="theme-option__name">МГИМО классика</span>
+            <span class="theme-option__hint">Синий с золотом, заголовки с засечками</span>
+          </span>
+        </label>
+        <label class="theme-option">
+          <input type="radio" name="theme" value="modern">
+          <span class="theme-swatch theme-swatch--modern" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="theme-option__text">
+            <span class="theme-option__name">Современный светлый</span>
+            <span class="theme-option__hint">Воздух, пастельные акценты, мягкие формы</span>
+          </span>
+        </label>
+        <label class="theme-option">
+          <input type="radio" name="theme" value="dark">
+          <span class="theme-swatch theme-swatch--dark" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="theme-option__text">
+            <span class="theme-option__name">Тёмный</span>
+            <span class="theme-option__hint">Яркие акценты на тёмном — удобно вечером</span>
+          </span>
+        </label>
+      </div>
+    </fieldset>
 
     <button class="button button--secondary logout" type="button" id="logout-button">Выйти из кабинета</button>
   </main>
