@@ -3554,3 +3554,41 @@ a.tile:active,
     transform: none;
   }
 }
+
+/* =================== Страницы ошибок 404 и 500 =================== */
+.error-card {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.error-card__illu {
+  min-height: 120px;
+  margin-bottom: var(--space-2);
+}
+
+.error-card__code {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.error-card__title {
+  margin: 0;
+}
+
+.error-card__text {
+  margin: 0 0 var(--space-3);
+}
+
+.error-card__button {
+  text-decoration: none;
+}
+
+.error-page .login-brand .logo {
+  color: inherit;
+}

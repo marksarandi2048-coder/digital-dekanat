@@ -151,11 +151,22 @@ app.use(
   }),
 );
 
+// Нет такой страницы — страница «404» в стиле кабинета (адреса /api/… отвечают JSON выше).
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(PUBLIC_DIR, '404.html'));
+});
+
 // Общий обработчик ошибок: подробности — в консоль, пользователю — коротко.
-app.use((err, req, res, _next) => {
+// Запросам к API — JSON, страницам — оформленная страница ошибки.
+app.use((err, req, res, next) => {
   console.error(err);
+  if (res.headersSent) return next(err);
   const status = err.status || err.statusCode || 500;
-  res.status(status).json({ error: status === 500 ? 'Ошибка сервера' : 'Некорректный запрос' });
+  if (req.path.startsWith('/api/')) {
+    return res.status(status).json({ error: status >= 500 ? 'Ошибка сервера' : 'Некорректный запрос' });
+  }
+  // Ошибка в самом адресе (например, испорченная ссылка) — показываем «нет такой страницы».
+  res.status(status).sendFile(path.join(PUBLIC_DIR, status >= 500 ? '500.html' : '404.html'));
 });
 
 app.listen(PORT, () => {
