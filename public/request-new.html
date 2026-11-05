@@ -59,7 +59,7 @@
   <main class="app-main">
     <a class="back-link" href="/requests">← Мои заявки</a>
     <h1 class="page-title">Новая заявка</h1>
-    <p class="state" id="state-loading">Загружаем…</p>
+    <div class="state skeleton" id="state-loading" role="status" data-skeleton="card"><span class="visually-hidden">Загружаем…</span></div>
     <p class="state state--error" id="state-error" role="alert" hidden></p>
     <form id="request-form" class="request-form" novalidate hidden>
       <fieldset class="form-block">

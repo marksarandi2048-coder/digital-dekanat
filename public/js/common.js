@@ -325,6 +325,52 @@ window.Dekanat = (function () {
     return `через ${days} ${plural(days, 'день', 'дня', 'дней')}`;
   }
 
+  // ---------- Скелетоны: серые заглушки, пока грузятся данные ----------
+  // На странице: <div class="state skeleton" data-skeleton="tiles|lessons|list|card|summary|profile">.
+  // Страница сама прячет этот блок, когда данные пришли.
+  function skLine(width, size) {
+    return el('span', `sk sk-line sk-w${width}${size ? ` sk-${size}` : ''}`);
+  }
+  function skCard(...children) {
+    const card = el('div', 'sk-card');
+    card.append(...children);
+    return card;
+  }
+  const SKELETONS = {
+    tiles() {
+      const grid = el('div', 'tiles tiles--student');
+      const hero = el('div', 'sk-card sk-hero tile--full');
+      hero.append(skLine(30, 'small'), skLine(60, 'big'), skLine(40), skLine(50));
+      grid.append(hero);
+      for (let i = 0; i < 4; i += 1) grid.append(skCard(skLine(50, 'small'), skLine(40, 'big'), skLine(90), skLine(70)));
+      return [grid];
+    },
+    lessons() {
+      return [1, 2, 3].map(() => skCard(skLine(20, 'small'), skLine(60), skLine(80), skLine(40)));
+    },
+    list() {
+      return [1, 2, 3, 4].map(() => skCard(skLine(30, 'small'), skLine(70), skLine(50)));
+    },
+    card() {
+      return [skCard(skLine(50, 'big'), skLine(90), skLine(80), skLine(85), skLine(60))];
+    },
+    summary() {
+      return [skCard(skLine(40, 'small'), skLine(30, 'big'), skLine(90), skLine(90), skLine(70)), ...this.list().slice(0, 3)];
+    },
+    profile() {
+      const head = el('div', 'sk-row');
+      head.append(el('span', 'sk sk-avatar'), skLine(50, 'big'));
+      return [head, skLine(70), skLine(60), skLine(40)];
+    },
+  };
+  for (const box of document.querySelectorAll('[data-skeleton]')) {
+    const make = SKELETONS[box.dataset.skeleton];
+    if (!make) continue;
+    const parts = make.call(SKELETONS);
+    for (const part of parts) part.setAttribute('aria-hidden', 'true');
+    box.append(...parts);
+  }
+
   // ---------- Колокольчик со счётчиком непрочитанных ----------
   async function updateBell() {
     const bell = document.getElementById('bell');

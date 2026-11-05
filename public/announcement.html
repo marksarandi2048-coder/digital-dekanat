@@ -58,7 +58,7 @@
 
   <main class="app-main">
     <a class="back-link" id="back-link" href="/notifications">← Уведомления</a>
-    <p class="state" id="state-loading">Загружаем…</p>
+    <div class="state skeleton" id="state-loading" role="status" data-skeleton="card"><span class="visually-hidden">Загружаем…</span></div>
     <p class="state state--error" id="state-error" role="alert" hidden></p>
     <div id="content" hidden></div>
   </main>
