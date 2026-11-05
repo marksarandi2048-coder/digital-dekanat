@@ -344,6 +344,24 @@ window.Dekanat = (function () {
     box.append(...parts);
   }
 
+  // ---------- «Липкая» левая колонка на широких страницах ----------
+  // Колонка ниже окна прилипает своим низом: её можно дочитать без отдельной прокрутки.
+  const GAP = 24;
+  function fitSticky() {
+    for (const side of document.querySelectorAll('.split__side--sticky')) {
+      const top = Math.min(GAP, window.innerHeight - side.offsetHeight - GAP);
+      side.style.setProperty('--sticky-top', `${top}px`);
+    }
+  }
+  window.addEventListener('resize', fitSticky);
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(fitSticky);
+    new MutationObserver(() => {
+      for (const side of document.querySelectorAll('.split__side--sticky')) ro.observe(side);
+      fitSticky();
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+
   // ---------- Колокольчик со счётчиком непрочитанных ----------
   async function updateBell() {
     const bell = document.getElementById('bell');

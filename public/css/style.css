@@ -3973,3 +3973,50 @@ main[tabindex="-1"]:focus {
     margin-bottom: var(--space-2);
   }
 }
+
+/* =================== Широкие страницы: узкая колонка слева + широкая справа =================== */
+/* Телефон и планшет: всё в одну колонку */
+.split,
+.split__side,
+.split__main,
+.split__pair {
+  display: grid;
+  gap: var(--space-5);
+  align-content: start;
+  min-width: 0;
+}
+
+#content.split > * {
+  margin-top: 0;
+}
+
+.split__main > *,
+.split__side > *,
+.split__pair > * {
+  margin: 0;
+}
+
+@media (min-width: 1100px) {
+  .split {
+    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /* Левая колонка остаётся на месте при прокрутке. Если она выше окна, сначала
+     прокручивается вместе со страницей до своего низа (отступ сверху считает common.js). */
+  .split__side--sticky {
+    position: sticky;
+    top: var(--sticky-top, var(--space-5));
+  }
+
+  .split__pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  /* Оценки: дисциплины карточками в 2 колонки */
+  .split .subject-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}

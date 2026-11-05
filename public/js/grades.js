@@ -336,7 +336,11 @@
       'semester',
     );
 
-    const parts = [renderSummary(data)];
+    // На компьютере: слева сводка (остаётся на месте при прокрутке), справа дисциплины.
+    const side = el('aside', 'split__side split__side--sticky');
+    side.setAttribute('aria-label', 'Сводка');
+    side.append(renderSummary(data));
+    const main = el('div', 'split__main');
     const subjects = el('section', 'subjects');
     subjects.append(el('h2', 'section-title', 'Дисциплины'));
     if (data.disciplines.length) {
@@ -346,9 +350,12 @@
     } else {
       subjects.append(el('p', 'day__empty', 'В этом семестре дисциплин нет'));
     }
-    parts.push(subjects, renderSocial(data.social), renderBonuses(data.bonuses, data.rating.blocks.find((b) => b.key === 'bonus')));
+    const extra = el('div', 'split__pair');
+    extra.append(renderSocial(data.social), renderBonuses(data.bonuses, data.rating.blocks.find((b) => b.key === 'bonus')));
+    main.append(subjects, extra);
 
-    content.replaceChildren(...parts);
+    content.className = 'split';
+    content.replaceChildren(side, main);
     loading.hidden = true;
     content.hidden = false;
   }
