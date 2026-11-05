@@ -57,8 +57,11 @@
     </div>
   </header>
 
-  <main class="app-main" id="main" tabindex="-1">
+  <main class="app-main app-main--wide" id="main" tabindex="-1">
     <h1 class="page-title">Объявления деканата</h1>
+    <!-- На компьютере: слева форма нового объявления, справа опубликованные -->
+    <div class="split">
+    <div class="split__side split__side--sticky">
     <form class="request-form" id="announce-form" novalidate hidden>
       <div class="form-block">
         <p class="form-block__title">Новое объявление</p>
@@ -79,12 +82,16 @@
       <p class="verdict verdict--ok" id="form-ok" role="status" hidden></p>
       <button class="button" type="submit" id="submit-button">Опубликовать</button>
     </form>
+    </div>
+    <div class="split__main">
     <div class="state skeleton" id="state-loading" role="status" data-skeleton="list"><span class="visually-hidden">Загружаем…</span></div>
     <p class="state state--error" id="state-error" role="alert" hidden></p>
     <section class="req-section" id="list-section" hidden>
       <h2 class="section-title">Опубликованные</h2>
       <div class="req-list" id="list"></div>
     </section>
+    </div>
+    </div>
   </main>
 
   <footer class="app-footer">Все данные вымышлены</footer>

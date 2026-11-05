@@ -71,7 +71,10 @@
       errorBox.hidden = false;
       return;
     }
-    const parts = [renderDeadlines(data.deadlines)];
+    // На компьютере: слева дедлайны (остаются на месте при прокрутке), справа лента.
+    const side = el('aside', 'split__side split__side--sticky');
+    side.setAttribute('aria-label', 'Ближайшие дедлайны');
+    side.append(renderDeadlines(data.deadlines));
 
     const feed = el('section', 'feed');
     const head = el('h2', 'section-title', data.unread ? `Лента · ${data.unread} ${D.plural(data.unread, 'новое', 'новых', 'новых')}` : 'Лента');
@@ -95,10 +98,12 @@
       for (const i of data.items) list.append(renderItem(i));
       feed.append(list);
     }
-    parts.push(feed);
+    const main = el('div', 'split__main');
+    main.append(feed);
 
     readAll.hidden = !data.unread;
-    content.replaceChildren(...parts);
+    content.className = 'split';
+    content.replaceChildren(side, main);
     loading.hidden = true;
     content.hidden = false;
   }

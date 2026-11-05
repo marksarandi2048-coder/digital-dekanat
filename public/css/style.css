@@ -4076,3 +4076,11 @@ main[tabindex="-1"]:focus {
     margin-top: 0;
   }
 }
+
+/* Верх обеих колонок на одной линии */
+@media (min-width: 1100px) {
+  .split__main > section > .section-title:first-child,
+  .split__main > .feed > .section-title:first-child {
+    margin-top: 0;
+  }
+}
