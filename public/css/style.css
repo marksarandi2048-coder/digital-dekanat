@@ -101,6 +101,14 @@
   --header-active-text: #f3d68f;
   --nav-active-mark: inset 3px 0 0 #c9a24d;
 
+  /* Иллюстрации пустых состояний */
+  --illu-ink: #1a2f6b;
+  --illu-paper: #ffffff;
+  --illu-fill: #e9e3d3;
+  --illu-soft: #b9a76f;
+  --illu-accent: #c9a24d;
+  --illu-on-accent: #ffffff;
+
   /* Главный блок «Сейчас / следующая пара» */
   --hero-bg: linear-gradient(135deg, #13245a 0%, #1f3a8a 100%);
   --hero-text: #ffffff;
@@ -200,6 +208,13 @@
   --header-active-bg: rgba(142, 168, 255, 0.16);
   --header-active-text: #ffffff;
   --nav-active-mark: inset 3px 0 0 #8ea8ff;
+
+  --illu-ink: #a9bdff;
+  --illu-paper: #1f2940;
+  --illu-fill: #222c43;
+  --illu-soft: #6f7fa8;
+  --illu-accent: #ffcb5c;
+  --illu-on-accent: #1a1406;
 
   --hero-bg: linear-gradient(135deg, #1c2847 0%, #26385f 100%);
   --hero-text: #ffffff;
@@ -784,6 +799,85 @@ body {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
+}
+
+.empty__words {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.empty__text {
+  margin: 0;
+}
+
+.empty__action {
+  width: auto;
+  text-decoration: none;
+}
+
+/* Компактный вариант: рисунок слева, текст справа */
+.empty--inline {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+}
+
+.empty--inline .illu svg {
+  width: 72px;
+  height: 54px;
+}
+
+.empty--inline .empty__title {
+  font-size: var(--font-size);
+}
+
+.empty--inline .empty__text {
+  font-size: var(--font-size-small);
+}
+
+/* ---------- Иллюстрации (свои SVG, цвета из темы) ---------- */
+.illu {
+  display: block;
+  line-height: 0;
+}
+
+.illu svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.illu path,
+.illu circle,
+.illu ellipse {
+  fill: none;
+}
+
+.illu .i-line {
+  stroke: var(--illu-ink);
+  stroke-width: 3;
+}
+
+.illu .i-soft {
+  stroke: var(--illu-soft);
+}
+
+.illu .i-paper { fill: var(--illu-paper); }
+.illu .i-fill { fill: var(--illu-fill); }
+.illu .i-accent { fill: var(--illu-accent); }
+
+.illu .i-on-accent {
+  stroke: var(--illu-on-accent);
+  stroke-width: 4;
+}
+
+/* Маленький рисунок внутри плитки на «Главной» */
+.illu--small svg {
+  width: 64px;
+  height: 48px;
 }
 
 /* ---------- Занятия ---------- */

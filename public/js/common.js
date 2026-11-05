@@ -263,6 +263,61 @@ window.Dekanat = (function () {
     picker.hidden = false;
   }
 
+  // ---------- Пустые состояния с иллюстрациями ----------
+  // Иллюстрации — собственные простые рисунки. Цвета берутся из темы (CSS-переменные --illu-*).
+  // Это наши константы, а не данные пользователя, поэтому их можно вставлять как разметку.
+  const ILLUSTRATIONS = {
+    // Чашка с паром и солнце — «можно выдохнуть»
+    rest: '<ellipse cx="80" cy="106" rx="54" ry="7" class="i-fill"/><circle cx="124" cy="28" r="12" class="i-accent"/>'
+      + '<path d="M44 56h58v18a26 26 0 0 1-26 26h-6a26 26 0 0 1-26-26z" class="i-paper i-line"/>'
+      + '<path d="M102 62h6a10 10 0 0 1 0 20h-8" class="i-line"/><path d="M34 102h92" class="i-line"/>'
+      + '<path d="M60 44c-5-6 5-10 0-17M73 44c-5-6 5-10 0-17M86 44c-5-6 5-10 0-17" class="i-line i-soft"/>',
+    // Документ с плюсом — «закажите первую справку»
+    request: '<ellipse cx="80" cy="108" rx="50" ry="6" class="i-fill"/>'
+      + '<path d="M54 12h38l20 20v64a6 6 0 0 1-6 6H54a6 6 0 0 1-6-6V18a6 6 0 0 1 6-6z" class="i-paper i-line"/>'
+      + '<path d="M92 12v20h20" class="i-line"/><path d="M60 48h34M60 60h34M60 72h22" class="i-line i-soft"/>'
+      + '<circle cx="112" cy="86" r="17" class="i-accent"/><path d="M112 78v16M104 86h16" class="i-on-accent"/>',
+    // Колокольчик с галочкой — «всё прочитано»
+    read: '<ellipse cx="80" cy="108" rx="48" ry="6" class="i-fill"/>'
+      + '<path d="M78 18a28 28 0 0 0-28 28c0 26-10 36-10 36h76s-10-10-10-36a28 28 0 0 0-28-28z" class="i-paper i-line"/>'
+      + '<path d="M70 90a8 8 0 0 0 16 0" class="i-line"/>'
+      + '<circle cx="112" cy="34" r="17" class="i-accent"/><path d="M104 34l6 6 10-12" class="i-on-accent"/>',
+    // Указатель «не туда» — для страницы 404
+    lost: '<ellipse cx="80" cy="108" rx="52" ry="6" class="i-fill"/><path d="M80 24v80" class="i-line"/>'
+      + '<path d="M80 30h36l10 10-10 10H80z" class="i-paper i-line"/><path d="M80 58H44L34 68l10 10h36z" class="i-paper i-line"/>'
+      + '<circle cx="80" cy="18" r="6" class="i-accent"/><path d="M92 40h18M50 68h18" class="i-line i-soft"/>',
+    // Отключённая вилка — для страницы 500
+    error: '<ellipse cx="80" cy="108" rx="52" ry="6" class="i-fill"/>'
+      + '<path d="M30 70h22M108 70h22" class="i-line"/>'
+      + '<path d="M52 54h14a6 6 0 0 1 6 6v20a6 6 0 0 1-6 6H52z" class="i-paper i-line"/><path d="M72 62h6M72 78h6" class="i-line"/>'
+      + '<path d="M108 54H94a6 6 0 0 0-6 6v20a6 6 0 0 0 6 6h14z" class="i-paper i-line"/>'
+      + '<circle cx="80" cy="30" r="14" class="i-accent"/><path d="M80 22v9M80 37v1" class="i-on-accent"/>',
+  };
+
+  function illustration(name, className) {
+    const box = el('span', `illu${className ? ` ${className}` : ''}`);
+    box.setAttribute('aria-hidden', 'true');
+    box.innerHTML = `<svg viewBox="0 0 160 120" width="160" height="120" fill="none" stroke-linecap="round" stroke-linejoin="round">${ILLUSTRATIONS[name]}</svg>`;
+    return box;
+  }
+
+  // Пустое состояние: рисунок, заголовок, пояснение и (по желанию) кнопка.
+  // inline — компактный вариант в строку (рисунок слева).
+  function emptyState({ illu, title, text, action, inline }) {
+    const box = el('div', `empty${inline ? ' empty--inline' : ''}`);
+    if (illu) box.append(illustration(illu));
+    const words = el('div', 'empty__words');
+    words.append(el('p', 'empty__title', title));
+    if (text) words.append(el('p', 'muted empty__text', text));
+    box.append(words);
+    if (action) {
+      const a = el('a', `button ${action.secondary ? 'button--secondary ' : ''}empty__action`, action.label);
+      a.href = action.href;
+      box.append(a);
+    }
+    return box;
+  }
+
   // ---------- Обратный отсчёт: «сегодня», «завтра», «через 3 дня» ----------
   function countdown(days) {
     if (days <= 0) return 'сегодня';
@@ -321,5 +376,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, renderDay, renderLesson, markLongNotes, setupGroup, changeLines, shortName, place, minutesBetween, KIND, BADGE };
+  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, renderDay, renderLesson, markLongNotes, setupGroup, changeLines, shortName, place, minutesBetween, KIND, BADGE, illustration, emptyState };
 })();

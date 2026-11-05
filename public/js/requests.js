@@ -66,9 +66,12 @@
     const list = el('section', 'req-section');
     list.append(el('h2', 'section-title', 'Мои заявки'));
     if (!data.requests.length) {
-      const empty = el('div', 'empty');
-      empty.append(el('p', 'empty__title', 'Заявок пока нет'), el('p', 'muted', 'Закажите справку выше — это займёт меньше минуты, а статус будет виден здесь.'));
-      list.append(empty);
+      list.append(D.emptyState({
+        illu: 'request',
+        title: 'Заявок пока нет — закажите первую справку',
+        text: 'Это займёт меньше минуты, а статус будет виден здесь.',
+        action: { href: '/requests/new?type=study_certificate', label: 'Заказать справку' },
+      }));
     } else {
       // Сначала активные, потом завершённые.
       const active = data.requests.filter((r) => !r.closed);
@@ -95,7 +98,7 @@
     top.replaceChildren(filters);
 
     if (!data.requests.length) {
-      content.replaceChildren(el('div', 'empty', 'Заявок с таким статусом нет'));
+      content.replaceChildren(D.emptyState({ illu: 'read', title: 'Заявок с таким статусом нет', text: 'Выберите другой фильтр выше.' }));
       return;
     }
     const wrap = el('div', 'req-list');

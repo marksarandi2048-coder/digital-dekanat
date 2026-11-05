@@ -148,7 +148,7 @@
     // Сегодня пар больше нет — показываем первую пару следующего учебного дня.
     const up = s.upcoming;
     const href = up ? `/week?start=${up.date}#day-${up.date}` : '/week';
-    const h = heroShell(href, s.todayCount ? 'Пары на сегодня закончились' : 'Сегодня пар нет', 'Расписание на неделю');
+    const h = heroShell(href, s.todayCount ? 'Пары на сегодня закончились' : 'Пар сегодня нет — можно выдохнуть', 'Расписание на неделю');
     if (up) {
       const when = up.date === addDays(today, 1) ? 'Завтра' : D.capitalize(`${D.weekdayLong(up.date)}, ${D.dayMonth(up.date)}`);
       h.info.append(el('p', 'hero__day', `${when} · ${up.count} ${D.plural(up.count, 'пара', 'пары', 'пар')}, первая:`));
@@ -216,7 +216,7 @@
   function requestTile(r, active) {
     if (!r) {
       const t = tile({ kind: 'request', title: 'Заявки', iconName: 'request', href: '/requests', more: 'Заказать справку' });
-      t.body.append(el('p', 'tile__text', 'Заявок пока нет.'), el('p', 'tile__sub', 'Справку можно заказать онлайн меньше чем за минуту.'));
+      t.body.append(D.illustration('request', 'illu--small'), el('p', 'tile__text', 'Заявок пока нет — закажите первую справку'));
       return t.node;
     }
     const t = tile({ kind: 'request', title: 'Последняя заявка', iconName: 'request', href: `/requests/${r.id}`, more: 'Открыть заявку' });
@@ -232,7 +232,7 @@
   function notificationsTile(n) {
     const t = tile({ kind: 'notifications', title: 'Уведомления', iconName: 'bell', href: '/notifications', more: 'Все уведомления' });
     if (!n.unread) {
-      t.body.append(el('p', 'tile__text', 'Всё прочитано.'), el('p', 'tile__sub', 'Новые объявления и изменения появятся здесь.'));
+      t.body.append(D.illustration('read', 'illu--small'), el('p', 'tile__text', 'Все уведомления прочитаны'));
       return t.node;
     }
     const big = el('p', 'tile__big');

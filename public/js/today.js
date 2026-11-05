@@ -37,12 +37,12 @@
       parts.push(list);
       content.replaceChildren(...parts);
     } else {
-      const empty = D.el('div', 'empty');
-      empty.append(D.el('p', 'empty__title', 'Сегодня занятий нет'));
-      const link = D.el('a', 'button button--secondary', 'Посмотреть неделю');
-      link.href = `/week${query}`;
-      empty.append(link);
-      content.replaceChildren(empty);
+      content.replaceChildren(D.emptyState({
+        illu: 'rest',
+        title: 'Пар сегодня нет — можно выдохнуть',
+        text: 'Расписание на ближайшие дни — на «Неделе».',
+        action: { href: `/week${query}`, label: 'Посмотреть неделю', secondary: true },
+      }));
     }
     loading.hidden = true;
     content.hidden = false;

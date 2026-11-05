@@ -77,10 +77,20 @@
     const head = el('h2', 'section-title', data.unread ? `Лента · ${data.unread} ${D.plural(data.unread, 'новое', 'новых', 'новых')}` : 'Лента');
     feed.append(head);
     if (!data.items.length) {
-      const empty = el('div', 'empty');
-      empty.append(el('p', 'empty__title', 'Уведомлений пока нет'), el('p', 'muted', 'Здесь появятся объявления деканата, изменения в расписании и статусы ваших заявок.'));
-      feed.append(empty);
+      feed.append(D.emptyState({
+        illu: 'read',
+        title: 'Уведомлений пока нет',
+        text: 'Здесь появятся объявления деканата, изменения в расписании и статусы ваших заявок.',
+      }));
     } else {
+      if (!data.unread) {
+        feed.append(D.emptyState({
+          illu: 'read',
+          inline: true,
+          title: 'Все уведомления прочитаны',
+          text: 'Новое появится здесь — объявления, изменения в расписании и статусы заявок.',
+        }));
+      }
       const list = el('div', 'notif-list');
       for (const i of data.items) list.append(renderItem(i));
       feed.append(list);
