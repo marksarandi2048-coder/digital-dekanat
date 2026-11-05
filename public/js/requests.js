@@ -33,6 +33,12 @@
   function card(r, isStaff) {
     const a = el('a', `req-card${r.closed ? ' req-card--closed' : ''}`);
     a.href = `/requests/${r.id}`;
+    a.dataset.id = String(r.id);
+    a.addEventListener('click', (e) => {
+      if (!wide.matches) return; // телефон — отдельная страница заявки
+      e.preventDefault();
+      select(r.id, true);
+    });
     const head = el('div', 'req-card__head');
     head.append(el('span', 'req-card__title', r.title), statusBadge(r));
     a.append(head);
@@ -72,15 +78,17 @@
         text: 'Это займёт меньше минуты, а статус будет виден здесь.',
         action: { href: '/requests/new?type=study_certificate', label: 'Заказать справку' },
       }));
-    } else {
-      // Сначала активные, потом завершённые.
-      const active = data.requests.filter((r) => !r.closed);
-      const closed = data.requests.filter((r) => r.closed);
-      const wrap = el('div', 'req-list');
-      for (const r of [...active, ...closed]) wrap.append(card(r, false));
-      list.append(wrap);
+      content.className = '';
+      content.replaceChildren(list);
+      return;
     }
-    content.replaceChildren(list);
+    // Сначала активные, потом завершённые.
+    const active = data.requests.filter((r) => !r.closed);
+    const closed = data.requests.filter((r) => r.closed);
+    const wrap = el('div', 'req-list');
+    for (const r of [...active, ...closed]) wrap.append(card(r, false));
+    list.append(wrap);
+    mountSplit(list, [...active, ...closed]);
   }
 
   function renderStaff(data) {
@@ -98,12 +106,79 @@
     top.replaceChildren(filters);
 
     if (!data.requests.length) {
+      content.className = '';
       content.replaceChildren(D.emptyState({ illu: 'read', title: 'Заявок с таким статусом нет', text: 'Выберите другой фильтр выше.' }));
       return;
     }
+    const list = el('section', 'req-section');
+    list.setAttribute('aria-label', 'Список заявок');
     const wrap = el('div', 'req-list');
     for (const r of data.requests) wrap.append(card(r, true));
-    content.replaceChildren(wrap);
+    list.append(wrap);
+    mountSplit(list, data.requests);
+  }
+
+  // ---------- Как в почте: слева список, справа выбранная заявка (только на широком экране) ----------
+  const wide = window.matchMedia('(min-width: 1100px)');
+  const pageParams = new URLSearchParams(window.location.search);
+  let selectedId = Number(pageParams.get('id')) || null;
+  const justCreated = pageParams.get('created') === '1';
+  let detail = null;
+  let defaultId = null; // заявка, которая открыта, если в адресе номера нет
+
+  function mountSplit(listSection, ordered) {
+    const side = el('div', 'split__side req-master');
+    side.append(listSection);
+    detail = el('section', 'split__main split__side--sticky req-detail');
+    detail.setAttribute('aria-live', 'polite');
+    detail.setAttribute('aria-label', 'Выбранная заявка');
+    content.className = 'split split--mail';
+    content.replaceChildren(side, detail);
+    // По умолчанию — первая активная заявка (список уже отсортирован).
+    defaultId = ordered.length ? ordered[0].id : null;
+    if (!selectedId || !ordered.some((r) => r.id === selectedId)) selectedId = defaultId;
+    if (wide.matches && selectedId) select(selectedId, false);
+  }
+
+  async function select(id, push) {
+    selectedId = id;
+    for (const a of content.querySelectorAll('.req-card')) {
+      if (Number(a.dataset.id) === id) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    }
+    if (push) {
+      const params = new URLSearchParams(window.location.search);
+      params.set('id', String(id));
+      params.delete('created');
+      history.pushState({ id }, '', `/requests?${params}`);
+    }
+    detail.replaceChildren(el('p', 'state', 'Загружаем заявку…'));
+    await window.RequestView.load({
+      container: detail,
+      id,
+      heading: 'h2',
+      justCreated: justCreated && !push,
+      onError(message) {
+        detail.replaceChildren(el('p', 'state state--error', message));
+      },
+      // Статус изменился — обновить и список слева (значки статусов, счётчики фильтров).
+      onChanged: () => load(),
+    });
+  }
+
+  // Кнопки «назад/вперёд» браузера переключают выбранную заявку.
+  window.addEventListener('popstate', () => {
+    const id = Number(new URLSearchParams(window.location.search).get('id')) || defaultId;
+    if (id && detail) select(id, false);
+  });
+  // Окно расширили до компьютерной ширины — показать выбранную заявку.
+  wide.addEventListener('change', () => {
+    if (wide.matches && detail && selectedId && !detail.childElementCount) select(selectedId, false);
+  });
+
+  if (!wide.matches && selectedId) {
+    window.location.replace(`/requests/${selectedId}${justCreated ? '?created=1' : ''}`);
+    return;
   }
 
   async function load() {

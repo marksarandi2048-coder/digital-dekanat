@@ -4020,3 +4020,59 @@ main[tabindex="-1"]:focus {
     align-items: start;
   }
 }
+
+/* =================== Заявки: как в почте =================== */
+/* Выбранная заявка в списке */
+.req-card[aria-current="true"] {
+  border-color: var(--color-primary);
+  box-shadow: inset 4px 0 0 var(--color-primary), var(--shadow);
+  background: var(--color-pending-bg);
+}
+
+/* Панель выбранной заявки — только на широком экране */
+.req-detail {
+  display: none;
+}
+
+.req-detail > * + * {
+  margin-top: var(--space-4);
+}
+
+@media (min-width: 1100px) {
+  /* Крупные кнопки заказа — 4 в ряд */
+  .quick__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .quick__item {
+    min-height: 96px;
+    justify-content: center;
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .quick__label {
+    font-size: 18px;
+  }
+
+  .req-detail {
+    display: block;
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  .req-detail .card {
+    box-shadow: none;
+    background: var(--color-bg);
+  }
+
+  .req-detail .req-head .page-title {
+    font-size: var(--font-size-title);
+  }
+
+  .split--mail .req-section .section-title {
+    margin-top: 0;
+  }
+}
