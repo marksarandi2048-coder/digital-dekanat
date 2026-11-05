@@ -252,15 +252,28 @@ window.Dekanat = (function () {
     } catch {
       return;
     }
+    // Пункт «Уведомления» в боковом меню (на компьютере) — с тем же счётчиком.
+    const navItem = document.getElementById('nav-notifications');
+    const navCount = document.getElementById('nav-count');
     if (data.role === 'staff') {
       bell.href = '/announcements';
       bell.setAttribute('aria-label', 'Объявления');
+      if (navItem) {
+        navItem.href = '/announcements';
+        document.getElementById('nav-notifications-label').textContent = 'Объявления';
+      }
       return;
     }
     const n = data.count || 0;
+    const label = n ? `Уведомления: ${n} ${plural(n, 'непрочитанное', 'непрочитанных', 'непрочитанных')}` : 'Уведомления';
     badge.textContent = n > 99 ? '99+' : String(n);
     badge.hidden = n === 0;
-    bell.setAttribute('aria-label', n ? `Уведомления: ${n} ${plural(n, 'непрочитанное', 'непрочитанных', 'непрочитанных')}` : 'Уведомления');
+    bell.setAttribute('aria-label', label);
+    if (navCount) {
+      navCount.textContent = badge.textContent;
+      navCount.hidden = n === 0;
+      navItem.setAttribute('aria-label', label);
+    }
   }
   updateBell();
 
@@ -277,5 +290,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, capitalize, plural, countdown, updateBell, renderDay, setupGroup };
+  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, renderDay, renderLesson, setupGroup };
 })();

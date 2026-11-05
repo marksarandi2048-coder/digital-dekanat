@@ -12,6 +12,7 @@ const gradesRoutes = require('./src/routes/grades');
 const requestsRoutes = require('./src/routes/requests');
 const verifyRoutes = require('./src/routes/verify');
 const notificationsRoutes = require('./src/routes/notifications');
+const homeRoutes = require('./src/routes/home');
 const { findById } = require('./src/users');
 const { PUBLIC_URL } = require('./src/config');
 
@@ -84,18 +85,20 @@ app.use('/api', gradesRoutes);
 app.use('/api', requestsRoutes);
 app.use('/api', verifyRoutes);
 app.use('/api', notificationsRoutes);
+app.use('/api', homeRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Не найдено' }));
 
 // Страницы.
-// Стартовая страница: студенту — «Сегодня», сотруднику — список заявок.
+// Стартовая страница: вошедшего — на «Главную» (у студента и сотрудника она своя).
 app.get('/', (req, res) => {
   const user = req.session.userId ? findById(req.session.userId) : null;
-  if (user) return res.redirect(user.role === 'staff' ? '/requests' : '/today');
+  if (user) return res.redirect('/home');
   res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
 
 // Страницы только для вошедших. Сами данные всё равно защищены на уровне API.
 const pages = {
+  '/home': 'home.html',
   '/today': 'today.html',
   '/week': 'week.html',
   '/grades': 'grades.html',

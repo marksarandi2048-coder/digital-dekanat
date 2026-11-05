@@ -31,7 +31,7 @@
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        window.location.href = data.user && data.user.role === 'staff' ? '/requests' : '/today';
+        window.location.href = '/home';
         return;
       }
       showError(data.error || 'Не удалось войти');

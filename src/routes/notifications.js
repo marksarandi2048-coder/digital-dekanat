@@ -4,6 +4,7 @@ const express = require('express');
 const { db } = require('../db');
 const { requireAuth } = require('../access');
 const N = require('../notifications');
+const A = require('../announcements');
 const { nowInMoscow, nowStamp, isValidDate } = require('../dates');
 
 const router = express.Router();
@@ -18,10 +19,6 @@ function staffOnly(req, res, next) {
 
 const q = {
   byId: db.prepare('SELECT * FROM announcements WHERE id = ?'),
-  author: db.prepare('SELECT full_name FROM users WHERE id = ?'),
-  all: db.prepare('SELECT * FROM announcements ORDER BY removed_at IS NOT NULL, created_at DESC'),
-  students: db.prepare("SELECT id, faculty, course, group_name FROM users WHERE role = 'student'"),
-  readsOf: db.prepare('SELECT user_id FROM notification_reads WHERE item_key = ?'),
   insert: db.prepare(`
     INSERT INTO announcements (author_id, title, body, important, faculty, course, group_name, deadline_on, created_at)
     VALUES (@author_id, @title, @body, @important, @faculty, @course, @group_name, @deadline_on, @created_at)`),
@@ -29,29 +26,6 @@ const q = {
   groups: db.prepare('SELECT name, faculty FROM groups ORDER BY name'),
   faculties: db.prepare("SELECT DISTINCT faculty FROM groups UNION SELECT DISTINCT faculty FROM users WHERE role = 'student' ORDER BY 1"),
 };
-
-function audienceLabel(a) {
-  if (a.group_name) return `Группа ${a.group_name}`;
-  if (a.faculty && a.course) return `${a.course} курс, ${a.faculty}`;
-  if (a.faculty) return a.faculty;
-  if (a.course) return `${a.course} курс, все факультеты`;
-  return 'Все студенты';
-}
-
-function toAnnouncement(a) {
-  const author = q.author.get(a.author_id);
-  return {
-    id: a.id,
-    title: a.title,
-    body: a.body,
-    important: Boolean(a.important),
-    audience: audienceLabel(a),
-    deadlineOn: a.deadline_on,
-    createdAt: a.created_at,
-    removed: Boolean(a.removed_at),
-    author: author ? author.full_name : '',
-  };
-}
 
 // ---------- Лента студента ----------
 // Строится ТОЛЬКО для вошедшего пользователя: параметров «чья лента» нет вообще.
@@ -91,13 +65,7 @@ router.get('/announcement-audiences', staffOnly, (req, res) => {
 
 // Список для сотрудника — со счётчиком «прочитали X из Y».
 router.get('/announcements', staffOnly, (req, res) => {
-  const students = q.students.all();
-  const list = q.all.all().map((a) => {
-    const recipients = students.filter((s) => N.audienceMatches({ ...a, removed_at: null }, s));
-    const readers = new Set(q.readsOf.all(`announcement:${a.id}`).map((r) => r.user_id));
-    return { ...toAnnouncement(a), recipients: recipients.length, read: recipients.filter((s) => readers.has(s.id)).length };
-  });
-  res.json({ announcements: list });
+  res.json({ announcements: A.listWithStats() });
 });
 
 // Одно объявление. Студенту — только адресованное ему и не снятое;
@@ -109,7 +77,7 @@ router.get('/announcements/:id', (req, res) => {
     return res.status(404).json({ error: 'Объявление не найдено' });
   }
   if (req.user.role === 'student') N.markAnnouncementRead(req.user.id, a.id);
-  res.json({ announcement: toAnnouncement(a) });
+  res.json({ announcement: A.toAnnouncement(a) });
 });
 
 router.post('/announcements', staffOnly, (req, res) => {
