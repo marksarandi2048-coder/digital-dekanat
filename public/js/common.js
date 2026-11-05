@@ -130,34 +130,8 @@ window.Dekanat = (function () {
     return lines;
   }
 
-  // Пояснения к изменению. Обычно — по строке на каждое.
-  // compact (на «Неделе») — одна строка с многоточием, полный текст раскрывается по нажатию.
-  function changeNotes(lines, compact) {
-    if (!compact) return lines.map((line) => el('p', 'lesson__change', line));
-    if (!lines.length) return [];
-    const btn = el('button', 'lesson__clamp');
-    btn.type = 'button';
-    btn.setAttribute('aria-expanded', 'false');
-    for (const line of lines) btn.append(el('span', 'lesson__clamp-line', line));
-    btn.addEventListener('click', () => {
-      const open = btn.getAttribute('aria-expanded') === 'true';
-      if (!open && !btn.classList.contains('is-long')) return; // текст и так виден целиком
-      btn.setAttribute('aria-expanded', String(!open));
-    });
-    return [btn];
-  }
-
-  // Отметить свёрнутые пояснения, которые не поместились в строку (у них появится стрелка ▾).
-  function markLongNotes(root) {
-    for (const btn of root.querySelectorAll('.lesson__clamp')) {
-      if (btn.getAttribute('aria-expanded') === 'true') continue;
-      btn.classList.toggle('is-long', btn.scrollWidth > btn.clientWidth + 1);
-    }
-  }
-
   // Карточка занятия. mark: 'now' | 'next' | undefined.
-  // opts.compact — для «Недели»: без должности преподавателя, пояснения в одну строку.
-  function renderLesson(lesson, mark, opts = {}) {
+  function renderLesson(lesson, mark) {
     const card = el('article', `lesson lesson--${lesson.status}`);
     const body = el('div', 'lesson__body');
 
@@ -177,22 +151,21 @@ window.Dekanat = (function () {
     teacherLine.append(document.createTextNode(`${KIND[lesson.kind] || ''} · `));
     const teacher = el('span', lesson.status === 'teacher_changed' ? 'is-changed' : null, shortName(lesson.teacher));
     teacherLine.append(teacher);
-    if (lesson.teacherTitle && !opts.compact) teacherLine.append(document.createTextNode(`, ${lesson.teacherTitle}`));
+    if (lesson.teacherTitle) teacherLine.append(document.createTextNode(`, ${lesson.teacherTitle}`));
     body.append(teacherLine);
 
     body.append(
       el('p', 'lesson__place' + (lesson.status === 'room_changed' ? ' is-changed' : ''), place(lesson.building, lesson.room)),
     );
 
-    const lines = changeLines(lesson);
-    if (lines.length) body.append(...changeNotes(lines, opts.compact));
+    for (const line of changeLines(lesson)) body.append(el('p', 'lesson__change', line));
 
     card.append(timeColumn(lesson.pair, lesson.time), body);
     return card;
   }
 
   // «Призрак» на старом месте перенесённого занятия.
-  function renderMovedAway(lesson, opts = {}) {
+  function renderMovedAway(lesson) {
     const card = el('article', 'lesson lesson--ghost');
     const body = el('div', 'lesson__body');
     const tags = el('div', 'lesson__tags');
@@ -200,14 +173,14 @@ window.Dekanat = (function () {
     body.append(
       tags,
       disciplineTitle('h3', 'lesson__title', lesson.discipline, lesson.color),
-      ...changeNotes([`Перенесено на ${slot(lesson.date, lesson.pair, lesson.time)}`], opts.compact),
+      el('p', 'lesson__change', `Перенесено на ${slot(lesson.date, lesson.pair, lesson.time)}`),
     );
     card.append(timeColumn(lesson.change.oldPair, lesson.change.oldTime), body);
     return card;
   }
 
   // Список занятий одного дня: настоящие занятия + «призраки», по порядку пар.
-  function renderDay(date, data, opts = {}) {
+  function renderDay(date, data) {
     const items = [
       ...data.lessons.filter((l) => l.date === date).map((l) => ({ pair: l.pair, lesson: l })),
       ...data.movedAway
@@ -231,8 +204,8 @@ window.Dekanat = (function () {
 
     const list = el('div', 'lesson-list');
     for (const item of items) {
-      if (item.ghost) list.append(renderMovedAway(item.ghost, opts));
-      else list.append(renderLesson(item.lesson, marks[item.lesson.id], opts));
+      if (item.ghost) list.append(renderMovedAway(item.ghost));
+      else list.append(renderLesson(item.lesson, marks[item.lesson.id]));
     }
     return { list, count: items.length, finished };
   }
@@ -422,5 +395,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, renderDay, renderLesson, markLongNotes, setupGroup, changeLines, shortName, place, minutesBetween, KIND, BADGE, illustration, emptyState };
+  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, renderDay, renderLesson, setupGroup, changeLines, shortName, place, minutesBetween, KIND, BADGE, illustration, emptyState };
 })();

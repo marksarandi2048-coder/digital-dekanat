@@ -7,7 +7,7 @@ const { colorOf } = require('./colors');
 // Занятия группы за период, а также занятия, которые были в этом периоде,
 // но их перенесли (чтобы на старом месте показать «перенесено на …»).
 const rangeQuery = db.prepare(`
-  SELECT l.*, d.name AS discipline, d.color AS discipline_color,
+  SELECT l.*, d.name AS discipline, d.short_name AS discipline_short, d.color AS discipline_color,
          t.full_name AS teacher, t.title AS teacher_title,
          ot.full_name AS old_teacher
   FROM lessons l
@@ -30,6 +30,7 @@ function toLesson(row, pairs) {
     pair: row.pair,
     time: pairs[row.pair],
     discipline: row.discipline,
+    shortName: row.discipline_short || row.discipline,
     color: colorOf(row),
     kind: row.kind,
     teacher: row.teacher,

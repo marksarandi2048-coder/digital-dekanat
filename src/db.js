@@ -32,14 +32,19 @@ db.exec(`
   );
 
   -- Учебные группы. Факультет группы определяет расписание звонков.
+  -- Куратор группы (вымышленный) показывается в профиле студента.
   CREATE TABLE IF NOT EXISTS groups (
-    name    TEXT PRIMARY KEY,
-    faculty TEXT NOT NULL
+    name          TEXT PRIMARY KEY,
+    faculty       TEXT NOT NULL,
+    curator_name  TEXT,
+    curator_email TEXT
   );
 
+  -- short_name — короткое название для карточек «Недели» (например, «МВКО»).
   CREATE TABLE IF NOT EXISTS disciplines (
-    id   INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL UNIQUE,
+    short_name TEXT
   );
 
   CREATE TABLE IF NOT EXISTS teachers (
@@ -232,6 +237,10 @@ function migrate() {
   const has = (table, column) => db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === column);
   // Цвет дисциплины (номер цвета из палитры) — одинаковый в расписании и в оценках.
   if (!has('disciplines', 'color')) db.exec('ALTER TABLE disciplines ADD COLUMN color INTEGER');
+  // Короткое название дисциплины и куратор группы (заполняются в npm run seed).
+  if (!has('disciplines', 'short_name')) db.exec('ALTER TABLE disciplines ADD COLUMN short_name TEXT');
+  if (!has('groups', 'curator_name')) db.exec('ALTER TABLE groups ADD COLUMN curator_name TEXT');
+  if (!has('groups', 'curator_email')) db.exec('ALTER TABLE groups ADD COLUMN curator_email TEXT');
 }
 migrate();
 

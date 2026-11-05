@@ -1,4 +1,5 @@
 'use strict';
+const { deanOffice } = require('./faculties');
 // Типы заявок и их правила: поля, электронная версия, цепочка статусов.
 // Всё про «какие бывают заявки» — здесь, в одном месте.
 
@@ -99,21 +100,10 @@ function isClosed(req) {
   return req.status === 'rejected' || req.status === chain[chain.length - 1];
 }
 
-// Где и когда забирать бумажные документы (вымышленные кабинеты).
-const PICKUP = {
-  'Факультет международных отношений': {
-    place: 'Деканат ФМО — корпус 1, кабинет 213',
-    hours: 'Пн–пт 10:00–17:00, обед 13:00–14:00',
-  },
-  'Факультет международных экономических отношений': {
-    place: 'Деканат МЭО — корпус 3, кабинет 405',
-    hours: 'Пн–чт 10:00–17:00, пт 10:00–15:00',
-  },
-};
-const PICKUP_DEFAULT = { place: 'Деканат факультета', hours: 'Пн–пт 10:00–17:00' };
-
+// Где и когда забирать бумажные документы — в деканате своего факультета (см. src/faculties.js).
 function pickupFor(faculty) {
-  return PICKUP[faculty] || PICKUP_DEFAULT;
+  const dean = deanOffice(faculty);
+  return { place: dean.office, hours: dean.hours };
 }
 
 // Для браузера: список типов с подсказками.

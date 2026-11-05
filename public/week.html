@@ -72,18 +72,30 @@
       </div>
       <a class="week-nav__arrow" id="week-next" href="#" aria-label="Следующая неделя">›</a>
     </nav>
-    <p class="notice" id="changes-banner" role="status" hidden></p>
-    <div class="calendar-export">
-      <a class="button button--secondary" id="ics-link" href="/api/schedule/calendar.ics" download>
+    <!-- Одна компактная строка: сколько изменений и «Добавить в календарь» -->
+    <div class="week-tools">
+      <p class="week-tools__changes" id="changes-banner" role="status" hidden></p>
+      <a class="button button--secondary button--small" id="ics-link" href="/api/schedule/calendar.ics" download aria-describedby="ics-hint" title="Файл с вашими парами на семестр. Откройте его на телефоне — календарь предложит добавить занятия. Если расписание изменится, скачайте файл заново.">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>
-        Добавить в календарь телефона
+        В календарь телефона
       </a>
-      <p class="muted">Файл с вашими парами на семестр. Откройте его на телефоне — календарь предложит добавить занятия. Если расписание изменится, скачайте файл заново.</p>
+      <span class="visually-hidden" id="ics-hint">Скачать файл с парами на семестр для календаря телефона. Если расписание изменится, скачайте файл заново.</span>
     </div>
     <div class="state skeleton" id="state-loading" role="status" data-skeleton="lessons"><span class="visually-hidden">Загружаем расписание…</span></div>
     <p class="state state--error" id="state-error" role="alert" hidden></p>
-    <div class="week-grid" id="content" hidden></div>
+    <div class="wk" id="content" hidden></div>
   </main>
+
+  <!-- Детали пары: на компьютере — панель справа, на телефоне — шторка снизу -->
+  <dialog class="sheet" id="lesson-sheet" aria-labelledby="sheet-title">
+    <div class="sheet__head">
+      <h2 class="sheet__title" id="sheet-title"></h2>
+      <button class="sheet__close" type="button" id="sheet-close" aria-label="Закрыть">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="sheet__body" id="sheet-body"></div>
+  </dialog>
 
   <footer class="app-footer">Все данные вымышлены</footer>
   <script src="/js/common.js"></script>

@@ -49,6 +49,29 @@ const groups = {
   'МЭО-3-07': 'Факультет международных экономических отношений',
 };
 
+// Кураторы групп (вымышленные; почта — на домене для примеров example.edu).
+const curators = {
+  'МО-2-03': ['Воронцова Ирина Павловна', 'i.vorontsova@example.edu'],
+  'МЭО-3-07': ['Сергеев Андрей Николаевич', 'a.sergeev@example.edu'],
+};
+
+// Короткие названия дисциплин для карточек «Недели». Сокращения, привычные студентам.
+const shortNames = {
+  'Английский язык': 'Английский',
+  'Бухгалтерский учёт': 'Бухучёт',
+  'Введение в дипломатическую практику': 'Дипл. практика',
+  'Введение в теорию международных отношений': 'Введение в ТМО',
+  'История международных отношений': 'История МО',
+  'История экономических учений': 'История эк. учений',
+  'Линейная алгебра': 'Лин. алгебра',
+  'Международное право': 'Межд. право',
+  'Международные валютно-кредитные отношения': 'МВКО',
+  'Теория международных отношений': 'ТМО',
+  'Физическая культура': 'Физкультура',
+  'Французский язык': 'Французский',
+  'Экономическая теория': 'Экон. теория',
+};
+
 // ---------- Преподаватели (вымышленные) ----------
 const teachers = {
   belyaev: ['Беляев Игорь Сергеевич', 'доцент'],
@@ -136,7 +159,7 @@ const insertUser = db.prepare(`
 db.exec('DROP TABLE IF EXISTS lessons');
 createSchema();
 
-const insertGroup = db.prepare('INSERT INTO groups (name, faculty) VALUES (?, ?)');
+const insertGroup = db.prepare('INSERT INTO groups (name, faculty, curator_name, curator_email) VALUES (?, ?, ?, ?)');
 const insertTeacher = db.prepare('INSERT INTO teachers (full_name, title) VALUES (?, ?)');
 const insertDiscipline = db.prepare('INSERT INTO disciplines (name) VALUES (?)');
 const insertLesson = db.prepare(`
@@ -177,7 +200,7 @@ db.transaction(() => {
 
   const userIdByLogin = {};
   for (const { password, ...row } of userRows) userIdByLogin[row.login] = insertUser.run(row).lastInsertRowid;
-  for (const [name, faculty] of Object.entries(groups)) insertGroup.run(name, faculty);
+  for (const [name, faculty] of Object.entries(groups)) insertGroup.run(name, faculty, ...(curators[name] || [null, null]));
 
   const teacherId = {};
   for (const [key, [name, title]] of Object.entries(teachers)) {
@@ -248,6 +271,8 @@ db.transaction(() => {
   ({ requestCount } = seedRequests({ db, today, userIdByLogin }));
   ({ announcementCount } = seedAnnouncements({ db, today, userIdByLogin }));
   colorInfo = assignDisciplineColors(db);
+  const setShort = db.prepare('UPDATE disciplines SET short_name = ? WHERE name = ?');
+  for (const [name, short] of Object.entries(shortNames)) setShort.run(short, name);
 })();
 
 // Проверка: в одной группе не должно быть двух занятий в одну пару.
