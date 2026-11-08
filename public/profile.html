@@ -57,9 +57,12 @@
     </div>
   </header>
 
-  <main class="app-main" id="main" tabindex="-1">
+  <main class="app-main app-main--wide" id="main" tabindex="-1">
     <h1 class="page-title" id="page-title">Профиль</h1>
 
+    <!-- На компьютере: слева карточка студента, справа настройки и полезное -->
+    <div class="split split--profile">
+    <div class="split__side">
     <div class="card">
       <div class="state skeleton" id="state-loading" role="status" data-skeleton="profile"><span class="visually-hidden">Загружаем профиль…</span></div>
       <p class="state state--error" id="state-error" role="alert" hidden></p>
@@ -76,6 +79,8 @@
       </div>
     </div>
 
+    </div>
+    <div class="split__main">
     <fieldset class="card theme-picker">
       <legend class="theme-picker__title">Оформление</legend>
       <p class="muted theme-picker__hint">Меняется сразу. Выбор запоминается в этом браузере.</p>
@@ -99,7 +104,14 @@
       </div>
     </fieldset>
 
+    <section class="card useful" id="useful" aria-labelledby="useful-title" hidden>
+      <h2 class="section-title" id="useful-title">Полезное</h2>
+      <dl class="useful__list" id="useful-list"></dl>
+    </section>
+
     <button class="button button--secondary logout" type="button" id="logout-button">Выйти из кабинета</button>
+    </div>
+    </div>
   </main>
 
   <footer class="app-footer">Все данные вымышлены</footer>

@@ -78,6 +78,73 @@
       return;
     }
     render(data.user, !id);
+    if (!id && data.useful) renderUseful(data.useful);
+  }
+
+  // ---------- Полезное: группа, куратор, деканат ----------
+  function link(href, text) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.textContent = text;
+    return a;
+  }
+
+  function usefulRow(list, term, ...lines) {
+    const dt = document.createElement('dt');
+    dt.textContent = term;
+    const dd = document.createElement('dd');
+    for (const line of lines.filter(Boolean)) {
+      const p = document.createElement('p');
+      if (typeof line === 'string') p.textContent = line;
+      else p.append(line);
+      dd.append(p);
+    }
+    list.append(dt, dd);
+    return dd;
+  }
+
+  function renderUseful(u) {
+    const list = document.getElementById('useful-list');
+    list.replaceChildren();
+    if (u.group) {
+      const dd = usefulRow(list, 'Группа');
+      const line = document.createElement('p');
+      line.className = 'useful__group';
+      const name = document.createElement('span');
+      name.className = 'useful__group-name';
+      name.textContent = u.group;
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'button-link useful__copy';
+      copy.textContent = 'Скопировать';
+      const status = document.createElement('span');
+      status.className = 'muted useful__copied';
+      status.setAttribute('role', 'status');
+      copy.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(u.group);
+          status.textContent = 'Скопировано';
+        } catch {
+          status.textContent = 'Не удалось скопировать — выделите номер вручную';
+        }
+        setTimeout(() => { status.textContent = ''; }, 2500);
+      });
+      line.append(name, copy, status);
+      dd.append(line);
+    }
+    if (u.curator) {
+      usefulRow(list, 'Куратор группы', u.curator.name, u.curator.email && link(`mailto:${u.curator.email}`, u.curator.email));
+    }
+    const d = u.dean;
+    usefulRow(
+      list,
+      'Деканат факультета',
+      d.office,
+      d.hours,
+      d.phone && link(`tel:${d.phone.replace(/[^+\d]/g, '')}`, d.phone),
+      d.email && link(`mailto:${d.email}`, d.email),
+    );
+    document.getElementById('useful').hidden = false;
   }
 
   load();

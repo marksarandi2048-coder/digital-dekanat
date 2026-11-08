@@ -3,12 +3,29 @@
 const express = require('express');
 const { requireAuth, canViewProfile } = require('../access');
 const { findById, toProfile } = require('../users');
+const { db } = require('../db');
+const { deanOffice } = require('../faculties');
 
 const router = express.Router();
 
+const curatorQuery = db.prepare('SELECT curator_name, curator_email FROM groups WHERE name = ?');
+
+// «Полезное» в своём профиле: группа, куратор, контакты деканата своего факультета.
+// Только для самого студента: в чужом профиле и в профиле сотрудника этого блока нет.
+function usefulFor(user) {
+  if (user.role !== 'student') return null;
+  const dean = deanOffice(user.faculty);
+  const g = user.group_name ? curatorQuery.get(user.group_name) : null;
+  return {
+    group: user.group_name || null,
+    curator: g && g.curator_name ? { name: g.curator_name, email: g.curator_email } : null,
+    dean: { office: dean.office, hours: dean.hours, phone: dean.phone, email: dean.email },
+  };
+}
+
 // Мой профиль.
 router.get('/me', requireAuth, (req, res) => {
-  res.json({ user: toProfile(req.user) });
+  res.json({ user: toProfile(req.user), useful: usefulFor(req.user) });
 });
 
 // Профиль по id — с проверкой прав.
