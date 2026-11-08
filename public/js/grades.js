@@ -62,7 +62,9 @@
     if (s.overdue) {
       out.push(['bad', `${s.overdue} ${D.plural(s.overdue, 'оценка не выставлена', 'оценки не выставлены', 'оценок не выставлено')} в срок — можно написать в деканат.`]);
     }
-    if (!out.length) {
+    if (!out.length && !s.isFinal && !s.pending) {
+      out.push(['info', 'В этом семестре пока нет дисциплин.']);
+    } else if (!out.length) {
       out.push(['ok', s.isFinal ? 'Семестр закрыт без долгов.' : `Всё идёт по плану: долгов нет, ждём ещё ${s.pending} ${D.plural(s.pending, 'оценку', 'оценки', 'оценок')}.`]);
     } else if (!s.isFinal && s.pending) {
       out.push(['info', `Ещё ожидается ${s.pending} ${D.plural(s.pending, 'оценка', 'оценки', 'оценок')}.`]);
@@ -320,7 +322,7 @@
     }
 
     if (data.students) {
-      setupPicker('student-picker', 'student-select', data.students.map((s) => ({ value: s.id, label: `${s.fullName}, ${s.group}` })), data.student && data.student.id, 'student');
+      setupPicker('student-picker', 'student-select', data.students.map((s) => ({ value: s.id, label: [s.fullName, s.group].filter(Boolean).join(', ') })), data.student && data.student.id, 'student');
     }
     if (!data.student || !data.semester) {
       loading.hidden = true;

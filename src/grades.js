@@ -83,7 +83,8 @@ function semesterData(student, semesterId, today) {
     pending: pending.length,
     overdue: items.filter((i) => i.status.state === 'overdue').length,
     debts: disciplines.filter((d) => d.grade === '2' || d.grade === 'failed').map((d) => d.discipline),
-    isFinal: items.every((i) => i.status.state === 'set'),
+    // Семестр без единой дисциплины не считается закрытым.
+    isFinal: items.length > 0 && items.every((i) => i.status.state === 'set'),
     nextDeadline,
   };
 

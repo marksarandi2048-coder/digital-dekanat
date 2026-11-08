@@ -73,7 +73,7 @@ window.RequestView = (function () {
       if (v === null || v === undefined || v === '') return;
       dl.append(el('dt', null, k), el('dd', null, String(v)));
     };
-    if (isStaff) add('Студент', `${r.student.fullName}, ${r.student.group}`);
+    if (isStaff) add('Студент', [r.student.fullName, r.student.group].filter(Boolean).join(', '));
     add('Тип', r.typeLabel);
     if (r.type !== 'appeal') add('Формат', r.format === 'electronic' ? 'Электронная, с QR-кодом' : 'Бумажная');
     add('Из какого приказа', r.orderRef);

@@ -3850,8 +3850,8 @@ main[tabindex="-1"]:focus {
 .sheet__close {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
   border: 0;
   border-radius: 50%;
@@ -4617,5 +4617,51 @@ main[tabindex="-1"]:focus {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-2);
+  }
+}
+
+/* =================== Телефон и планшет: удобные зоны нажатия =================== */
+@media (max-width: 899px) {
+  .back-link,
+  .tile__more,
+  .filter,
+  .previous a,
+  .today-deadlines__head a,
+  .app-header .logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .button--small,
+  .button-link,
+  .button-link--danger,
+  .group-picker select,
+  .pickers select {
+    min-height: 44px;
+  }
+
+  .today-deadlines__head a {
+    justify-content: flex-end;
+    min-width: 44px;
+  }
+
+  main summary {
+    padding-block: var(--space-3);
+  }
+}
+
+/* «Неделя» списком: название и аудитория переносятся, а не обрезаются */
+@media (max-width: 1099px) {
+  .wk-card__name {
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .wk-card__room {
+    max-width: 112px;
+    line-height: 1.25;
+    text-align: right;
+    white-space: normal;
   }
 }

@@ -21,7 +21,7 @@ const DEANS = {
 
 const DEFAULT = {
   short: '',
-  office: 'Деканат факультета',
+  office: 'Кабинет уточняйте в учебной части',
   hours: 'Пн–пт 10:00–17:00',
   phone: null,
   email: null,

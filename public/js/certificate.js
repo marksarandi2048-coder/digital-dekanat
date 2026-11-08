@@ -60,7 +60,7 @@
     );
     doc.append(text);
     if (c.purpose) doc.append(el('p', 'certificate__text', `Справка выдана для предоставления: ${c.purpose}.`));
-    doc.append(el('p', 'certificate__text', `Действительна до ${D.fullDate(c.validUntil)}.`));
+    doc.append(el('p', 'certificate__text', `Действительна до ${D.fullDate(c.validUntil)}`));
     doc.append(el('p', 'certificate__sign', `Подписано: ${c.signedBy}`));
 
     // QR-код и ручная проверка.

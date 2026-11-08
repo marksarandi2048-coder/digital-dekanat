@@ -208,8 +208,8 @@
     let verdict;
     if (r.debts) verdict = ['bad', r.debts === 1 ? 'Есть долг' : `Есть долги: ${r.debts}`];
     else if (r.overdue) verdict = ['bad', `${r.overdue} ${D.plural(r.overdue, 'оценка не выставлена', 'оценки не выставлены', 'оценок не выставлено')} в срок`];
-    else verdict = ['ok', r.isFinal ? 'Семестр закрыт без долгов' : 'Всё идёт по плану'];
-    t.body.append(el('p', `tile__verdict tile__verdict--${verdict[0]}`, verdict[1]));
+    else if (r.isFinal || r.pending) verdict = ['ok', r.isFinal ? 'Семестр закрыт без долгов' : 'Всё идёт по плану'];
+    if (verdict) t.body.append(el('p', `tile__verdict tile__verdict--${verdict[0]}`, verdict[1]));
     return t.node;
   }
 
@@ -289,7 +289,7 @@
       const a = el('a', 'tile__row');
       a.href = `/requests/${r.id}`;
       const main = el('span', 'tile__row-main');
-      main.append(el('span', 'tile__row-title', r.title), el('span', 'tile__sub', `${r.student.fullName}, ${r.student.group} · ${D.dateTime(r.createdAt)}`));
+      main.append(el('span', 'tile__row-title', r.title), el('span', 'tile__sub', `${[r.student.fullName, r.student.group].filter(Boolean).join(', ')} · ${D.dateTime(r.createdAt)}`));
       a.append(main, el('span', `status-badge st--${r.statusClass || r.status}`, r.statusLabel));
       li.append(a);
       ul.append(li);

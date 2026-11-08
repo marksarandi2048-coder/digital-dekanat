@@ -42,7 +42,7 @@
     const head = el('div', 'req-card__head');
     head.append(el('span', 'req-card__title', r.title), statusBadge(r));
     a.append(head);
-    if (isStaff) a.append(el('p', 'req-card__who', `${r.student.fullName}, ${r.student.group}`));
+    if (isStaff) a.append(el('p', 'req-card__who', [r.student.fullName, r.student.group].filter(Boolean).join(', ')));
     const meta = [];
     if (r.type === 'appeal') meta.push('Обращение');
     else {
