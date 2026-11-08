@@ -112,6 +112,13 @@
   --hero-fill: #e2bc62;
 
   /* Плитки */
+  /* Карточки-иллюстрации на странице входа */
+  --showcase-card: #ffffff;
+  --showcase-card-text: #161d33;
+  --showcase-card-muted: #575e70;
+  --showcase-shadow: rgba(5, 12, 40, 0.32);
+  --showcase-glow: rgba(243, 214, 143, 0.14);
+
   --tile-icon-bg: #f5ecd6;
   --tile-icon-color: #8a6516;
   --label-transform: uppercase;
@@ -229,6 +236,12 @@
   --hero-accent: #e8c97f;
   --hero-track: rgba(255, 255, 255, 0.15);
   --hero-fill: #a3b5ea;
+
+  --showcase-card: #1c2336;
+  --showcase-card-text: #e6e8ef;
+  --showcase-card-muted: #a9b0c4;
+  --showcase-shadow: rgba(4, 7, 18, 0.45);
+  --showcase-glow: rgba(226, 192, 113, 0.1);
 
   --tile-icon-bg: rgba(148, 169, 230, 0.15);
   --tile-icon-color: #b0c0ec;
@@ -4158,5 +4171,451 @@ main[tabindex="-1"]:focus {
     justify-self: start;
     width: auto;
     padding-inline: var(--space-6);
+  }
+}
+
+/* =================== Страница входа: витрина продукта =================== */
+.login-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+}
+
+/* Шапка: на телефоне компактная, на компьютере — верх брендовой панели */
+.login-hero {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--hero-bg);
+  color: var(--hero-text);
+}
+
+.login-hero__logo {
+  font-size: 18px;
+}
+
+.login-hero__slogan {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  font-size: 24px;
+  line-height: 1.25;
+  color: var(--hero-accent);
+}
+
+.login-main {
+  display: grid;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+/* Поля с иконками */
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap__icon {
+  position: absolute;
+  top: 14px;
+  left: 12px;
+  color: var(--color-muted);
+  pointer-events: none;
+}
+
+.field .input-wrap input {
+  min-height: 48px;
+  padding-left: 42px;
+}
+
+.field .input-wrap--action input {
+  padding-right: 50px;
+}
+
+.field .input-wrap input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+  box-shadow: inset 0 0 0 1px var(--color-danger);
+}
+
+.input-wrap__toggle {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.input-wrap__toggle:hover {
+  color: var(--color-primary);
+}
+
+.input-wrap__toggle:focus-visible {
+  outline-offset: -3px;
+}
+
+.input-wrap__toggle .icon-eye-off,
+.input-wrap__toggle[aria-pressed="true"] .icon-eye {
+  display: none;
+}
+
+.input-wrap__toggle[aria-pressed="true"] .icon-eye-off {
+  display: block;
+}
+
+@keyframes login-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.input-wrap.is-shaking {
+  animation: login-shake 360ms var(--ease);
+}
+
+/* Кнопка «Войти» с загрузкой */
+.login-submit {
+  gap: var(--space-2);
+}
+
+.login-submit.is-loading:disabled {
+  opacity: 1;
+}
+
+.login-submit__spinner {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+}
+
+.login-submit.is-loading .login-submit__spinner {
+  display: block;
+  animation: login-spin 700ms linear infinite;
+}
+
+@keyframes login-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Демо-доступ для жюри */
+.demo__title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.demo__hint {
+  margin: var(--space-1) 0 var(--space-3);
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+}
+
+.demo__cards {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.demo-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 60px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease);
+}
+
+.demo-card:active {
+  transform: scale(0.99);
+}
+
+.demo-card[aria-pressed="true"] {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+  background: var(--color-pending-bg);
+}
+
+.demo-card__icon {
+  flex-shrink: 0;
+  color: var(--tile-icon-color);
+}
+
+.demo-card__text {
+  display: grid;
+  min-width: 0;
+}
+
+.demo-card__name {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.demo-card__sub {
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+  line-height: 1.3;
+}
+
+.demo-card__nowrap {
+  white-space: nowrap;
+}
+
+.demo__status {
+  min-height: 1.5em;
+  margin: var(--space-2) 0 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+}
+
+@media (hover: hover) {
+  .demo-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .demo-card[aria-pressed="true"]:hover {
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+  }
+}
+
+/* Преимущества: на телефоне короткая прокрутка вбок */
+.login-features {
+  min-width: 0;
+  padding-bottom: var(--space-2);
+}
+
+.login-features__list {
+  display: flex;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-1) var(--space-4) var(--space-3);
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--space-4);
+}
+
+.login-feature {
+  flex: 0 0 236px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  font-size: var(--font-size-small);
+  line-height: 1.35;
+  font-weight: 500;
+  scroll-snap-align: start;
+}
+
+.login-feature__icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--tile-icon-bg);
+  color: var(--tile-icon-color);
+}
+
+/* Иллюстрация только на компьютере */
+.login-illu {
+  display: none;
+}
+
+.showcase {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  font-family: var(--font-main);
+  font-variant-numeric: lining-nums;
+  overflow: visible;
+}
+
+.sv-glow { fill: var(--showcase-glow); }
+.sv-card {
+  fill: var(--showcase-card);
+  filter: drop-shadow(0 10px 18px var(--showcase-shadow));
+}
+.sv-strong { fill: var(--showcase-card-text); font-size: 15px; font-weight: 700; }
+.sv-muted { fill: var(--showcase-card-muted); font-size: 12.5px; }
+.sv-big { fill: var(--showcase-card-text); font-size: 34px; font-weight: 700; }
+.sv-stripe-a { fill: var(--disc-0); }
+.sv-stripe-b { fill: var(--disc-1); }
+.sv-tag-moved { fill: var(--color-moved-bg); }
+.sv-tag-moved-text { fill: var(--color-moved); font-size: 12px; font-weight: 600; }
+.sv-tag-ok { fill: var(--color-ok-bg); }
+.sv-tag-ok-text,
+.sv-ok-text { fill: var(--color-ok); font-size: 12px; font-weight: 600; }
+.sv-qr { fill: var(--showcase-card-text); }
+.sv-track { fill: var(--meter-track); }
+.sv-fill { fill: var(--color-ok); }
+
+@keyframes login-float {
+  from { transform: translateY(-5px); }
+  to { transform: translateY(7px); }
+}
+
+.sv-float {
+  animation: login-float 5.5s ease-in-out infinite alternate;
+}
+
+.sv-float--2 {
+  animation-duration: 6.5s;
+  animation-delay: -2s;
+}
+
+.sv-float--3 {
+  animation-duration: 4.8s;
+  animation-delay: -3.5s;
+}
+
+/* Плавное появление по очереди. При «Уменьшить движение» отключается общим правилом выше. */
+.login-hero__logo,
+.login-hero__slogan,
+.login-form,
+.demo,
+.login-feature,
+.login-illu {
+  animation: appear 420ms var(--ease) backwards;
+}
+
+.login-hero__slogan { animation-delay: 60ms; }
+.login-form { animation-delay: 120ms; }
+.demo { animation-delay: 200ms; }
+.login-feature:nth-child(1) { animation-delay: 260ms; }
+.login-feature:nth-child(2) { animation-delay: 320ms; }
+.login-feature:nth-child(3) { animation-delay: 380ms; }
+.login-feature:nth-child(4) { animation-delay: 440ms; }
+.login-illu { animation-delay: 500ms; }
+
+/* Компьютер: слева брендовая панель, справа форма */
+@media (min-width: 900px) {
+  .login-layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    align-content: stretch;
+  }
+
+  .login-layout::before {
+    content: "";
+    grid-column: 1;
+    grid-row: 1 / -1;
+    background: var(--hero-bg);
+  }
+
+  .login-hero {
+    grid-column: 1;
+    grid-row: 1;
+    gap: var(--space-4);
+    padding: var(--space-6) var(--space-6) var(--space-4);
+    background: none;
+  }
+
+  .login-hero__logo {
+    font-size: 22px;
+  }
+
+  .login-hero__logo img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .login-hero__slogan {
+    font-size: clamp(32px, 3.3vw, 46px);
+    line-height: 1.15;
+  }
+
+  .login-features {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0;
+    color: var(--hero-text);
+  }
+
+  .login-features__list {
+    flex-direction: column;
+    padding: var(--space-2) var(--space-6);
+    overflow: visible;
+  }
+
+  .login-features__list:focus-visible {
+    outline: none;
+  }
+
+  .login-feature {
+    flex: none;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: var(--font-size);
+  }
+
+  .login-feature__icon {
+    background: var(--hero-track);
+    color: var(--hero-accent);
+  }
+
+  .login-illu {
+    grid-column: 1;
+    grid-row: 3;
+    display: grid;
+    place-items: center;
+    padding: var(--space-4) var(--space-6);
+  }
+
+  .login-main {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    align-self: center;
+    padding: var(--space-6) var(--space-5);
+  }
+
+  .login-layout > .app-footer {
+    grid-column: 2;
+    grid-row: 4;
+  }
+}
+
+/* На широком экране демо-карточки стоят в ряд */
+@media (min-width: 1100px) {
+  .demo__cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .demo-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
   }
 }
