@@ -7440,6 +7440,14 @@ button.appt-arrow {
   }
 }
 
+/* Справка — белый лист в любой теме: цвета документа не зависят от оформления */
+.journal .certificate {
+  --color-primary: #13245a;
+  --color-border: #d9d3c4;
+  /* Пометка «Концепт» должна читаться на белом листе и в тёмной теме */
+  --color-notice-text: #5f4500;
+}
+
 @keyframes journal-rise {
   from {
     opacity: 0;
