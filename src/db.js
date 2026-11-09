@@ -264,6 +264,8 @@ db.exec(`
     author_id   INTEGER NOT NULL REFERENCES users(id),
     title       TEXT    NOT NULL,
     body        TEXT    NOT NULL,
+    title_en    TEXT,
+    body_en     TEXT,
     important   INTEGER NOT NULL DEFAULT 0 CHECK (important IN (0, 1)),
     faculty     TEXT,
     course      INTEGER CHECK (course IS NULL OR course BETWEEN 1 AND 6),
@@ -295,6 +297,9 @@ function migrate() {
   if (!has('disciplines', 'short_name')) db.exec('ALTER TABLE disciplines ADD COLUMN short_name TEXT');
   if (!has('groups', 'curator_name')) db.exec('ALTER TABLE groups ADD COLUMN curator_name TEXT');
   if (!has('groups', 'curator_email')) db.exec('ALTER TABLE groups ADD COLUMN curator_email TEXT');
+  // Английская версия объявления (необязательная).
+  if (!has('announcements', 'title_en')) db.exec('ALTER TABLE announcements ADD COLUMN title_en TEXT');
+  if (!has('announcements', 'body_en')) db.exec('ALTER TABLE announcements ADD COLUMN body_en TEXT');
 }
 migrate();
 

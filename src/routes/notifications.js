@@ -21,8 +21,8 @@ function staffOnly(req, res, next) {
 const q = {
   byId: db.prepare('SELECT * FROM announcements WHERE id = ?'),
   insert: db.prepare(`
-    INSERT INTO announcements (author_id, title, body, important, faculty, course, group_name, deadline_on, created_at)
-    VALUES (@author_id, @title, @body, @important, @faculty, @course, @group_name, @deadline_on, @created_at)`),
+    INSERT INTO announcements (author_id, title, body, title_en, body_en, important, faculty, course, group_name, deadline_on, created_at)
+    VALUES (@author_id, @title, @body, @title_en, @body_en, @important, @faculty, @course, @group_name, @deadline_on, @created_at)`),
   remove: db.prepare('UPDATE announcements SET removed_at = ? WHERE id = ? AND removed_at IS NULL'),
   groups: db.prepare('SELECT name, faculty FROM groups ORDER BY name'),
   faculties: db.prepare("SELECT DISTINCT faculty FROM groups UNION SELECT DISTINCT faculty FROM users WHERE role = 'student' ORDER BY 1"),
@@ -90,6 +90,11 @@ router.post('/announcements', staffOnly, (req, res) => {
   if (title.length > 150) return res.status(400).json({ error: tr('notifications.zagolovok_do_150_simvolov') });
   if (!body) return res.status(400).json({ error: tr('notifications.napishite_tekst_obyavleniya') });
   if (body.length > 3000) return res.status(400).json({ error: tr('notifications.tekst_do_3000_simvolov') });
+  // Английская версия необязательна: без неё иностранный студент увидит русский текст.
+  const titleEn = str(b.titleEn, 150);
+  const bodyEn = str(b.bodyEn, 3000);
+  if (titleEn.length > 150) return res.status(400).json({ error: tr('notifications.zagolovok_do_150_simvolov') });
+  if (bodyEn.length > 3000) return res.status(400).json({ error: tr('notifications.tekst_do_3000_simvolov') });
 
   // Кому: проверяем по реальным спискам факультетов и групп.
   const faculties = q.faculties.all().map((r) => r.faculty);
@@ -129,6 +134,8 @@ router.post('/announcements', staffOnly, (req, res) => {
     author_id: req.user.id,
     title,
     body,
+    title_en: titleEn || null,
+    body_en: bodyEn || null,
     important: b.important === true ? 1 : 0,
     ...target,
     deadline_on: deadline,

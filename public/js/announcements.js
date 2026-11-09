@@ -124,6 +124,8 @@
     const body = {
       title: v('a-title'),
       body: v('a-body'),
+      titleEn: v('a-title-en'),
+      bodyEn: v('a-body-en'),
       audience,
       faculty: v('a-faculty'),
       course: v('a-course'),

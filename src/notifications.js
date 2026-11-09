@@ -1,4 +1,5 @@
 'use strict';
+const { announcementField, dataText, personName } = require('./dataEn');
 const { tr, currentLocale } = require('./i18n');
 // Лента уведомлений студента и «Ближайшие дедлайны».
 // Автоматические уведомления собираются на лету из уже существующих данных
@@ -67,7 +68,7 @@ function audienceMatches(a, user) {
 
 function requestTitle(r) {
   if (r.type === 'appeal') return tr('notifications.obraschenie_v_dekanat');
-  if (r.type === 'order_extract') return tr('notifications.vypiska_iz_prikaza_p0', { p0: r.order_ref ? `«${r.order_ref}»` : '' }).trim();
+  if (r.type === 'order_extract') return tr('notifications.vypiska_iz_prikaza_p0', { p0: r.order_ref ? `«${dataText(r.order_ref)}»` : '' }).trim();
   return T.TYPES[r.type].label;
 }
 
@@ -77,7 +78,7 @@ function deadlines(user, today) {
   const out = [];
   for (const a of q.announcements.all({ faculty: user.faculty, course: user.course, group: user.group_name })) {
     if (a.deadline_on && a.deadline_on >= today) {
-      out.push({ key: `announcement:${a.id}`, date: a.deadline_on, title: a.title, note: tr('notifications.obyavlenie_dekanata'), own: true, link: `/announcements/${a.id}` });
+      out.push({ key: `announcement:${a.id}`, date: a.deadline_on, title: announcementField(a, 'title'), note: tr('notifications.obyavlenie_dekanata'), own: true, link: `/announcements/${a.id}` });
     }
   }
 
@@ -89,7 +90,7 @@ function deadlines(user, today) {
         out.push({
           key: `exam:${d.id}`,
           date: d.examDate,
-          title: `${d.control === 'exam' ? tr('notifications.ekzamen') : tr('notifications.zachet')}: ${d.discipline}`,
+          title: `${d.control === 'exam' ? tr('notifications.ekzamen') : tr('notifications.zachet')}: ${dataText(d.discipline)}`,
           note: tr('notifications.sessiya'),
           own: true,
           link: '/grades',
@@ -138,8 +139,8 @@ function feed(user, today) {
       kind: 'announcement',
       kindLabel: tr('notifications.obyavlenie'),
       important: Boolean(a.important),
-      title: a.title,
-      body: preview(a.body),
+      title: announcementField(a, 'title'),
+      body: preview(announcementField(a, 'body')),
       at: a.created_at,
       link: `/announcements/${a.id}`,
     });
@@ -148,11 +149,12 @@ function feed(user, today) {
   // 2. Изменения в расписании группы (сегодня и дальше).
   const TITLES = { moved: tr('notifications.para_perenesena'), teacher_changed: tr('notifications.zamena_prepodavatelya'), room_changed: tr('notifications.drugaya_auditoriya'), cancelled: tr('notifications.para_otmenena') };
   for (const l of q.lessonChanges.all({ group: user.group_name, today })) {
-    let body = `${l.discipline}, ${slot(l.date, l.pair)}`;
-    if (l.status === 'moved') body = `${l.discipline}: ${slot(l.old_date, l.old_pair)} → ${slot(l.date, l.pair)}`;
-    if (l.status === 'teacher_changed') body += tr('notifications.vedet_p0_vmesto_p1', { p0: shortName(l.teacher), p1: shortName(l.old_teacher) });
+    const discipline = dataText(l.discipline);
+    let body = `${discipline}, ${slot(l.date, l.pair)}`;
+    if (l.status === 'moved') body = `${discipline}: ${slot(l.old_date, l.old_pair)} → ${slot(l.date, l.pair)}`;
+    if (l.status === 'teacher_changed') body += tr('notifications.vedet_p0_vmesto_p1', { p0: personName(shortName(l.teacher)), p1: personName(shortName(l.old_teacher)) });
     if (l.status === 'room_changed') body += tr('notifications.auditoriya_room_vmesto_old', { room: l.room, old_room: l.old_room });
-    if (l.change_note) body += `. ${l.change_note}`;
+    if (l.change_note) body += `. ${dataText(l.change_note)}`;
     items.push({
       key: `lesson:${l.id}:${l.changed_at}`,
       kind: 'schedule',
@@ -171,9 +173,9 @@ function feed(user, today) {
   const eventStamps = new Set(events.map((e) => `${e.request_id}|${e.actor_id}|${e.at}`));
   for (const e of events) {
     let body = T.statusHint(e.status, e);
-    if (e.status === 'ready' && e.format === 'paper' && e.pickup_place) body = `${e.pickup_place}. ${e.pickup_hours || ''}`.trim();
-    if (e.status === 'rejected' && e.reject_reason) body = tr('notifications.prichina_reject_reason', { reject_reason: e.reject_reason });
-    if (e.note && e.status !== 'rejected') body = preview(e.note);
+    if (e.status === 'ready' && e.format === 'paper' && e.pickup_place) body = `${dataText(e.pickup_place)}. ${dataText(e.pickup_hours) || ''}`.trim();
+    if (e.status === 'rejected' && e.reject_reason) body = tr('notifications.prichina_reject_reason', { reject_reason: dataText(e.reject_reason) });
+    if (e.note && e.status !== 'rejected') body = preview(dataText(e.note));
     items.push({
       key: `request_event:${e.id}`,
       kind: 'request',
@@ -193,8 +195,8 @@ function feed(user, today) {
       kind: 'request',
       kindLabel: tr('notifications.zayavka'),
       important: false,
-      title: tr('notifications.otvet_dekanata_p0', { p0: m.type === 'appeal' ? m.subject : requestTitle(m) }),
-      body: preview(m.text),
+      title: tr('notifications.otvet_dekanata_p0', { p0: m.type === 'appeal' ? dataText(m.subject) : requestTitle(m) }),
+      body: preview(dataText(m.text)),
       at: m.created_at,
       link: `/requests/${m.request_id}`,
     });
@@ -208,7 +210,7 @@ function feed(user, today) {
       kindLabel: tr('notifications.priem'),
       important: false,
       title: tr('notifications.zavtra_priem_v_dekanate', { time: a.time }),
-      body: `${a.topic} · ${a.place}`,
+      body: `${a.topic} · ${dataText(a.place)}`,
       at: `${today} 08:00`,
       link: '/appointments',
     });

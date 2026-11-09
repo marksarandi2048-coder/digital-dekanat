@@ -1,4 +1,5 @@
 'use strict';
+const { announcementField, dataText } = require('./dataEn');
 const { tr } = require('./i18n');
 // Объявления деканата: как показать и сколько адресатов их прочитали.
 // Проверка ПРАВ — в маршрутах; здесь только работа с данными.
@@ -13,8 +14,8 @@ const q = {
 };
 
 function audienceLabel(a) {
-  if (a.group_name) return tr('announcements.gruppa_group_name', { group_name: a.group_name });
-  if (a.faculty && a.course) return tr('announcements.course_kurs_faculty', { course: a.course, faculty: a.faculty });
+  if (a.group_name) return tr('announcements.gruppa_group_name', { group_name: dataText(a.group_name) });
+  if (a.faculty && a.course) return tr('announcements.course_kurs_faculty', { course: a.course, faculty: dataText(a.faculty) });
   if (a.faculty) return a.faculty;
   if (a.course) return tr('announcements.course_kurs_vse_fakultety', { course: a.course });
   return tr('announcements.vse_studenty');
@@ -24,8 +25,8 @@ function toAnnouncement(a) {
   const author = q.author.get(a.author_id);
   return {
     id: a.id,
-    title: a.title,
-    body: a.body,
+    title: announcementField(a, 'title'),
+    body: announcementField(a, 'body'),
     important: Boolean(a.important),
     audience: audienceLabel(a),
     deadlineOn: a.deadline_on,

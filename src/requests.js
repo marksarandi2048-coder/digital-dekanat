@@ -1,4 +1,5 @@
 'use strict';
+const { dataText } = require('./dataEn');
 const { tr } = require('./i18n');
 // Заявки: чтение, создание, смена статуса, переписка, электронные справки.
 // Проверка ПРАВ — в маршрутах (src/routes/requests.js); здесь только работа с данными.
@@ -106,7 +107,7 @@ function toListItem(r) {
     type: r.type,
     typeLabel: T.TYPES[r.type].label,
     format: r.format,
-    title: r.type === 'appeal' ? r.subject : r.type === 'order_extract' ? `${T.TYPES[r.type].label}: ${r.order_ref}` : T.TYPES[r.type].label,
+    title: r.type === 'appeal' ? r.subject : r.type === 'order_extract' ? `${T.TYPES[r.type].label}: ${dataText(r.order_ref)}` : T.TYPES[r.type].label,
     purpose: r.purpose,
     status: r.status,
     ...displayStatus(r),

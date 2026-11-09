@@ -23,6 +23,7 @@ const { checkPathFor } = require('./src/studentCard');
 const { nowInMoscow } = require('./src/dates');
 const { buildServiceWorker } = require('./src/serviceWorker');
 const { languageMiddleware, tr } = require('./src/i18n');
+const { dataLanguageMiddleware } = require('./src/dataEn');
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 if (!SESSION_SECRET) {
@@ -89,6 +90,7 @@ app.use('/api', (req, res, next) => {
   }
   next();
 });
+app.use('/api', dataLanguageMiddleware);
 app.use('/api', authRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', scheduleRoutes);
