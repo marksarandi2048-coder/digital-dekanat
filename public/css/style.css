@@ -6824,6 +6824,10 @@ button.appt-arrow {
   --color-bg: var(--journal-bg);
   --color-surface: var(--journal-card);
   --color-border: var(--journal-rule-soft);
+  /* Основной цвет: выбранные кнопки, ссылки, полоски — цветом журнальной кнопки */
+  --color-primary: var(--journal-button-bg);
+  --color-primary-hover: var(--journal-button-hover);
+  --color-primary-text: var(--journal-button-text);
   --font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
   --radius: 2px;
   --radius-small: 2px;
