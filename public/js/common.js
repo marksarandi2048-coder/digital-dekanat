@@ -44,7 +44,7 @@ window.Dekanat = (function () {
   // «Офлайн · обновлено в 10:24», а если данные не сегодняшние — с датой.
   function savedLabel(iso) {
     const saved = new Date(iso);
-    const time = new Intl.DateTimeFormat(window.DekanatI18n.locale, { timeZone: MOSCOW, hour: '2-digit', minute: '2-digit' }).format(saved);
+    const time = new Intl.DateTimeFormat(window.DekanatI18n.locale, { timeZone: MOSCOW, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(saved);
     const day = moscowDate(saved);
     return tr('common.oflayn_obnovleno_p0_v', { p0: day === todayInMoscow() ? '' : `${dayMonth(day)} `, time });
   }
