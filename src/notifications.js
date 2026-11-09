@@ -9,6 +9,7 @@ const { pairsFor } = require('./pairs');
 const T = require('./requestTypes');
 const { listSemesters, semesterData } = require('./grades');
 const { eventsFor: bonusEvents } = require('./bonus');
+const { reminders: appointmentReminders } = require('./appointments');
 
 const REMIND_DAYS = 7; // за сколько дней до срока напоминать
 const HISTORY_DAYS = 30; // сколько дней истории заявок показывать
@@ -195,6 +196,20 @@ function feed(user, today) {
       body: preview(m.text),
       at: m.created_at,
       link: `/requests/${m.request_id}`,
+    });
+  }
+
+  // Напоминание о приёме за день. В ключе дата и время: после переноса придёт новое.
+  for (const a of appointmentReminders(user, today)) {
+    items.push({
+      key: `appointment:${a.id}:${a.date}:${a.time}`,
+      kind: 'appointment',
+      kindLabel: 'Приём',
+      important: false,
+      title: `Завтра приём в деканате в ${a.time}`,
+      body: `${a.topic} · ${a.place}`,
+      at: `${today} 08:00`,
+      link: '/appointments',
     });
   }
 

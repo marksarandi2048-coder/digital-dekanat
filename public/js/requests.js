@@ -66,6 +66,10 @@
       if (hint) a.append(el('span', 'quick__hint', hint));
       grid.append(a);
     }
+    const appointment = el('a', 'quick__item quick__item--appointment');
+    appointment.href = '/appointments';
+    appointment.append(el('span', 'quick__label', 'Записаться на приём'), el('span', 'quick__hint', 'без очереди'));
+    grid.append(appointment);
     quick.append(grid);
     top.replaceChildren(quick);
 

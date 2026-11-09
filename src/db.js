@@ -183,6 +183,28 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS request_messages_request ON request_messages (request_id);
 
+  -- Запись на приём в деканат. Занять слот дважды и взять две записи на день мешают индексы.
+  CREATE TABLE IF NOT EXISTS appointments (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL REFERENCES users(id),
+    faculty    TEXT    NOT NULL,
+    date       TEXT    NOT NULL,
+    time       TEXT    NOT NULL,
+    topic      TEXT    NOT NULL CHECK (topic IN ('certificates', 'academic_debt', 'transfer', 'other')),
+    comment    TEXT,
+    status     TEXT    NOT NULL CHECK (status IN ('active', 'cancelled', 'attended', 'missed')),
+    created_at TEXT    NOT NULL,
+    updated_at TEXT    NOT NULL
+  );
+  CREATE UNIQUE INDEX IF NOT EXISTS appointments_slot ON appointments (faculty, date, time) WHERE status != 'cancelled';
+  CREATE UNIQUE INDEX IF NOT EXISTS appointments_student_day ON appointments (student_id, date) WHERE status = 'active';
+  CREATE TABLE IF NOT EXISTS reception_closed_days (
+    faculty TEXT NOT NULL,
+    date    TEXT NOT NULL,
+    reason  TEXT NOT NULL,
+    PRIMARY KEY (faculty, date)
+  );
+
   -- Где заработать надбавку: возможности и записи студентов.
   CREATE TABLE IF NOT EXISTS bonus_opportunities (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -15,6 +15,7 @@ const notificationsRoutes = require('./src/routes/notifications');
 const homeRoutes = require('./src/routes/home');
 const studentCardRoutes = require('./src/routes/studentCard');
 const bonusRoutes = require('./src/routes/bonus');
+const appointmentRoutes = require('./src/routes/appointments');
 const { findById } = require('./src/users');
 const { PUBLIC_URL } = require('./src/config');
 const { checkPathFor } = require('./src/studentCard');
@@ -92,6 +93,7 @@ app.use('/api', notificationsRoutes);
 app.use('/api', homeRoutes);
 app.use('/api', studentCardRoutes);
 app.use('/api', bonusRoutes);
+app.use('/api', appointmentRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Не найдено' }));
 
 // Страницы.
@@ -111,6 +113,7 @@ const pages = {
   '/grades/bonus': 'bonus.html',
   '/profile': 'profile.html',
   '/requests': 'requests.html',
+  '/appointments': 'appointments.html',
   '/requests/new': 'request-new.html',
   '/requests/:id': 'request.html',
   '/requests/:id/certificate': 'certificate.html',

@@ -8,6 +8,7 @@ const { db, DB_PATH, createSchema } = require('../src/db');
 const { nowInMoscow, addDays, mondayOf } = require('../src/dates');
 const { seedGrades } = require('./seed-grades');
 const { seedBonus } = require('./seed-bonus');
+const { seedAppointments } = require('./seed-appointments');
 const { seedRequests } = require('./seed-requests');
 const { seedAnnouncements } = require('./seed-announcements');
 const { assignDisciplineColors } = require('../src/colors');
@@ -193,7 +194,7 @@ let announcementCount = 0;
 let colorInfo = { colored: 0, conflicts: 0 };
 
 db.transaction(() => {
-  const tables = ['bonus_enrollments', 'bonus_opportunities', 'student_cards', 'notification_reads', 'announcements', 'e_certificates', 'request_messages', 'request_events', 'requests', 'bonuses', 'social_scores', 'results', 'assessments', 'semesters', 'lessons', 'teachers', 'disciplines', 'groups', 'users'];
+  const tables = ['appointments', 'reception_closed_days', 'bonus_enrollments', 'bonus_opportunities', 'student_cards', 'notification_reads', 'announcements', 'e_certificates', 'request_messages', 'request_events', 'requests', 'bonuses', 'social_scores', 'results', 'assessments', 'semesters', 'lessons', 'teachers', 'disciplines', 'groups', 'users'];
   for (const table of tables) {
     db.prepare(`DELETE FROM ${table}`).run();
     db.prepare('DELETE FROM sqlite_sequence WHERE name = ?').run(table);
@@ -272,6 +273,7 @@ db.transaction(() => {
   ({ requestCount } = seedRequests({ db, today, userIdByLogin }));
   ({ announcementCount } = seedAnnouncements({ db, today, userIdByLogin }));
   seedBonus({ db, today, userIdByLogin });
+  seedAppointments({ db, now: nowInMoscow(), userIdByLogin });
   colorInfo = assignDisciplineColors(db);
   const setShort = db.prepare('UPDATE disciplines SET short_name = ? WHERE name = ?');
   for (const [name, short] of Object.entries(shortNames)) setShort.run(short, name);
