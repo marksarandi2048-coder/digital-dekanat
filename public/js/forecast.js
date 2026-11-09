@@ -30,7 +30,13 @@ window.DekanatForecast = (function () {
       return box;
     }
 
-    let choices = {};
+    // По умолчанию зачёты сданы: студент может снять отметку.
+    const defaults = () => Object.fromEntries(open.filter((d) => d.control === 'credit').map((d) => [d.id, 'passed']));
+    const isDefault = () => {
+      const base = defaults();
+      return open.every((d) => choices[d.id] === base[d.id]);
+    };
+    let choices = defaults();
     let requestId = 0;
     let timer = null;
     const pickButtons = new Map();
@@ -44,7 +50,8 @@ window.DekanatForecast = (function () {
     const head = el('div', 'fc__head');
     head.append(title, el('span', 'badge badge--moved', 'Прогноз'));
     const top = el('div', 'fc__top');
-    top.append(head, score, el('p', 'muted fc__caption', 'Разница — вклад выбранных оценок.'));
+    const unset = el('p', 'fc__unset', '');
+    top.append(head, score, unset, el('p', 'muted fc__caption', 'Разница — вклад выбранных оценок.'));
 
     // Обратный режим.
     const label = el('label', 'fc__target-label', 'Хочу рейтинг не ниже');
@@ -72,14 +79,17 @@ window.DekanatForecast = (function () {
       for (const [id, buttons] of pickButtons) {
         for (const [grade, btn] of buttons) btn.setAttribute('aria-pressed', String(choices[id] === grade));
       }
-      reset.hidden = !Object.keys(choices).length;
+      reset.hidden = isDefault();
+      const missing = open.filter((d) => !choices[d.id]).length;
+      unset.textContent = missing ? `Не выбрано: ${missing} — считаются как 0` : '';
+      unset.hidden = !missing;
     }
 
     const reset = el('button', 'button-link fc__reset', 'Сбросить выбор');
     reset.type = 'button';
     reset.hidden = true;
     reset.addEventListener('click', () => {
-      choices = {};
+      choices = defaults();
       showPicks();
       send();
     });
@@ -191,6 +201,7 @@ window.DekanatForecast = (function () {
       assumed,
       el('p', 'muted fc__note', 'Это прогноз: он нигде не сохраняется и не меняет рейтинг.'),
     );
+    showPicks();
     send();
     return box;
   }

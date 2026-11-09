@@ -5582,6 +5582,13 @@ main[tabindex="-1"]:focus {
   font-weight: 800;
 }
 
+.fc__unset {
+  margin: 2px 0 0;
+  color: var(--color-moved);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+}
+
 .fc__caption {
   margin: 2px 0 0;
   font-size: 13px;
