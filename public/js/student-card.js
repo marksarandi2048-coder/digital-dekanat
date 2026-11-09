@@ -45,6 +45,80 @@
     return card;
   }
 
+  // Голограмма: блик плавно догоняет мышь, палец или наклон телефона.
+  // При «Уменьшить движение» блик стоит на месте. Возвращает кнопку включения наклона (нужна только на iPhone).
+  function setupHolo(card) {
+    const holo = el('div', 'stc__holo');
+    holo.setAttribute('aria-hidden', 'true');
+    card.prepend(holo);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+
+    const REST = { x: 80, y: 16 }; // то же место, что в стилях: свободный угол, не на ФИО
+    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+    const target = { ...REST };
+    const now = { ...REST };
+    let frame = 0;
+
+    function paint() {
+      holo.style.setProperty('--hx', `${now.x.toFixed(1)}%`);
+      holo.style.setProperty('--hy', `${now.y.toFixed(1)}%`);
+      holo.style.setProperty('--bx', `${(100 - now.x).toFixed(1)}%`);
+      holo.style.setProperty('--by', `${(100 - now.y).toFixed(1)}%`);
+      holo.style.setProperty('--ha', `${((now.x - 50) * 0.5).toFixed(1)}deg`);
+    }
+
+    function tick() {
+      now.x += (target.x - now.x) * 0.16;
+      now.y += (target.y - now.y) * 0.16;
+      paint();
+      frame = Math.abs(target.x - now.x) + Math.abs(target.y - now.y) > 0.1 ? window.requestAnimationFrame(tick) : 0;
+    }
+
+    function aim(x, y) {
+      target.x = clamp(x, 0, 100);
+      target.y = clamp(y, 0, 100);
+      if (!frame) frame = window.requestAnimationFrame(tick);
+    }
+
+    card.addEventListener('pointermove', (e) => {
+      const r = card.getBoundingClientRect();
+      aim(((e.clientX - r.left) / r.width) * 100, ((e.clientY - r.top) / r.height) * 100);
+    });
+    card.addEventListener('pointerleave', () => aim(REST.x, REST.y));
+
+    if (!window.matchMedia('(pointer: coarse)').matches || !('DeviceOrientationEvent' in window)) return null;
+
+    // Наклон отсчитывается от того, как телефон держали при первом показании.
+    let baseBeta = null;
+    let button = null;
+    function onTilt(e) {
+      if (e.gamma === null || e.beta === null) return;
+      if (button) {
+        button.remove(); // данные пошли — разрешение уже есть, кнопка не нужна
+        button = null;
+      }
+      if (baseBeta === null) baseBeta = e.beta;
+      aim(50 + (clamp(e.gamma, -30, 30) / 30) * 50, 50 + (clamp(e.beta - baseBeta, -25, 25) / 25) * 50);
+    }
+    window.addEventListener('deviceorientation', onTilt);
+
+    if (typeof window.DeviceOrientationEvent.requestPermission !== 'function') return null;
+
+    // На iPhone данные наклона приходят только после разрешения, а спросить можно лишь в ответ на нажатие.
+    button = el('button', 'button-link stc-tilt', tr('student_card.vklyuchit_blik_naklon'));
+    button.type = 'button';
+    button.addEventListener('click', async () => {
+      if (button) button.remove();
+      button = null;
+      try {
+        await window.DeviceOrientationEvent.requestPermission();
+      } catch {
+        // нет разрешения — блик всё равно двигается от пальца
+      }
+    });
+    return button;
+  }
+
   function renderHowTo() {
     const box = el('section', 'card stc-howto');
     box.setAttribute('aria-labelledby', 'stc-howto-title');
@@ -100,7 +174,11 @@
       const button = el('button', 'button stc-open', tr('student_card.na_ves_ekran'));
       button.type = 'button';
       button.addEventListener('click', Full.open);
-      side.append(renderCard(data.card), button);
+      const card = renderCard(data.card);
+      const tiltButton = setupHolo(card);
+      side.append(card);
+      if (tiltButton) side.append(tiltButton);
+      side.append(button);
       content.classList.add('stc-page');
       content.replaceChildren(side, renderHowTo());
     }

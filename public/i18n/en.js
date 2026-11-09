@@ -991,6 +991,7 @@
   "student_card.na_telefone_fon_stanet": "On a phone, the background turns bright and the QR code gets larger.",
   "student_card.na_telefone_ikonka_bileta": "On a phone, tap the ID icon in the header; on a computer, choose “Student ID” in the menu.",
   "student_card.na_ves_ekran": "Full screen",
+  "student_card.vklyuchit_blik_naklon": "Enable tilt shimmer",
   "student_card.net_podklyucheniya_sokhranennogo_bileta": "No connection. There is no saved student ID on this device.",
   "student_card.nomer_bileta": "ID number",
   "student_card.otkroetsya_ta_zhe_stranitsa": "Opens the same page the checker sees.",

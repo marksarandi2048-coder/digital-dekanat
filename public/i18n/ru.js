@@ -991,6 +991,7 @@
   "student_card.na_telefone_fon_stanet": "На телефоне фон станет ярким, а QR-код — крупным.",
   "student_card.na_telefone_ikonka_bileta": "На телефоне — иконка билета в шапке, на компьютере — пункт «Студенческий» в меню.",
   "student_card.na_ves_ekran": "На весь экран",
+  "student_card.vklyuchit_blik_naklon": "Включить блик от наклона",
   "student_card.net_podklyucheniya_sokhranennogo_bileta": "Нет подключения. Сохранённого билета на этом устройстве нет.",
   "student_card.nomer_bileta": "Номер билета",
   "student_card.otkroetsya_ta_zhe_stranitsa": "Откроется та же страница, что и у проверяющего.",

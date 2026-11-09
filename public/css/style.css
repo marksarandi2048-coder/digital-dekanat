@@ -56,6 +56,11 @@
 /* ================= Тема 1 (по умолчанию): «МГИМО классика» =================
    Глубокий синий, золотые акценты, заголовки с засечками (Playfair Display),
    основной текст — Manrope, строгие формы. */
+:root {
+  /* Гильоширная сетка билета: переплетённые волны, как на защищённых бланках */
+  --guilloche: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='64' fill='none' stroke-width='.6'%3E%3Cpath d='M-40 -32Q0 -68 40 -32T120 -32T200 -32M-40 -24Q0 -60 40 -24T120 -24T200 -24M-40 -16Q0 -52 40 -16T120 -16T200 -16M-40 -8Q0 -44 40 -8T120 -8T200 -8M-40 0Q0 -36 40 0T120 0T200 0M-40 8Q0 -28 40 8T120 8T200 8M-40 16Q0 -20 40 16T120 16T200 16M-40 24Q0 -12 40 24T120 24T200 24M-40 32Q0 -4 40 32T120 32T200 32M-40 40Q0 4 40 40T120 40T200 40M-40 48Q0 12 40 48T120 48T200 48M-40 56Q0 20 40 56T120 56T200 56M-40 64Q0 28 40 64T120 64T200 64M-40 72Q0 36 40 72T120 72T200 72M-40 80Q0 44 40 80T120 80T200 80M-40 88Q0 52 40 88T120 88T200 88M-40 96Q0 60 40 96T120 96T200 96' stroke='%23e6c67c' stroke-opacity='.17'/%3E%3Cpath d='M0 -32Q40 -68 80 -32T160 -32T240 -32M0 -24Q40 -60 80 -24T160 -24T240 -24M0 -16Q40 -52 80 -16T160 -16T240 -16M0 -8Q40 -44 80 -8T160 -8T240 -8M0 0Q40 -36 80 0T160 0T240 0M0 8Q40 -28 80 8T160 8T240 8M0 16Q40 -20 80 16T160 16T240 16M0 24Q40 -12 80 24T160 24T240 24M0 32Q40 -4 80 32T160 32T240 32M0 40Q40 4 80 40T160 40T240 40M0 48Q40 12 80 48T160 48T240 48M0 56Q40 20 80 56T160 56T240 56M0 64Q40 28 80 64T160 64T240 64M0 72Q40 36 80 72T160 72T240 72M0 80Q40 44 80 80T160 80T240 80M0 88Q40 52 80 88T160 88T240 88M0 96Q40 60 80 96T160 96T240 96' stroke='%23e6c67c' stroke-opacity='.17'/%3E%3Cpath d='M-40 -32Q0 -48 40 -32T120 -32T200 -32M-40 -24Q0 -40 40 -24T120 -24T200 -24M-40 -16Q0 -32 40 -16T120 -16T200 -16M-40 -8Q0 -24 40 -8T120 -8T200 -8M-40 0Q0 -16 40 0T120 0T200 0M-40 8Q0 -8 40 8T120 8T200 8M-40 16Q0 0 40 16T120 16T200 16M-40 24Q0 8 40 24T120 24T200 24M-40 32Q0 16 40 32T120 32T200 32M-40 40Q0 24 40 40T120 40T200 40M-40 48Q0 32 40 48T120 48T200 48M-40 56Q0 40 40 56T120 56T200 56M-40 64Q0 48 40 64T120 64T200 64M-40 72Q0 56 40 72T120 72T200 72M-40 80Q0 64 40 80T120 80T200 80M-40 88Q0 72 40 88T120 88T200 88M-40 96Q0 80 40 96T120 96T200 96' stroke='%23fff' stroke-opacity='.07'/%3E%3Cpath d='M40 -32Q80 -48 120 -32T200 -32T280 -32M40 -24Q80 -40 120 -24T200 -24T280 -24M40 -16Q80 -32 120 -16T200 -16T280 -16M40 -8Q80 -24 120 -8T200 -8T280 -8M40 0Q80 -16 120 0T200 0T280 0M40 8Q80 -8 120 8T200 8T280 8M40 16Q80 0 120 16T200 16T280 16M40 24Q80 8 120 24T200 24T280 24M40 32Q80 16 120 32T200 32T280 32M40 40Q80 24 120 40T200 40T280 40M40 48Q80 32 120 48T200 48T280 48M40 56Q80 40 120 56T200 56T280 56M40 64Q80 48 120 64T200 64T280 64M40 72Q80 56 120 72T200 72T280 72M40 80Q80 64 120 80T200 80T280 80M40 88Q80 72 120 88T200 88T280 88M40 96Q80 80 120 96T200 96T280 96' stroke='%23fff' stroke-opacity='.07'/%3E%3C/svg%3E");
+}
+
 :root,
 [data-theme="classic"] {
   color-scheme: light;
@@ -5216,7 +5221,7 @@ main[tabindex="-1"]:focus {
 
 @media (min-width: 1100px) {
   .stc-page {
-    grid-template-columns: minmax(0, 480px) minmax(300px, 560px);
+    grid-template-columns: minmax(360px, 480px) minmax(0, 1fr);
     gap: var(--space-5);
   }
 }
@@ -5292,26 +5297,42 @@ main[tabindex="-1"]:focus {
   max-width: 480px;
   padding: var(--space-4);
   border-radius: var(--radius);
-  background: var(--hero-bg);
+  background: var(--guilloche), var(--hero-bg);
   color: var(--hero-text);
   box-shadow: var(--shadow-hover);
+  isolation: isolate;
 }
 
-/* Лёгкий блик: проходит по карточке раз в несколько секунд */
-.stc::after {
-  content: "";
+/* Голограмма: золотой блик следует за мышью или наклоном телефона. QR и пометка «Концепт» лежат выше неё. */
+.stc__holo {
+  /* В покое блик в свободном правом верхнем углу, не на ФИО */
+  --hx: 80%;
+  --hy: 16%;
+  --bx: 20%;
+  --by: 84%;
+  --ha: 15deg;
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 45%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  inset: 0;
+  z-index: 1;
   pointer-events: none;
-  transform: translateX(-130%) skewX(-18deg);
-  animation: stc-shine 7s ease-in-out 1s infinite;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(circle at var(--hx) var(--hy), rgba(255, 200, 100, 0.4) 0%, rgba(236, 172, 62, 0.2) 26%, transparent 52%),
+    linear-gradient(calc(112deg + var(--ha)), transparent 18%, rgba(255, 196, 90, 0.22) 34%, rgba(150, 214, 255, 0.13) 44%, rgba(255, 150, 200, 0.12) 52%, rgba(255, 208, 110, 0.22) 62%, transparent 78%);
+  background-size: 100% 100%, 220% 220%;
+  background-position: 0 0, var(--bx) var(--by);
 }
 
-@keyframes stc-shine {
-  0% { transform: translateX(-130%) skewX(-18deg); }
-  35%, 100% { transform: translateX(260%) skewX(-18deg); }
+.stc__qr,
+.stc .stc-concept {
+  position: relative;
+  z-index: 2;
+}
+
+.stc-tilt {
+  display: block;
+  min-height: 44px;
+  margin-top: var(--space-1);
 }
 
 .stc__head {
@@ -7204,7 +7225,7 @@ button.appt-arrow {
 /* Студенческий — единственная «вклейка» на странице */
 .journal .tile--card {
   padding: var(--space-3) var(--space-4) var(--space-4);
-  background: var(--hero-bg);
+  background: var(--guilloche), var(--hero-bg);
   border: 1px solid var(--journal-rule);
   border-radius: 3px;
 }
