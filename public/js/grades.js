@@ -354,6 +354,8 @@
     }
     const extra = el('div', 'split__pair');
     extra.append(renderSocial(data.social), renderBonuses(data.bonuses, data.rating.blocks.find((b) => b.key === 'bonus')));
+    // Калькулятор — только студенту и только за текущий семестр.
+    if (!data.students && data.semester.isCurrent && data.disciplines.length) main.append(window.DekanatForecast.render(data));
     main.append(subjects, extra);
 
     content.className = 'split';

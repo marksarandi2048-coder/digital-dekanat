@@ -5,6 +5,7 @@ const { db } = require('../db');
 const { requireAuth } = require('../access');
 const { findById } = require('../users');
 const { listSemesters, semesterData } = require('../grades');
+const { forecast } = require('../forecast');
 const { nowInMoscow } = require('../dates');
 
 const router = express.Router();
@@ -55,6 +56,15 @@ router.get('/grades', requireAuth, (req, res) => {
     previous,
     ...data,
   });
+});
+
+// Калькулятор «Что нужно на экзамене»: только для самого студента, студент — из сессии.
+// Метод POST — потому что выбор оценок передаётся в теле запроса; в базу ничего не пишется.
+router.post('/grades/forecast', requireAuth, (req, res) => {
+  if (req.user.role !== 'student') return res.status(403).json({ error: 'Калькулятор доступен только студенту' });
+  const result = forecast(req.user, nowInMoscow().date, req.body || {});
+  if (!result) return res.status(404).json({ error: 'Текущий семестр не найден' });
+  res.json(result);
 });
 
 function pickPrev(d) {
