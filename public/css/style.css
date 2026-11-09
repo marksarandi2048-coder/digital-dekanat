@@ -7294,6 +7294,58 @@ button.appt-arrow {
   font-size: 22px;
 }
 
+/* Страница «Неделя» */
+.journal .week-nav {
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--journal-rule);
+  border-bottom: 1px solid var(--journal-rule);
+  border-radius: 0;
+}
+
+.journal .week-nav__label {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.journal .wk-today-band {
+  background: var(--journal-side-hover);
+}
+
+.journal .wk-day__name {
+  font-family: var(--font-heading);
+}
+
+.journal #content.wk {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding-inline: 0;
+}
+
+/* Плашки-подсказки и панель деталей — прямые углы, бумага */
+.journal .notice,
+.journal .week-tools__changes {
+  border-radius: 2px;
+}
+
+.journal .sheet {
+  border-color: var(--journal-rule);
+  background-color: var(--journal-bg);
+  background-image: var(--journal-grain);
+}
+
+.journal .sheet__title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.journal .sheet__head {
+  border-color: var(--journal-rule-soft);
+}
+
 @keyframes journal-rise {
   from {
     opacity: 0;
