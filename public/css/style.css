@@ -4665,3 +4665,313 @@ main[tabindex="-1"]:focus {
     white-space: normal;
   }
 }
+
+/* =================== «Сегодня»: таймлайн дня =================== */
+.today-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.today-side > * {
+  margin-bottom: 0;
+}
+
+/* Шкала: высота пропорциональна времени. --tl-px — сколько пикселей в одной минуте */
+.tl {
+  --tl-px: 1.2px;
+  --tl-gutter: 48px;
+  position: relative;
+  height: calc(var(--tl-min) * var(--tl-px));
+  margin: var(--space-4) 0 var(--space-3);
+}
+
+.tl-status {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.tl-done {
+  margin-bottom: var(--space-3);
+}
+
+/* Часы слева с короткой риской: линии через всю шкалу мешали читать карточки */
+.tl-tick {
+  position: absolute;
+  top: calc(var(--at) * var(--tl-px));
+  left: 0;
+  width: var(--tl-gutter);
+  height: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.tl-tick__label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--tl-gutter) - var(--space-2));
+  padding: 0 var(--space-1) 0 0;
+  background: var(--color-bg);
+  color: var(--color-muted);
+  font-size: 13px;
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 18px;
+  text-align: right;
+  transform: translateY(-50%);
+}
+
+/* Подпись часа, на которую наехала метка «сейчас» */
+.tl-tick--covered .tl-tick__label {
+  visibility: hidden;
+}
+
+.tl-track {
+  position: absolute;
+  inset: 0 0 0 var(--tl-gutter);
+  margin: 0;
+  padding: 0;
+  border-left: 2px solid var(--color-border);
+  list-style: none;
+}
+
+.tl-slot,
+.tl-gap {
+  position: absolute;
+  top: calc(var(--start) * var(--tl-px));
+  left: var(--space-2);
+  right: 0;
+  height: calc(var(--len) * var(--tl-px));
+}
+
+.tl-slot {
+  z-index: 1;
+  display: flex;
+  gap: var(--space-1);
+}
+
+/* Карточка на шкале: сверху время и аудитория, ниже название */
+.tl-slot .wk-card {
+  flex: 1 1 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: "top room" "name name";
+  align-content: center;
+  align-items: center;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  padding: var(--space-1) var(--space-3);
+}
+
+.tl-slot .wk-card__top {
+  justify-content: flex-start;
+}
+
+.tl-slot .wk-card__time {
+  white-space: nowrap;
+}
+
+.tl-slot .wk-card__name {
+  overflow: hidden;
+  font-size: var(--font-size);
+  white-space: normal;
+}
+
+.tl-slot .wk-card__room {
+  max-width: none;
+  font-size: var(--font-size-small);
+  line-height: 1.25;
+  text-align: right;
+  white-space: normal;
+}
+
+/* Две карточки в одно время (пара и «след» перенесённой) — столбиком внутри каждой */
+.tl-slot--split .wk-card {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "top" "name" "room";
+  padding-inline: var(--space-2);
+}
+
+.tl-slot--split .wk-card__name {
+  font-size: var(--font-size-small);
+}
+
+.tl-slot--split .wk-card__room {
+  max-width: none;
+  font-size: 13px;
+  text-align: left;
+}
+
+/* Прошедшая пара — без заливки и тени, текст остаётся читаемым */
+.tl-slot--past .wk-card {
+  background: transparent;
+  box-shadow: none;
+}
+
+.tl-slot--now .wk-card {
+  border-color: var(--color-now);
+  border-left-color: var(--disc, var(--color-now));
+  box-shadow: 0 0 0 2px var(--color-now-bg);
+}
+
+/* Окна и обед */
+.tl-gap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-small);
+}
+
+.tl-gap--tight {
+  border: 0;
+}
+
+.tl-gap__chip {
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.tl-gap--lunch .tl-gap__chip {
+  background: var(--color-notice-bg);
+  color: var(--color-notice-text);
+}
+
+/* Линия «сейчас» */
+.tl-now {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: 0;
+  pointer-events: none;
+  transform: translateY(calc(var(--now, 0) * var(--tl-px)));
+  transition: transform 1s linear;
+}
+
+/* Сама линия полупрозрачная: проходя по тексту карточки, она не должна выглядеть как зачёркивание */
+.tl-now::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-now);
+  opacity: 0.45;
+}
+
+/* Точка на оси времени */
+.tl-now::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: calc(var(--tl-gutter) - 4px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-now);
+}
+
+.tl-now__time {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0 var(--space-1);
+  border: 1px solid var(--color-now);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-now);
+  font-size: 12px;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 700;
+  line-height: 18px;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+/* «Что взять с собой» */
+.today-bring {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.today-bring__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size);
+}
+
+.today-bring__list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-small);
+}
+
+.today-bring__name {
+  display: block;
+  font-weight: 700;
+}
+
+.today-bring__none {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+}
+
+.today-important--block {
+  display: grid;
+  justify-items: start;
+  margin: 0;
+}
+
+.today-important__body {
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* Компьютер: шкала слева, справа колонка */
+@media (min-width: 1100px) {
+  .today-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-rows: auto auto 1fr;
+    gap: 0 var(--space-5);
+  }
+
+  .today-main {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+
+  .today-side {
+    grid-column: 2;
+    align-self: start;
+    margin-bottom: var(--space-3);
+  }
+
+  .today-side--important { grid-row: 1; }
+  .today-side--deadlines { grid-row: 2; }
+  .today-side--bring { grid-row: 3; }
+
+  /* Колонке нечего показать (например, у сотрудника) — шкала на всю ширину */
+  .today-layout:not(:has(> .today-side:not([hidden]))) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

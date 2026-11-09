@@ -57,7 +57,7 @@
     </div>
   </header>
 
-  <main class="app-main" id="main" tabindex="-1">
+  <main class="app-main app-main--wide" id="main" tabindex="-1">
     <h1 class="page-title">Сегодня</h1>
     <p class="page-subtitle" id="date-label"></p>
     <p class="page-subtitle" id="group-info" hidden></p>
@@ -65,15 +65,37 @@
       <label for="group-select">Группа</label>
       <select id="group-select"></select>
     </div>
-    <div id="today-notices"></div>
     <p class="notice" id="changes-banner" role="status" hidden></p>
-    <div class="state skeleton" id="state-loading" role="status" data-skeleton="lessons"><span class="visually-hidden">Загружаем расписание…</span></div>
-    <p class="state state--error" id="state-error" role="alert" hidden></p>
-    <div id="content" hidden></div>
+    <!-- На телефоне блоки идут в этом порядке, на компьютере (от 1100 px) справа — колонка -->
+    <div class="today-layout">
+      <div class="today-side today-side--important" id="today-important" hidden></div>
+      <div class="today-main">
+        <div class="state skeleton" id="state-loading" role="status" data-skeleton="lessons"><span class="visually-hidden">Загружаем расписание…</span></div>
+        <p class="state state--error" id="state-error" role="alert" hidden></p>
+        <div id="content" hidden></div>
+      </div>
+      <section class="today-side today-side--bring today-bring" id="today-bring" aria-labelledby="today-bring-title" hidden>
+        <h2 class="today-bring__title" id="today-bring-title">Что взять с собой</h2>
+        <div id="today-bring-list"></div>
+      </section>
+      <div class="today-side today-side--deadlines" id="today-deadlines" hidden></div>
+    </div>
   </main>
+
+  <!-- Детали пары: на компьютере — панель справа, на телефоне — шторка снизу -->
+  <dialog class="sheet" id="lesson-sheet" aria-labelledby="sheet-title">
+    <div class="sheet__head">
+      <h2 class="sheet__title" id="sheet-title"></h2>
+      <button class="sheet__close" type="button" id="sheet-close" aria-label="Закрыть">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="sheet__body" id="sheet-body"></div>
+  </dialog>
 
   <footer class="app-footer">Все данные вымышлены</footer>
   <script src="/js/common.js"></script>
+  <script src="/js/lesson-card.js"></script>
   <script src="/js/today.js"></script>
   <script src="/js/today-notices.js"></script>
 </body>

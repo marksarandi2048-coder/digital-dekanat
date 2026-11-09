@@ -102,13 +102,6 @@ window.Dekanat = (function () {
   const slot = (date, pair, time) =>
     `${weekdayShort(date)}, ${dayMonth(date)}, ${pair} пара${time ? ` (${time.start}–${time.end})` : ''}`;
 
-  function timeColumn(pair, time) {
-    const col = el('div', 'lesson__time');
-    col.setAttribute('aria-label', `${pair} пара, с ${time.start} до ${time.end}`);
-    col.append(el('span', 'lesson__pair', `${pair} пара`), el('span', null, time.start), el('span', null, time.end));
-    return col;
-  }
-
   // Название дисциплины с цветной меткой (цвет — подсказка, название всегда рядом).
   function disciplineTitle(tag, className, name, color) {
     const title = el(tag, className);
@@ -128,86 +121,6 @@ window.Dekanat = (function () {
     if (lesson.status === 'room_changed') lines.push(`Было: ${place(c.oldBuilding, c.oldRoom)}`);
     if (c.note) lines.push(c.note);
     return lines;
-  }
-
-  // Карточка занятия. mark: 'now' | 'next' | undefined.
-  function renderLesson(lesson, mark) {
-    const card = el('article', `lesson lesson--${lesson.status}`);
-    const body = el('div', 'lesson__body');
-
-    const tags = el('div', 'lesson__tags');
-    if (lesson.status !== 'normal') tags.append(el('span', 'badge badge--' + lesson.status, BADGE[lesson.status]));
-    // mark — { type: 'now', left } для текущей пары или { type: 'next', in } для следующей.
-    if (mark && mark.type === 'now') {
-      card.classList.add('lesson--current');
-      tags.append(el('span', 'tag tag--now', `Сейчас идёт · ещё ${duration(mark.left)}`));
-    }
-    if (mark && mark.type === 'next') tags.append(el('span', 'tag tag--next', `Следующая через ${duration(mark.in)}`));
-    if (tags.childElementCount) body.append(tags);
-
-    body.append(disciplineTitle('h3', 'lesson__title', lesson.discipline, lesson.color));
-
-    const teacherLine = el('p', 'lesson__meta');
-    teacherLine.append(document.createTextNode(`${KIND[lesson.kind] || ''} · `));
-    const teacher = el('span', lesson.status === 'teacher_changed' ? 'is-changed' : null, shortName(lesson.teacher));
-    teacherLine.append(teacher);
-    if (lesson.teacherTitle) teacherLine.append(document.createTextNode(`, ${lesson.teacherTitle}`));
-    body.append(teacherLine);
-
-    body.append(
-      el('p', 'lesson__place' + (lesson.status === 'room_changed' ? ' is-changed' : ''), place(lesson.building, lesson.room)),
-    );
-
-    for (const line of changeLines(lesson)) body.append(el('p', 'lesson__change', line));
-
-    card.append(timeColumn(lesson.pair, lesson.time), body);
-    return card;
-  }
-
-  // «Призрак» на старом месте перенесённого занятия.
-  function renderMovedAway(lesson) {
-    const card = el('article', 'lesson lesson--ghost');
-    const body = el('div', 'lesson__body');
-    const tags = el('div', 'lesson__tags');
-    tags.append(el('span', 'badge badge--moved', 'Перенесено'));
-    body.append(
-      tags,
-      disciplineTitle('h3', 'lesson__title', lesson.discipline, lesson.color),
-      el('p', 'lesson__change', `Перенесено на ${slot(lesson.date, lesson.pair, lesson.time)}`),
-    );
-    card.append(timeColumn(lesson.change.oldPair, lesson.change.oldTime), body);
-    return card;
-  }
-
-  // Список занятий одного дня: настоящие занятия + «призраки», по порядку пар.
-  function renderDay(date, data) {
-    const items = [
-      ...data.lessons.filter((l) => l.date === date).map((l) => ({ pair: l.pair, lesson: l })),
-      ...data.movedAway
-        .filter((l) => l.change.oldDate === date)
-        .map((l) => ({ pair: l.change.oldPair, ghost: l })),
-    ].sort((a, b) => a.pair - b.pair || (a.ghost ? 1 : -1));
-
-    // Отметки «сейчас идёт» / «следующая через N минут» — только для сегодняшнего дня.
-    // Время берётся московское, с сервера (data.now.time).
-    const marks = {};
-    let finished = false;
-    if (date === data.now.date) {
-      const now = data.now.time;
-      const real = items.filter((i) => i.lesson && i.lesson.status !== 'cancelled').map((i) => i.lesson);
-      const current = real.find((l) => l.time.start <= now && now < l.time.end);
-      const next = real.find((l) => l.time.start > now);
-      if (current) marks[current.id] = { type: 'now', left: minutesBetween(now, current.time.end) };
-      if (next) marks[next.id] = { type: 'next', in: minutesBetween(now, next.time.start) };
-      finished = real.length > 0 && !current && !next;
-    }
-
-    const list = el('div', 'lesson-list');
-    for (const item of items) {
-      if (item.ghost) list.append(renderMovedAway(item.ghost));
-      else list.append(renderLesson(item.lesson, marks[item.lesson.id]));
-    }
-    return { list, count: items.length, finished };
   }
 
   // ---------- Выбор группы (только для сотрудника) и подпись группы ----------
@@ -255,6 +168,12 @@ window.Dekanat = (function () {
       + '<path d="M78 18a28 28 0 0 0-28 28c0 26-10 36-10 36h76s-10-10-10-36a28 28 0 0 0-28-28z" class="i-paper i-line"/>'
       + '<path d="M70 90a8 8 0 0 0 16 0" class="i-line"/>'
       + '<circle cx="112" cy="34" r="17" class="i-accent"/><path d="M104 34l6 6 10-12" class="i-on-accent"/>',
+    // Стопка книг и месяц — «пары закончились»
+    done: '<ellipse cx="80" cy="108" rx="56" ry="6" class="i-fill"/>'
+      + '<rect x="38" y="78" width="84" height="24" rx="4" class="i-paper i-line"/><path d="M50 90h44" class="i-line i-soft"/>'
+      + '<rect x="50" y="54" width="62" height="24" rx="4" class="i-paper i-line"/><path d="M62 66h26" class="i-line i-soft"/>'
+      + '<path d="M120 12a19 19 0 1 0 15 31 16 16 0 0 1-15-31z" class="i-accent"/>'
+      + '<path d="M46 24v10M41 29h10M82 16v6M79 19h6" class="i-line i-soft"/>',
     // Указатель «не туда» — для страницы 404
     lost: '<ellipse cx="80" cy="108" rx="52" ry="6" class="i-fill"/><path d="M80 24v80" class="i-line"/>'
       + '<path d="M80 30h36l10 10-10 10H80z" class="i-paper i-line"/><path d="M80 58H44L34 68l10 10h36z" class="i-paper i-line"/>'
@@ -413,5 +332,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, renderDay, renderLesson, setupGroup, changeLines, shortName, place, minutesBetween, KIND, BADGE, illustration, emptyState };
+  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, setupGroup, changeLines, shortName, place, toMinutes, minutesBetween, KIND, BADGE, illustration, emptyState };
 })();

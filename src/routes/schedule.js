@@ -2,7 +2,8 @@
 // Расписание: сегодня и неделя.
 const express = require('express');
 const { requireAuth } = require('../access');
-const { getSchedule, listGroups } = require('../schedule');
+const { getSchedule, lunchForGroup, listGroups } = require('../schedule');
+const { bringFor } = require('../bringRules');
 const { nowInMoscow, isValidDate, addDays, mondayOf } = require('../dates');
 const { listSemesters } = require('../grades');
 const { buildCalendar } = require('../ics');
@@ -24,7 +25,10 @@ router.get('/schedule/today', (req, res) => {
   const { group, groups } = resolveGroup(req);
   const now = nowInMoscow();
   const data = group ? getSchedule(group, now.date, now.date) : { pairs: null, lessons: [], movedAway: [] };
-  res.json({ group, groups, now, date: now.date, ...data });
+  const lunch = group ? lunchForGroup(group) : null;
+  // «Что взять с собой» — подсказка студенту; сотруднику на занятия идти не нужно.
+  const bring = req.user.role === 'student' ? bringFor(data.lessons) : [];
+  res.json({ group, groups, now, date: now.date, lunch, bring, ...data });
 });
 
 router.get('/schedule/week', (req, res) => {

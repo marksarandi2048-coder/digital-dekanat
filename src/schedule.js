@@ -1,7 +1,7 @@
 'use strict';
 // Чтение расписания из базы.
 const { db } = require('./db');
-const { pairsFor } = require('./pairs');
+const { pairsFor, lunchFor } = require('./pairs');
 const { colorOf } = require('./colors');
 
 // Занятия группы за период, а также занятия, которые были в этом периоде,
@@ -60,6 +60,11 @@ function pairsForGroup(group) {
   return pairsFor(row ? row.faculty : null);
 }
 
+function lunchForGroup(group) {
+  const row = facultyQuery.get(group);
+  return lunchFor(row ? row.faculty : null);
+}
+
 function getSchedule(group, from, to) {
   const pairs = pairsForGroup(group);
   const rows = rangeQuery.all({ group, from, to });
@@ -77,4 +82,4 @@ function listGroups() {
   return groupsQuery.all().map((r) => r.name);
 }
 
-module.exports = { getSchedule, listGroups };
+module.exports = { getSchedule, lunchForGroup, listGroups };

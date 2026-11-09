@@ -28,4 +28,11 @@ function pairsFor(faculty) {
   return EARLY_THIRD_FACULTIES.has(faculty) ? EARLY_THIRD : STANDARD;
 }
 
-module.exports = { pairsFor };
+// Обед: на большинстве факультетов после 2-й пары, на факультетах с ранней 3-й — после неё.
+function lunchFor(faculty) {
+  return EARLY_THIRD_FACULTIES.has(faculty)
+    ? { start: '13:30', end: '14:30' }
+    : { start: '11:55', end: '12:55' };
+}
+
+module.exports = { pairsFor, lunchFor };
