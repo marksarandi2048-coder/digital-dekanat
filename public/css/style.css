@@ -5169,7 +5169,8 @@ main[tabindex="-1"]:focus {
   }
 }
 
-.stc-howto {
+/* Верх блока — вровень с билетом: у блоков внутри #content есть свой отступ сверху */
+#content.stc-page > .stc-howto {
   margin: 0;
 }
 
