@@ -27,39 +27,6 @@
 
   apply(read());
 
-  // ВРЕМЕННО: сравнение вариантов фона и листов (A/B) — переключатель в профиле. Убрать после выбора.
-  const PAPERS = ['a', 'b'];
-  const PAPER_KEY = 'dekanat-paper';
-
-  function readPaper() {
-    try {
-      const p = window.localStorage.getItem(PAPER_KEY);
-      return PAPERS.includes(p) ? p : 'current';
-    } catch {
-      return 'current';
-    }
-  }
-
-  function applyPaper(paper) {
-    if (PAPERS.includes(paper)) document.documentElement.setAttribute('data-paper', paper);
-    else document.documentElement.removeAttribute('data-paper');
-  }
-
-  applyPaper(readPaper());
-
-  window.DekanatPaper = {
-    get: readPaper,
-    set(paper) {
-      try {
-        if (PAPERS.includes(paper)) window.localStorage.setItem(PAPER_KEY, paper);
-        else window.localStorage.removeItem(PAPER_KEY);
-      } catch {
-        // не сохранилось — вариант всё равно применится до перезагрузки
-      }
-      applyPaper(paper);
-    },
-  };
-
   window.DekanatTheme = {
     THEMES,
     get: read,

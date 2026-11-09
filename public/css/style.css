@@ -120,8 +120,7 @@
   --showcase-glow: rgba(243, 214, 143, 0.14);
 
   /* «Университетский журнал»: бумага, золотые линейки, тушь */
-  --journal-bg: #f4eee0;
-  --journal-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .26 0 0 0 0 .1 .34 0 0 0 -.11'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
+  --journal-bg: #fcfaf4;
   --journal-rule: #b8903a;
   --journal-rule-soft: rgba(184, 144, 58, 0.5);
   --journal-kicker: #765410;
@@ -129,7 +128,13 @@
   --journal-button-text: #ffffff;
   --journal-button-hover: #0d1a45;
   --journal-press: inset 0 2px 7px rgba(5, 12, 40, 0.42);
-  --journal-card: #faf6ea;
+  /* Листы на фоне страницы и элементы управления на них */
+  --journal-card: #ffffff;
+  --sheet-border: #dcc48f;
+  --sheet-shadow: 0 1px 2px rgba(70, 52, 16, 0.07), 0 4px 14px rgba(70, 52, 16, 0.09);
+  --sheet-shadow-hover: 0 2px 4px rgba(70, 52, 16, 0.09), 0 8px 22px rgba(70, 52, 16, 0.13);
+  --control-bg: #ffffff;
+  --control-border: #a37c2c;
   --journal-side-hover: rgba(184, 144, 58, 0.16);
   /* Боковое меню — обложка журнала */
   --journal-cover-bg: #13245a;
@@ -266,8 +271,7 @@
   --hero-track: rgba(255, 255, 255, 0.15);
   --hero-fill: #a3b5ea;
 
-  --journal-bg: #161c2d;
-  --journal-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .92 0 0 0 0 .86 0 0 0 0 .68 .2 0 0 0 -.065'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
+  --journal-bg: #171d2e;
   --journal-rule: #c9a961;
   --journal-rule-soft: rgba(201, 169, 97, 0.42);
   --journal-kicker: #e2c071;
@@ -275,7 +279,12 @@
   --journal-button-text: #1b1608;
   --journal-button-hover: #edd08d;
   --journal-press: inset 0 2px 7px rgba(60, 42, 5, 0.5);
-  --journal-card: #1f2740;
+  --journal-card: #252d47;
+  --sheet-border: rgba(201, 169, 97, 0.5);
+  --sheet-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.32);
+  --sheet-shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.34), 0 8px 22px rgba(0, 0, 0, 0.4);
+  --control-bg: #2f3957;
+  --control-border: #c9a961;
   --journal-side-hover: rgba(201, 169, 97, 0.1);
   --journal-cover-bg: #0b0f1c;
   --journal-cover-text: #e9e0c8;
@@ -6850,11 +6859,10 @@ button.appt-arrow {
   --font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
   --radius: 2px;
   --radius-small: 2px;
-  /* Прозрачная тень, а не none: переменная стоит и внутри списков из нескольких теней */
-  --shadow: 0 0 0 transparent;
-  --shadow-hover: 0 0 0 transparent;
+  --color-border-strong: var(--control-border);
+  --shadow: var(--sheet-shadow);
+  --shadow-hover: var(--sheet-shadow-hover);
   background-color: var(--journal-bg);
-  background-image: var(--journal-grain);
 }
 
 .journal .app-main {
@@ -6899,12 +6907,34 @@ button.appt-arrow {
 }
 
 /* Карточки превращаются в разделы на бумаге: линейка сверху вместо рамки */
-.journal .card {
-  padding: var(--space-3) 0 0;
-  background: none;
-  border: 0;
-  border-top: 1px solid var(--journal-rule);
-  border-radius: 0;
+/* Блоки — белые листы с тонкой золотой рамкой и мягкой тенью */
+.journal .card,
+.journal .tile,
+.journal .install-hint,
+.journal .form-block,
+.journal .empty,
+.journal .week-nav,
+.journal .today-important,
+.journal .today-deadlines,
+.journal .today-bring,
+.journal .tl-done {
+  padding: var(--space-4);
+  background: var(--journal-card);
+  border: 1px solid var(--sheet-border);
+  border-radius: 3px;
+  box-shadow: var(--sheet-shadow);
+}
+
+/* Лист внутри листа не нужен: разделы заявки в панели «как в почте» разделены линейкой */
+@media (min-width: 1100px) {
+  .journal .req-detail .card {
+    padding: var(--space-4) 0 0;
+    background: none;
+    border: 0;
+    border-top: 1px solid var(--journal-rule-soft);
+    border-radius: 0;
+    box-shadow: none;
+  }
 }
 
 /* Вкладки — подчёркивание золотом */
@@ -6981,23 +7011,17 @@ button.appt-arrow {
 }
 
 .journal .tiles {
-  gap: var(--space-5) var(--space-6);
+  gap: var(--space-4);
 }
 
 .journal .tile {
   position: relative;
   gap: var(--space-3);
-  padding: var(--space-3) 0 0;
-  background: none;
-  border: 0;
-  border-top: 1px solid var(--journal-rule);
-  border-radius: 0;
-  box-shadow: none;
 }
 
 .journal a.tile:hover {
   border-color: var(--journal-rule);
-  box-shadow: none;
+  box-shadow: var(--sheet-shadow-hover);
   transform: none;
 }
 
@@ -7101,9 +7125,7 @@ button.appt-arrow {
   --hero-track: var(--journal-rule-soft);
   --hero-fill: var(--journal-rule);
   gap: var(--space-3);
-  padding: 0;
-  background: none;
-  border-top: 0;
+  background: var(--journal-card);
 }
 
 .journal .hero__label {
@@ -7205,13 +7227,7 @@ button.appt-arrow {
 }
 
 .journal .install-hint {
-  margin-bottom: var(--space-5);
-  padding: 0 0 var(--space-4);
-  background: none;
-  border: 0;
-  border-bottom: 1px solid var(--journal-rule-soft);
-  border-radius: 0;
-  box-shadow: none;
+  margin-bottom: var(--space-4);
 }
 
 .journal .button {
@@ -7278,8 +7294,8 @@ button.appt-arrow {
 }
 
 .journal .day-chip:not(.day-chip--changes) {
-  background: none;
-  border-color: var(--journal-rule-soft);
+  background: var(--control-bg);
+  border-color: var(--sheet-border);
 }
 
 .journal .day-nav__day--selected,
@@ -7292,18 +7308,6 @@ button.appt-arrow {
   border-color: var(--journal-button-bg);
 }
 
-.journal .today-important,
-.journal .today-deadlines,
-.journal .today-bring,
-.journal .tl-done {
-  padding: var(--space-3) 0 0;
-  background: none;
-  border: 0;
-  border-top: 1px solid var(--journal-rule);
-  border-radius: 0;
-  box-shadow: none;
-}
-
 .journal .today-deadlines__title,
 .journal .today-bring__title {
   font-size: 20px;
@@ -7311,28 +7315,12 @@ button.appt-arrow {
 }
 
 /* Пустые состояния — на бумаге, с тонкой линейкой */
-.journal .empty {
-  background: none;
-  border: 0;
-  border-top: 1px solid var(--journal-rule-soft);
-  border-bottom: 1px solid var(--journal-rule-soft);
-  border-radius: 0;
-}
-
 .journal .empty__title {
   font-family: var(--font-heading);
   font-size: 22px;
 }
 
 /* Страница «Неделя» */
-.journal .week-nav {
-  background: none;
-  border: 0;
-  border-top: 1px solid var(--journal-rule);
-  border-bottom: 1px solid var(--journal-rule);
-  border-radius: 0;
-}
-
 .journal .week-nav__label {
   font-family: var(--font-heading);
   font-size: 20px;
@@ -7347,13 +7335,6 @@ button.appt-arrow {
   font-family: var(--font-heading);
 }
 
-.journal #content.wk {
-  background: none;
-  border: 0;
-  border-radius: 0;
-  padding-inline: 0;
-}
-
 /* Плашки-подсказки и панель деталей — прямые углы, бумага */
 .journal .notice,
 .journal .week-tools__changes {
@@ -7363,7 +7344,6 @@ button.appt-arrow {
 .journal .sheet {
   border-color: var(--journal-rule);
   background-color: var(--journal-bg);
-  background-image: var(--journal-grain);
 }
 
 .journal .sheet__title {
@@ -7406,10 +7386,20 @@ button.appt-arrow {
   border-radius: 2px;
 }
 
+/* Кнопки выбора и поля — белые, с золотой рамкой (выбранная — синяя) */
 .journal .filter,
 .journal .chip,
-.journal .help-chip {
-  background: none;
+.journal .help-chip,
+.journal .day-nav__day:not(.day-nav__day--selected),
+.journal .fc__pick:not([aria-pressed="true"]) {
+  background-color: var(--control-bg);
+  border-color: var(--control-border);
+}
+
+.journal input:not([type="radio"]):not([type="checkbox"]),
+.journal select,
+.journal textarea {
+  background-color: var(--control-bg);
 }
 
 .journal .filter[aria-current="true"] {
@@ -7433,14 +7423,6 @@ button.appt-arrow {
   font-family: var(--font-heading);
   font-size: 20px;
   font-weight: 600;
-}
-
-.journal .form-block {
-  padding: var(--space-3) 0 0;
-  background: none;
-  border: 0;
-  border-top: 1px solid var(--journal-rule);
-  border-radius: 0;
 }
 
 .journal .choice {
@@ -7481,14 +7463,6 @@ button.appt-arrow {
 .journal .login-feature,
 .journal .login-lang {
   border-radius: 2px;
-}
-
-/* Под двойной линейкой заголовка первая тонкая линейка не нужна */
-.journal .app-main > .page-title + .split > .split__side:first-child > .card:first-child,
-.journal .app-main > .page-title + #result > .card:first-child,
-.journal .app-main > .page-title + #state-loading + #result > .card:first-child {
-  padding-top: 0;
-  border-top: 0;
 }
 
 /* Плашки: текст с тонкой цветной линией слева, без заливки. Цвет линии говорит о смысле, значение есть и в тексте. */
@@ -7541,8 +7515,7 @@ button.appt-arrow {
 @media (max-width: 899px) {
   .has-bottom-nav .nav {
     background-color: var(--journal-bg);
-    background-image: var(--journal-grain);
-    border-top: 1px solid var(--journal-rule);
+      border-top: 1px solid var(--journal-rule);
   }
 
   .has-bottom-nav .nav__item {
@@ -7574,6 +7547,10 @@ button.appt-arrow {
     height: 3px;
     background: var(--journal-rule);
   }
+}
+
+.journal .theme-option:has(input:checked) {
+  background: var(--journal-side-hover);
 }
 
 @keyframes journal-rise {
@@ -7609,17 +7586,6 @@ button.appt-arrow {
 .journal #content:not(.is-live) > :nth-child(6) { animation-delay: 510ms; }
 .journal #content:not(.is-live) > :nth-child(7) { animation-delay: 600ms; }
 .journal #content:not(.is-live) > :nth-child(n + 8) { animation-delay: 690ms; }
-
-/* Вертикальные золотые линейки между колонками. Отступ — половина промежутка сетки. */
-.journal .tiles--student > .tile--deadline::before,
-.journal .tiles--student > .tile--notifications::before,
-.journal .tiles--student > .tile--bonus::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 calc(var(--space-6) / -2);
-  width: 1px;
-  background: var(--journal-rule-soft);
-}
 
 .journal .tile-counters {
   gap: var(--space-5);
@@ -7807,7 +7773,6 @@ button.appt-arrow {
 .assistant {
   border-left: 3px double var(--journal-rule);
   background-color: var(--journal-bg);
-  background-image: var(--journal-grain);
 }
 
 .assistant__head,
@@ -7882,10 +7847,6 @@ button.appt-arrow {
 }
 
 @media (max-width: 640px) {
-  .journal .tiles--student > .tile::before {
-    display: none;
-  }
-
   .journal .tile__big,
   .journal .j-num {
     max-width: 100%;
@@ -7898,10 +7859,6 @@ button.appt-arrow {
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     gap: var(--space-5);
-  }
-
-  .journal .tile--hero {
-    padding: 0;
   }
 
   .journal .hero__side:not(:empty) {
@@ -7954,33 +7911,12 @@ button.appt-arrow {
     grid-column: span 3;
   }
 
-  .journal .tiles--student > .tile--rating {
-    border-top: 0;
-    padding-top: 0;
-  }
-
   .journal .tiles--student .tile__title {
     font-size: 20px;
   }
 
   .journal .tile--card {
     padding: var(--space-3);
-  }
-
-  /* На широком экране колонок четыре: линейки стоят иначе, чем в две колонки */
-  .journal .tiles--student > .tile--deadline::before,
-  .journal .tiles--student > .tile--bonus::before {
-    display: none;
-  }
-
-  .journal .tiles--student > .tile--rating::before,
-  .journal .tiles--student > .tile--request::before,
-  .journal .tiles--student > .tile--quick::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 calc(var(--space-6) / -2);
-    width: 1px;
-    background: var(--journal-rule-soft);
   }
 }
 
@@ -7989,95 +7925,4 @@ button.appt-arrow {
   .journal .button:active {
     transform: none;
   }
-}
-
-/* =================== ВРЕМЕННО: сравнение вариантов A и B (переключатель в профиле). Убрать после выбора. =================== */
-[data-paper] .journal-compare {
-  --sheet-bg: #ffffff;
-  --sheet-border: #dcc48f;
-  --control-bg: #ffffff;
-  --control-border: #a37c2c;
-  --color-surface: var(--sheet-bg);
-  --journal-card: var(--sheet-bg);
-}
-
-/* A: слоновая кость без фактуры, листы с мягкой тенью */
-[data-paper="a"] .journal-compare {
-  --journal-bg: #fcfaf4;
-  --journal-grain: none;
-  --sheet-shadow: 0 1px 2px rgba(70, 52, 16, 0.07), 0 4px 14px rgba(70, 52, 16, 0.09);
-}
-
-/* B: светлая бумага с едва заметной фактурой, листы без тени */
-[data-paper="b"] .journal-compare {
-  --journal-bg: #f8f4eb;
-  --journal-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .26 0 0 0 0 .1 .15 0 0 0 -.05'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
-  --sheet-shadow: 0 0 0 transparent;
-}
-
-/* Тёмная тема: та же иерархия, но «лист» — светлее страницы, а не белый */
-[data-theme="dark"][data-paper] .journal-compare {
-  --sheet-bg: #252d47;
-  --sheet-border: rgba(201, 169, 97, 0.5);
-  --control-bg: #2f3957;
-  --control-border: #c9a961;
-}
-
-[data-theme="dark"][data-paper="a"] .journal-compare {
-  --journal-bg: #171d2e;
-  --journal-grain: none;
-  --sheet-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.32);
-}
-
-[data-theme="dark"][data-paper="b"] .journal-compare {
-  --journal-bg: #171d2e;
-  --journal-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .92 0 0 0 0 .86 0 0 0 0 .68 .09 0 0 0 -.03'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
-  --sheet-shadow: 0 0 0 transparent;
-}
-
-[data-paper] .journal-compare .tile:not(.tile--card),
-[data-paper] .journal-compare .card,
-[data-paper] .journal-compare .install-hint,
-[data-paper] .journal-compare .today-important,
-[data-paper] .journal-compare .today-deadlines,
-[data-paper] .journal-compare .today-bring,
-[data-paper] .journal-compare .tl-done {
-  padding: var(--space-4);
-  background: var(--sheet-bg);
-  border: 1px solid var(--sheet-border);
-  border-radius: 3px;
-  box-shadow: var(--sheet-shadow);
-}
-
-[data-paper] .journal-compare .tile--card {
-  box-shadow: var(--sheet-shadow);
-}
-
-/* У карточки дисциплины левая полоса несёт смысл — её не трогаем */
-[data-paper] .journal-compare .subject {
-  background: var(--sheet-bg);
-  border-top-color: var(--sheet-border);
-  border-right-color: var(--sheet-border);
-  border-bottom-color: var(--sheet-border);
-  box-shadow: var(--sheet-shadow);
-}
-
-[data-paper] .journal-compare .tiles {
-  gap: var(--space-4);
-}
-
-/* Блоки стали листами, вертикальные линейки между колонками больше не нужны */
-[data-paper] .journal-compare .tiles--student > .tile::before {
-  display: none;
-}
-
-/* Кнопки дней, поля ввода и кнопки оценок */
-[data-paper] .journal-compare .day-nav__day:not(.day-nav__day--selected),
-[data-paper] .journal-compare .fc__pick:not([aria-pressed="true"]),
-[data-paper] .journal-compare .fc__input,
-[data-paper] .journal-compare select,
-[data-paper] .journal-compare input[type="text"],
-[data-paper] .journal-compare textarea {
-  background-color: var(--control-bg);
-  border-color: var(--control-border);
 }
