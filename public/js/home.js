@@ -8,23 +8,24 @@
   const errorBox = document.getElementById('state-error');
   const content = document.getElementById('content');
 
+  // Собственный набор журнальных иконок: контур — цветом текста, акцент — золотой линией (группа j-gold).
+  const gold = (shapes) => `<g class="j-gold">${shapes}</g>`;
   const ICONS = {
-    lesson: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.5" fill="currentColor"/>',
-    deadline: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/>',
-    rating: '<path d="M12 3l10 5-10 5L2 8z"/><path d="M6 10.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 8v6"/>',
-    request: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
-    bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
-    bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
-    card: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M5.5 16c.6-1.6 2-2.4 3.5-2.4s2.9.8 3.5 2.4M15 10h3M15 14h3"/>',
-    star: '<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/>',
-    megaphone: '<path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M17 8a5 5 0 0 1 0 8"/>',
+    deadline: `<path d="M10 5h12M10 27h12M11 5c0 6 5 8 5 11s-5 5-5 11M21 5c0 6-5 8-5 11s5 5 5 11"/>${gold('<path d="M13.4 9h5.2M13 24.6c1.1-1.5 2-2.2 3-2.9 1 .7 1.9 1.4 3 2.9z"/>')}`,
+    rating: `<path d="M16 27.5c-6 0-11-4.7-11-11.7 0-3 1-5.6 2.6-7.6M16 27.5c6 0 11-4.7 11-11.7 0-3-1-5.6-2.6-7.6"/>${gold('<path d="M6.3 13c1.7.2 3 1.3 3.5 3M5.8 18.6c1.6-.3 3.2.4 4 1.9M9 24c1.2-1 3-1.1 4.3-.2M25.7 13c-1.7.2-3 1.3-3.5 3M26.2 18.6c-1.6-.3-3.2.4-4 1.9M23 24c-1.2-1-3-1.1-4.3-.2"/>')}<path d="M16 9.5l1.7 3.5 3.8.5-2.8 2.7.7 3.8-3.4-1.8-3.4 1.8.7-3.8-2.8-2.7 3.8-.5z"/>`,
+    request: `<path d="M7 4h12.5L25 9.5V20M7 4v24h9M19.5 4v5.5H25M11 13h10M11 17h6"/>${gold('<circle cx="21.5" cy="22.5" r="3.6"/><path d="M19.6 25.7l-1 3.8 2.9-1.4 2.9 1.4-1-3.8"/>')}`,
+    bell: `<path d="M16 5.5c-5 0-8 3.7-8 9 0 5.4-2 7.4-3 8.9h22c-1-1.5-3-3.5-3-8.9 0-5.3-3-9-8-9zM16 5.5V3"/>${gold('<path d="M13 26.5c.6 1.6 1.7 2.5 3 2.5s2.4-.9 3-2.5M11.5 14c0-2.7 1.5-4.5 3.7-5"/>')}`,
+    card: `<rect x="4" y="7" width="24" height="18" rx="1.5"/><path d="M18 13h6.5M18 17h6.5M18 21h3.5"/>${gold('<circle cx="10.8" cy="13.5" r="2.7"/><path d="M6.9 21.2c.7-2.3 2.1-3.5 3.9-3.5s3.2 1.2 3.9 3.5"/>')}`,
+    star: `<circle cx="16" cy="20.5" r="8"/><path d="M11 14L7 4h5l4 7.5M21 14l4-10h-5l-3.2 6"/>${gold('<path d="M16 15.9l1.4 2.9 3.2.5-2.3 2.2.5 3.2-2.8-1.5-2.8 1.5.5-3.2-2.3-2.2 3.2-.5z"/>')}`,
+    bolt: `<path d="M27 4c-9 0-17 5-19.5 15-.5 2-.5 4 0 5.2 1.2.5 3.2.5 5.2 0C22 21.5 27 13 27 4zM13.5 19.5h6M11.3 15.5h5"/>${gold('<path d="M4.5 28.5L20 11.5"/>')}`,
+    megaphone: `<path d="M5 13v6l5 1.2L24 25.5v-19L10 11.8zM24 12c2.2 0 3.5 1.8 3.5 4s-1.3 4-3.5 4"/>${gold('<path d="M11 20.8l1.6 6.2h4l-1.5-5"/>')}`,
   };
 
   // Иконки — наши собственные константы, не данные пользователя, поэтому их можно вставлять как разметку.
   function icon(name) {
     const span = el('span', 'tile__icon');
     span.setAttribute('aria-hidden', 'true');
-    span.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
+    span.innerHTML = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
     return span;
   }
 
@@ -58,6 +59,35 @@
   }
 
   const num = D.decimal;
+
+  // Крупная цифра. При первом показе она «набегает» от нуля.
+  function countUp(value) {
+    const span = el('span', 'j-num', num(value));
+    span.dataset.count = String(value);
+    return span;
+  }
+
+  const COUNT_MS = 1100;
+  function runCounters() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const items = [...content.querySelectorAll('[data-count]')].map((node) => {
+      const target = Number(node.dataset.count);
+      const decimals = (node.dataset.count.split('.')[1] || '').length;
+      return { node, target, decimals };
+    });
+    if (!items.length) return;
+    const show = (share) => {
+      for (const { node, target, decimals } of items) node.textContent = num((target * share).toFixed(decimals));
+    };
+    show(0);
+    const started = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - started) / COUNT_MS);
+      show(1 - (1 - t) ** 3);
+      if (t < 1) window.requestAnimationFrame(step);
+    };
+    window.requestAnimationFrame(step);
+  }
 
   // ---------- Студент ----------
   // Главный блок: текущая или следующая пара — крупно.
@@ -177,8 +207,16 @@
       return t.node;
     }
     const soon = d.own && d.daysLeft <= 3;
+    const big = el('p', `tile__big${soon ? ' tile__big--soon' : ''}`);
+    const words = D.capitalize(D.countdown(d.daysLeft)).match(/^(.*?)(\d+)(.*)$/);
+    if (words) {
+      big.append(document.createTextNode(`${words[1]} `), countUp(Number(words[2])), document.createTextNode(` ${words[3]}`));
+      big.classList.add('tile__big--number');
+    } else {
+      big.textContent = D.capitalize(D.countdown(d.daysLeft));
+    }
     t.body.append(
-      el('p', `tile__big${soon ? ' tile__big--soon' : ''}`, D.capitalize(D.countdown(d.daysLeft))),
+      big,
       el('p', 'tile__text', d.title),
       el('p', 'tile__sub', `${d.own ? tr('home.srok') : tr('home.ozhidaetsya_ot_prepodavatelya_do')}: ${D.dayMonth(d.date)}`),
     );
@@ -195,11 +233,11 @@
     const big = el('p', 'tile__big');
     if (r.isFinal) {
       t.body.append(el('p', 'tile__sub', tr('home.reyting_semester', { semester: r.semester })));
-      big.append(document.createTextNode(num(r.total)), el('span', 'tile__of', tr('home.iz_max', { max: r.max })));
+      big.append(countUp(r.total), el('span', 'tile__of', tr('home.iz_max', { max: r.max })));
       t.body.append(big);
     } else if (r.soFar.possible > 0) {
       t.body.append(el('p', 'tile__sub', tr('home.nabrano_na_segodnya_semester', { semester: r.semester })));
-      big.append(document.createTextNode(num(r.soFar.points)), el('span', 'tile__of', tr('home.iz_p0_vozmozhnykh', { p0: num(r.soFar.possible) })));
+      big.append(countUp(r.soFar.points), el('span', 'tile__of', tr('home.iz_p0_vozmozhnykh', { p0: num(r.soFar.possible) })));
       t.body.append(big);
       if (r.soFar.percent !== null) t.body.append(el('p', 'tile__sub', tr('home.percent_ot_vozmozhnogo', { percent: r.soFar.percent })));
     } else {
@@ -238,7 +276,7 @@
       return t.node;
     }
     const big = el('p', 'tile__big');
-    big.append(document.createTextNode(String(n.unread)), el('span', 'tile__of', ` ${D.plural(n.unread, tr('home.neprochitannoe'), tr('home.neprochitannykh'), tr('home.neprochitannykh'))}`));
+    big.append(countUp(n.unread), el('span', 'tile__of', ` ${D.plural(n.unread, tr('home.neprochitannoe'), tr('home.neprochitannykh'), tr('home.neprochitannykh'))}`));
     t.body.append(big);
     if (n.important) t.body.append(el('span', 'badge badge--cancelled', tr('home.vazhnykh_important', { important: n.important })));
     if (n.latest) t.body.append(el('p', 'tile__text', `${n.latest.kindLabel}: ${n.latest.title}`));
@@ -265,7 +303,9 @@
     const t = tile({ kind: 'bonus', title: tr('home.nadbavka'), iconName: 'star', href: '/grades/bonus' });
     if (r) {
       const big = el('p', 'tile__big');
-      big.append(document.createTextNode(`+${num(r.bonus)}`), el('span', 'tile__of', tr('home.iz_bonusmax', { bonusMax: r.bonusMax })));
+      const plus = el('span', 'j-num j-num--plus', '+');
+      big.append(plus, countUp(r.bonus));
+      big.append(el('span', 'tile__of', tr('home.iz_bonusmax', { bonusMax: r.bonusMax })));
       t.body.append(big);
     }
     t.body.append(el('p', 'tile__where', tr('home.gde_zarabotat')));
@@ -289,8 +329,8 @@
     content.className = 'tiles tiles--student';
     content.replaceChildren(
       lessonTile(data.schedule, data.now.date),
-      deadlineTile(data.deadline),
       ratingTile(data.rating),
+      deadlineTile(data.deadline),
       requestTile(data.request, data.activeRequests),
       notificationsTile(data.notifications),
       cardTile(data.card),
@@ -303,7 +343,9 @@
   function counter(n, label, status) {
     const a = el('a', `tile tile--counter${n ? '' : ' tile--zero'}`);
     a.href = `/requests?status=${status}`;
-    a.append(el('span', 'tile__big', String(n)), el('span', 'tile__text', label));
+    const big = el('span', 'tile__big');
+    big.append(countUp(n));
+    a.append(big, el('span', 'tile__text', label));
     a.setAttribute('aria-label', `${label}: ${n}`);
     return a;
   }
@@ -425,7 +467,8 @@
       return;
     }
     document.getElementById('greeting').textContent = `${greeting(data.now.time)}, ${data.firstName}`;
-    document.getElementById('date-label').textContent = D.capitalize(`${D.weekdayLong(data.now.date)}, ${D.dayMonth(data.now.date)}`);
+    const today = D.capitalize(`${D.weekdayLong(data.now.date)}, ${D.dayMonth(data.now.date)}`);
+    document.getElementById('date-label').textContent = data.rating ? `${today} · ${data.rating.semester}` : today;
     if (data.role === 'staff') renderStaff(data);
     else renderStudent(data);
     window.DekanatPwa.mountInstallHint(document.getElementById('install-hint'), data.role);
@@ -435,7 +478,12 @@
   }
 
   // Первая загрузка — с анимацией появления, дальше обновления раз в минуту без неё.
-  load().then(() => content.classList.add('is-live'));
+  // Пока идёт появление, обновлений нет: первое придёт только через минуту.
+  const APPEAR_MS = 1400;
+  load().then(() => {
+    runCounters();
+    window.setTimeout(() => content.classList.add('is-live'), APPEAR_MS);
+  });
 
   // Раз в минуту обновляем плитки («ещё 40 мин» и т. п.), пока страница открыта.
   setInterval(() => {

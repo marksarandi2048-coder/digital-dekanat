@@ -18,7 +18,7 @@
   <script src="/js/pwa.js"></script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="has-bottom-nav">
+<body class="has-bottom-nav journal">
   <a class="skip-link" href="#main" data-i18n="page.pereyti_k_soderzhimomu"></a>
   <p class="concept-note" data-i18n="page.kontsept_dlya_konkursa_mgimo"></p>
 
@@ -82,8 +82,10 @@
   </header>
 
   <main class="app-main app-main--wide" id="main" tabindex="-1">
-    <h1 class="page-title" id="greeting" data-i18n="page.zdravstvuyte"></h1>
-    <p class="page-subtitle" id="date-label"></p>
+    <header class="masthead">
+      <p class="masthead__kicker" id="date-label"></p>
+      <h1 class="page-title" id="greeting" data-i18n="page.zdravstvuyte"></h1>
+    </header>
     <div class="state skeleton" id="state-loading" role="status" data-skeleton="tiles"><span class="visually-hidden" data-i18n="page.zagruzhaem"></span></div>
     <p class="state state--error" id="state-error" role="alert" hidden></p>
     <div id="install-hint" hidden></div>
