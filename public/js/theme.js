@@ -16,8 +16,13 @@
     }
   }
 
+  // Цвет строки состояния телефона и заголовка приложения — как у шапки выбранной темы.
+  const BAR_COLOR = { classic: '#13245a', dark: '#171c2d' };
+
   function apply(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    const bar = document.querySelector('meta[name="theme-color"]');
+    if (bar) bar.setAttribute('content', BAR_COLOR[theme]);
   }
 
   apply(read());
