@@ -220,4 +220,4 @@ function dataLanguageMiddleware(req, res, next) {
 // Объявление: английская версия, если сотрудник её заполнил.
 const announcementField = (a, field) => (isEnglish() && a[`${field}_en`]) || a[field];
 
-module.exports = { dataText, personName, latin, dataLanguageMiddleware, announcementField };
+module.exports = { dataText, personName, latin, translated, dataLanguageMiddleware, announcementField };
