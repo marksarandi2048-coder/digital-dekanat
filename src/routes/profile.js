@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('../i18n');
 // Профили пользователей.
 const express = require('express');
 const { requireAuth, canViewProfile } = require('../access');
@@ -39,9 +40,9 @@ router.get('/users/:id/profile', requireAuth, (req, res) => {
   // Студенту одинаково отвечаем «нет доступа» и на чужой, и на несуществующий id,
   // чтобы нельзя было перебором узнать, какие id заняты.
   if (!target && req.user.role === 'staff') {
-    return res.status(404).json({ error: 'Пользователь не найден' });
+    return res.status(404).json({ error: tr('profile.polzovatel_ne_nayden') });
   }
-  return res.status(403).json({ error: 'Нет доступа к этому профилю' });
+  return res.status(403).json({ error: tr('profile.net_dostupa_k_etomu') });
 });
 
 module.exports = router;

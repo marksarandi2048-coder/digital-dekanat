@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('../i18n');
 // Успеваемость.
 const express = require('express');
 const { db } = require('../db');
@@ -61,9 +62,9 @@ router.get('/grades', requireAuth, (req, res) => {
 // Калькулятор «Что нужно на экзамене»: только для самого студента, студент — из сессии.
 // Метод POST — потому что выбор оценок передаётся в теле запроса; в базу ничего не пишется.
 router.post('/grades/forecast', requireAuth, (req, res) => {
-  if (req.user.role !== 'student') return res.status(403).json({ error: 'Калькулятор доступен только студенту' });
+  if (req.user.role !== 'student') return res.status(403).json({ error: tr('grades.kalkulyator_dostupen_tolko_studentu') });
   const result = forecast(req.user, nowInMoscow().date, req.body || {});
-  if (!result) return res.status(404).json({ error: 'Текущий семестр не найден' });
+  if (!result) return res.status(404).json({ error: tr('grades.tekuschiy_semestr_ne_nayden') });
   res.json(result);
 });
 

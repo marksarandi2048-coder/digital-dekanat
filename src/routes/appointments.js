@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('../i18n');
 // Запись на приём. Студент работает только со своими записями (id — из сессии),
 // расписание дня и отметки — только у сотрудника.
 const express = require('express');
@@ -14,17 +15,17 @@ const send = (res, r) => (r.error ? res.status(r.status).json({ error: r.error }
 function idFrom(req, res) {
   const id = Number(req.params.id);
   if (Number.isInteger(id) && id > 0) return id;
-  res.status(404).json({ error: 'Запись не найдена' });
+  res.status(404).json({ error: tr('appointments.zapis_ne_naydena') });
   return null;
 }
 
 function onlyStudent(req, res, next) {
-  if (req.user.role !== 'student') return res.status(403).json({ error: 'Только для студентов' });
+  if (req.user.role !== 'student') return res.status(403).json({ error: tr('appointments.tolko_dlya_studentov') });
   next();
 }
 
 function onlyStaff(req, res, next) {
-  if (req.user.role !== 'staff') return res.status(403).json({ error: 'Только для сотрудников деканата' });
+  if (req.user.role !== 'staff') return res.status(403).json({ error: tr('appointments.tolko_dlya_sotrudnikov_dekanata') });
   next();
 }
 
@@ -36,13 +37,13 @@ router.get('/appointments', (req, res) => {
 });
 
 router.get('/appointments/slots', onlyStudent, (req, res) => {
-  if (!isValidDate(req.query.date)) return res.status(400).json({ error: 'Выберите дату' });
+  if (!isValidDate(req.query.date)) return res.status(400).json({ error: tr('appointments.vyberite_datu') });
   send(res, A.slotsView(req.user, req.query.date, nowInMoscow()));
 });
 
 router.post('/appointments', onlyStudent, (req, res) => {
   const body = req.body || {};
-  if (!isValidDate(body.date)) return res.status(400).json({ error: 'Выберите дату' });
+  if (!isValidDate(body.date)) return res.status(400).json({ error: tr('appointments.vyberite_datu') });
   send(res, A.book(req.user, body, nowInMoscow()));
 });
 
@@ -50,7 +51,7 @@ router.post('/appointments/:id/reschedule', onlyStudent, (req, res) => {
   const id = idFrom(req, res);
   if (id === null) return;
   const body = req.body || {};
-  if (!isValidDate(body.date)) return res.status(400).json({ error: 'Выберите дату' });
+  if (!isValidDate(body.date)) return res.status(400).json({ error: tr('appointments.vyberite_datu') });
   send(res, A.reschedule(req.user, id, body, nowInMoscow()));
 });
 

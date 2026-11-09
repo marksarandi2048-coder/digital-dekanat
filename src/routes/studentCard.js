@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('../i18n');
 // Студенческий билет. Чей билет — определяется только по сессии, номера в адресе нет.
 const express = require('express');
 const QRCode = require('qrcode');
@@ -16,7 +17,7 @@ router.get('/student-card', (req, res) => {
 });
 
 router.get('/student-card/qr.svg', async (req, res, next) => {
-  if (req.user.role !== 'student') return res.status(403).json({ error: 'Билет есть только у студентов' });
+  if (req.user.role !== 'student') return res.status(403).json({ error: tr('studentCard.bilet_est_tolko_u') });
   try {
     const url = checkUrlFor(req.user, nowInMoscow().date);
     const svg = await QRCode.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' });

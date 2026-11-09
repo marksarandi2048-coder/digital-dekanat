@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('./i18n');
 // «Где заработать надбавку»: возможности, записи студентов и начисление баллов.
 // Начисленные баллы попадают в таблицу bonuses — оттуда их берёт настоящий рейтинг.
 const { db } = require('./db');
@@ -86,9 +87,9 @@ function staffView() {
 
 function enroll(user, opportunityId, today) {
   const o = q.opportunity.get(opportunityId);
-  if (!o) return fail(404, 'Такой возможности нет');
-  if (o.signup_until < today) return fail(409, 'Запись уже закончилась');
-  if (q.exists.get(o.id, user.id)) return fail(409, 'Вы уже записаны');
+  if (!o) return fail(404, tr('bonus.takoy_vozmozhnosti_net'));
+  if (o.signup_until < today) return fail(409, tr('bonus.zapis_uzhe_zakonchilas'));
+  if (q.exists.get(o.id, user.id)) return fail(409, tr('bonus.vy_uzhe_zapisany'));
   const at = nowStamp();
   q.insert.run(o.id, user.id, at, at);
   return { ok: true };
@@ -99,8 +100,8 @@ function enroll(user, opportunityId, today) {
 function cancel(user, id) {
   if (q.cancel.run(id, user.id).changes) return { ok: true };
   const row = q.one.get(id);
-  if (row && row.student_id === user.id) return fail(409, 'Запись уже подтверждена — отменить её может только деканат');
-  return fail(404, 'Запись не найдена');
+  if (row && row.student_id === user.id) return fail(409, tr('bonus.zapis_uzhe_podtverzhdena_otmenit'));
+  return fail(404, tr('bonus.zapis_ne_naydena'));
 }
 
 // Разрешён только следующий шаг: перескочить или вернуться назад нельзя.
@@ -112,15 +113,15 @@ const ACTIONS = {
 
 const act = db.transaction((id, action, today) => {
   const rule = Object.hasOwn(ACTIONS, action) ? ACTIONS[action] : null;
-  if (!rule) return fail(400, 'Неизвестное действие');
+  if (!rule) return fail(400, tr('bonus.neizvestnoe_deystvie'));
   const row = q.one.get(id);
-  if (!row) return fail(404, 'Запись не найдена');
-  if (!rule.from.includes(row.status)) return fail(409, 'Этот шаг сейчас недоступен: обновите страницу');
+  if (!row) return fail(404, tr('bonus.zapis_ne_naydena'));
+  if (!rule.from.includes(row.status)) return fail(409, tr('bonus.etot_shag_seychas_nedostupen'));
 
   let bonusId = row.bonus_id;
   if (action === 'award') {
     const semester = listSemesters(today).find((s) => s.isCurrent);
-    if (!semester) return fail(409, 'Текущий семестр не найден');
+    if (!semester) return fail(409, tr('bonus.tekuschiy_semestr_ne_nayden'));
     bonusId = q.addBonus.run(row.student_id, semester.id, row.category, row.title, row.points, today).lastInsertRowid;
   }
   q.move.run({ id, from: row.status, to: rule.to, at: nowStamp(), bonusId });

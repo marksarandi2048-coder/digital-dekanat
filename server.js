@@ -22,7 +22,7 @@ const { PUBLIC_URL } = require('./src/config');
 const { checkPathFor } = require('./src/studentCard');
 const { nowInMoscow } = require('./src/dates');
 const { buildServiceWorker } = require('./src/serviceWorker');
-const { languageMiddleware } = require('./src/i18n');
+const { languageMiddleware, tr } = require('./src/i18n');
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 if (!SESSION_SECRET) {
@@ -85,7 +85,7 @@ app.use('/api', (req, res, next) => {
 // не сможет отправить данные от имени студента обычной HTML-формой.
 app.use('/api', (req, res, next) => {
   if (req.method !== 'GET' && req.headers['content-type'] && !req.is('application/json')) {
-    return res.status(415).json({ error: 'Ожидается JSON' });
+    return res.status(415).json({ error: tr('server.ozhidaetsya_json') });
   }
   next();
 });
@@ -101,7 +101,7 @@ app.use('/api', studentCardRoutes);
 app.use('/api', bonusRoutes);
 app.use('/api', appointmentRoutes);
 app.use('/api', helpRoutes);
-app.use('/api', (req, res) => res.status(404).json({ error: 'Не найдено' }));
+app.use('/api', (req, res) => res.status(404).json({ error: tr('server.ne_naydeno') }));
 
 // Страницы.
 // Стартовая страница: вошедшего — на «Главную» (у студента и сотрудника она своя).
@@ -205,7 +205,7 @@ app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
   const status = err.status || err.statusCode || 500;
   if (req.path.startsWith('/api/')) {
-    return res.status(status).json({ error: status >= 500 ? 'Ошибка сервера' : 'Некорректный запрос' });
+    return res.status(status).json({ error: status >= 500 ? tr('server.oshibka_servera') : tr('server.nekorrektnyy_zapros') });
   }
   // Ошибка в самом адресе (например, испорченная ссылка) — показываем «нет такой страницы».
   res.status(status).sendFile(path.join(PUBLIC_DIR, status >= 500 ? '500.html' : '404.html'));

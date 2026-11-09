@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('./i18n');
 // Объявления деканата: как показать и сколько адресатов их прочитали.
 // Проверка ПРАВ — в маршрутах; здесь только работа с данными.
 const { db } = require('./db');
@@ -12,11 +13,11 @@ const q = {
 };
 
 function audienceLabel(a) {
-  if (a.group_name) return `Группа ${a.group_name}`;
-  if (a.faculty && a.course) return `${a.course} курс, ${a.faculty}`;
+  if (a.group_name) return tr('announcements.gruppa_group_name', { group_name: a.group_name });
+  if (a.faculty && a.course) return tr('announcements.course_kurs_faculty', { course: a.course, faculty: a.faculty });
   if (a.faculty) return a.faculty;
-  if (a.course) return `${a.course} курс, все факультеты`;
-  return 'Все студенты';
+  if (a.course) return tr('announcements.course_kurs_vse_fakultety', { course: a.course });
+  return tr('announcements.vse_studenty');
 }
 
 function toAnnouncement(a) {

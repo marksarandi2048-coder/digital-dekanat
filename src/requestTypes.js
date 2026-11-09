@@ -1,39 +1,40 @@
 'use strict';
+const { tr } = require('./i18n');
 const { deanOffice } = require('./faculties');
 // Типы заявок и их правила: поля, электронная версия, цепочка статусов.
 // Всё про «какие бывают заявки» — здесь, в одном месте.
 
 const TYPES = {
   study_certificate: {
-    label: 'Справка об обучении',
-    hint: 'Подтверждает, что вы учитесь в МГИМО',
+    get label() { return tr('requestTypes.spravka_ob_obuchenii'); },
+    get hint() { return tr('requestTypes.podtverzhdaet_chto_vy_uchites'); },
     kind: 'document',
     electronic: true,
   },
   enrollment_certificate: {
-    label: 'Справка о зачислении',
-    hint: 'Подтверждает дату и приказ о зачислении',
+    get label() { return tr('requestTypes.spravka_o_zachislenii'); },
+    get hint() { return tr('requestTypes.podtverzhdaet_datu_i_prikaz'); },
     kind: 'document',
     electronic: false,
   },
   order_extract: {
-    label: 'Выписка из приказа',
-    hint: 'О зачислении, переводе, отпуске, стипендии',
+    get label() { return tr('requestTypes.vypiska_iz_prikaza'); },
+    get hint() { return tr('requestTypes.o_zachislenii_perevode_otpuske'); },
     kind: 'document',
     electronic: false,
     needsOrder: true,
   },
   appeal: {
-    label: 'Обращение в деканат',
-    hint: 'Вопрос, просьба или проблема с оценками',
+    get label() { return tr('requestTypes.obraschenie_v_dekanat'); },
+    get hint() { return tr('requestTypes.vopros_prosba_ili_problema'); },
     kind: 'appeal',
     electronic: false,
   },
 };
 
 // Подсказки, чтобы заполнять форму касанием, а не набором текста.
-const PURPOSE_HINTS = ['По месту требования', 'В визовый центр', 'По месту работы родителей', 'В военкомат', 'В банк'];
-const ORDER_HINTS = ['О зачислении', 'О переводе на следующий курс', 'О назначении стипендии', 'Об академическом отпуске'];
+const purposeHints = () => [tr('requestTypes.po_mestu_trebovaniya'), tr('requestTypes.v_vizovyy_tsentr'), tr('requestTypes.po_mestu_raboty_roditeley'), tr('requestTypes.v_voenkomat'), tr('requestTypes.v_bank')];
+const orderHints = () => [tr('requestTypes.o_zachislenii'), tr('requestTypes.o_perevode_na_sleduyuschiy'), tr('requestTypes.o_naznachenii_stipendii'), tr('requestTypes.ob_akademicheskom_otpuske')];
 
 const MAX_COPIES = 5;
 const CERTIFICATE_DAYS = 30; // срок действия электронной справки
@@ -49,17 +50,17 @@ function statusLabel(status, req) {
   const appeal = req.type === 'appeal';
   switch (status) {
     case 'accepted':
-      return appeal ? 'Принято' : 'Принята';
+      return appeal ? tr('requestTypes.prinyato') : tr('requestTypes.prinyata');
     case 'in_progress':
-      return 'В работе';
+      return tr('requestTypes.v_rabote');
     case 'ready':
-      return req.format === 'electronic' ? 'Готова' : 'Готова к выдаче';
+      return req.format === 'electronic' ? tr('requestTypes.gotova') : tr('requestTypes.gotova_k_vydache');
     case 'issued':
-      return 'Выдана';
+      return tr('requestTypes.vydana');
     case 'answered':
-      return 'Ответ дан';
+      return tr('requestTypes.otvet_dan');
     case 'rejected':
-      return appeal ? 'Отклонено' : 'Отклонена';
+      return appeal ? tr('requestTypes.otkloneno') : tr('requestTypes.otklonena');
     default:
       return status;
   }
@@ -69,17 +70,17 @@ function statusLabel(status, req) {
 function statusHint(status, req) {
   switch (status) {
     case 'accepted':
-      return 'Деканат получил заявку';
+      return tr('requestTypes.dekanat_poluchil_zayavku');
     case 'in_progress':
-      return req.type === 'appeal' ? 'Сотрудник разбирается с вопросом' : 'Сотрудник готовит документ';
+      return req.type === 'appeal' ? tr('requestTypes.sotrudnik_razbiraetsya_s_voprosom') : tr('requestTypes.sotrudnik_gotovit_dokument');
     case 'ready':
-      return req.format === 'electronic' ? 'Справка доступна в личном кабинете' : 'Можно забрать в деканате';
+      return req.format === 'electronic' ? tr('requestTypes.spravka_dostupna_v_lichnom') : tr('requestTypes.mozhno_zabrat_v_dekanate');
     case 'issued':
-      return 'Документ выдан';
+      return tr('requestTypes.dokument_vydan');
     case 'answered':
-      return 'Ответ — в переписке ниже';
+      return tr('requestTypes.otvet_v_perepiske_nizhe');
     case 'rejected':
-      return 'Причина указана ниже';
+      return tr('requestTypes.prichina_ukazana_nizhe');
     default:
       return '';
   }
@@ -113,8 +114,8 @@ function publicTypes() {
 
 module.exports = {
   TYPES,
-  PURPOSE_HINTS,
-  ORDER_HINTS,
+  purposeHints,
+  orderHints,
   MAX_COPIES,
   CERTIFICATE_DAYS,
   chainFor,

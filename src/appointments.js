@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('./i18n');
 // Запись на приём в деканат. Слоты по 15 минут строятся из расписания факультета
 // (src/faculties.js). Занятость и «одна запись на день» дополнительно защищены
 // уникальными индексами в базе, поэтому одновременные нажатия не создадут дубль.
@@ -10,10 +11,10 @@ const SLOT_MIN = 15;
 const WINDOW_DAYS = 14; // на сколько дней вперёд можно записаться
 const COMMENT_MAX = 200;
 const TOPICS = {
-  certificates: 'Справки',
-  academic_debt: 'Академическая задолженность',
-  transfer: 'Перевод',
-  other: 'Другое',
+  get certificates() { return tr('appointments.spravki'); },
+  get academic_debt() { return tr('appointments.akademicheskaya_zadolzhennost'); },
+  get transfer() { return tr('appointments.perevod'); },
+  get other() { return tr('appointments.drugoe'); },
 };
 
 const q = {
@@ -98,7 +99,7 @@ function studentView(user, now) {
 }
 
 function slotsView(user, date, now) {
-  if (!inWindow(date, now)) return fail(400, 'На эту дату записаться нельзя');
+  if (!inWindow(date, now)) return fail(400, tr('appointments.na_etu_datu_zapisatsya'));
   if (q.closed.all(user.faculty, date, date).length) return { date, slots: [] };
   const taken = q.taken.all(user.faculty, date, date);
   return {
@@ -113,25 +114,25 @@ function slotsView(user, date, now) {
 
 // Можно ли занять это время: дата в окне, день приёмный и не закрыт, слот есть в расписании.
 function slotError(faculty, date, time, now) {
-  if (!inWindow(date, now)) return fail(400, 'На эту дату записаться нельзя');
-  if (q.closed.all(faculty, date, date).length) return fail(409, 'В этот день приёма нет');
-  if (typeof time !== 'string' || !timesFor(faculty, date).includes(time)) return fail(400, 'Такого времени нет в расписании приёма');
-  if (!isFuture(date, time, now)) return fail(409, 'Это время уже прошло');
+  if (!inWindow(date, now)) return fail(400, tr('appointments.na_etu_datu_zapisatsya'));
+  if (q.closed.all(faculty, date, date).length) return fail(409, tr('appointments.v_etot_den_priema'));
+  if (typeof time !== 'string' || !timesFor(faculty, date).includes(time)) return fail(400, tr('appointments.takogo_vremeni_net_v'));
+  if (!isFuture(date, time, now)) return fail(409, tr('appointments.eto_vremya_uzhe_proshlo'));
   return null;
 }
 
 // Ошибка уникальности из базы — понятным языком.
 function uniqueError(err) {
   if (err.code !== 'SQLITE_CONSTRAINT_UNIQUE') throw err;
-  return err.message.includes('student') ? fail(409, 'На этот день у вас уже есть запись') : fail(409, 'Это время только что заняли — выберите другое');
+  return err.message.includes('student') ? fail(409, tr('appointments.na_etot_den_u')) : fail(409, tr('appointments.eto_vremya_tolko_chto'));
 }
 
 function book(user, input, now) {
   const { date, time } = input;
-  if (typeof input.topic !== 'string' || !Object.hasOwn(TOPICS, input.topic)) return fail(400, 'Выберите тему приёма');
-  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail(400, 'Выберите дату');
+  if (typeof input.topic !== 'string' || !Object.hasOwn(TOPICS, input.topic)) return fail(400, tr('appointments.vyberite_temu_priema'));
+  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail(400, tr('appointments.vyberite_datu'));
   const comment = typeof input.comment === 'string' ? input.comment.trim() : '';
-  if (comment.length > COMMENT_MAX) return fail(400, `Комментарий длиннее ${COMMENT_MAX} символов`);
+  if (comment.length > COMMENT_MAX) return fail(400, tr('appointments.kommentariy_dlinnee_comment_max', { COMMENT_MAX }));
   const invalid = slotError(user.faculty, date, time, now);
   if (invalid) return invalid;
   try {
@@ -146,9 +147,9 @@ function book(user, input, now) {
 // Своя активная запись; на чужую и несуществующую ответ одинаковый.
 function ownActive(user, id, now) {
   const row = q.one.get(id);
-  if (!row || row.student_id !== user.id) return { error: fail(404, 'Запись не найдена') };
-  if (row.status !== 'active') return { error: fail(409, 'Запись уже закрыта') };
-  if (!isFuture(row.date, row.time, now)) return { error: fail(409, 'Приём уже начался — изменить запись нельзя') };
+  if (!row || row.student_id !== user.id) return { error: fail(404, tr('appointments.zapis_ne_naydena')) };
+  if (row.status !== 'active') return { error: fail(409, tr('appointments.zapis_uzhe_zakryta')) };
+  if (!isFuture(row.date, row.time, now)) return { error: fail(409, tr('appointments.priem_uzhe_nachalsya_izmenit')) };
   return { row };
 }
 
@@ -156,7 +157,7 @@ function reschedule(user, id, input, now) {
   const { row, error } = ownActive(user, id, now);
   if (error) return error;
   const { date, time } = input;
-  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail(400, 'Выберите дату');
+  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail(400, tr('appointments.vyberite_datu'));
   const invalid = slotError(row.faculty, date, time, now);
   if (invalid) return invalid;
   try {
@@ -197,11 +198,11 @@ function staffView(user, date, askedFaculty, now) {
 const RESULTS = ['attended', 'missed'];
 
 function mark(id, result, now) {
-  if (!RESULTS.includes(result)) return fail(400, 'Неизвестная отметка');
+  if (!RESULTS.includes(result)) return fail(400, tr('appointments.neizvestnaya_otmetka'));
   const row = q.one.get(id);
-  if (!row) return fail(404, 'Запись не найдена');
-  if (row.status === 'cancelled') return fail(409, 'Запись отменена');
-  if (row.date > now.date) return fail(409, 'Отметить можно начиная с дня приёма');
+  if (!row) return fail(404, tr('appointments.zapis_ne_naydena'));
+  if (row.status === 'cancelled') return fail(409, tr('appointments.zapis_otmenena'));
+  if (row.date > now.date) return fail(409, tr('appointments.otmetit_mozhno_nachinaya_s'));
   q.mark.run(result, nowStamp(), id);
   return { ok: true };
 }

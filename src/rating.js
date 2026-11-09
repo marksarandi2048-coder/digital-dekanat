@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('./i18n');
 // Подсчёт рейтинга за семестр. УСЛОВНАЯ формула для прототипа —
 // все правила собраны здесь, чтобы их было легко поменять.
 //
@@ -40,10 +41,10 @@ function calculate({ disciplines, social, bonuses }) {
   };
 
   const blocks = [
-    { key: 'work', label: 'Работа в семестре', points: round1(work), possible: round1(possible.work), max: MAX.work },
-    { key: 'session', label: 'Сессия', points: round1(session), possible: round1(possible.session), max: MAX.session },
-    { key: 'social', label: 'Общественная активность', points: round1(socialPts), possible: round1(possible.social), max: MAX.social },
-    { key: 'bonus', label: 'Надбавка', points: round1(bonus), max: MAX.bonus },
+    { key: 'work', label: tr('rating.rabota_v_semestre'), points: round1(work), possible: round1(possible.work), max: MAX.work },
+    { key: 'session', label: tr('rating.sessiya'), points: round1(session), possible: round1(possible.session), max: MAX.session },
+    { key: 'social', label: tr('rating.obschestvennaya_aktivnost'), points: round1(socialPts), possible: round1(possible.social), max: MAX.social },
+    { key: 'bonus', label: tr('rating.nadbavka'), points: round1(bonus), max: MAX.bonus },
   ];
   const total = round1(work + session + socialPts + bonus);
 

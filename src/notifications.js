@@ -1,4 +1,5 @@
 'use strict';
+const { tr, currentLocale } = require('./i18n');
 // Лента уведомлений студента и «Ближайшие дедлайны».
 // Автоматические уведомления собираются на лету из уже существующих данных
 // (расписание, заявки, оценки, объявления). В базе хранятся только отметки «прочитано».
@@ -45,7 +46,7 @@ const q = {
 };
 
 // ---------- Оформление дат по-русски (на сервере) ----------
-const fmt = (d, o) => new Intl.DateTimeFormat('ru-RU', { timeZone: 'UTC', ...o }).format(new Date(`${d}T00:00:00Z`));
+const fmt = (d, o) => new Intl.DateTimeFormat(currentLocale(), { timeZone: 'UTC', ...o }).format(new Date(`${d}T00:00:00Z`));
 const dayLabel = (d) => fmt(d, { weekday: 'short', day: 'numeric', month: 'long' });
 const daysBetween = (from, to) => Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000);
 const shortName = (n) => {
@@ -65,8 +66,8 @@ function audienceMatches(a, user) {
 }
 
 function requestTitle(r) {
-  if (r.type === 'appeal') return 'Обращение в деканат';
-  if (r.type === 'order_extract') return `Выписка из приказа ${r.order_ref ? `«${r.order_ref}»` : ''}`.trim();
+  if (r.type === 'appeal') return tr('notifications.obraschenie_v_dekanat');
+  if (r.type === 'order_extract') return tr('notifications.vypiska_iz_prikaza_p0', { p0: r.order_ref ? `«${r.order_ref}»` : '' }).trim();
   return T.TYPES[r.type].label;
 }
 
@@ -76,7 +77,7 @@ function deadlines(user, today) {
   const out = [];
   for (const a of q.announcements.all({ faculty: user.faculty, course: user.course, group: user.group_name })) {
     if (a.deadline_on && a.deadline_on >= today) {
-      out.push({ key: `announcement:${a.id}`, date: a.deadline_on, title: a.title, note: 'Объявление деканата', own: true, link: `/announcements/${a.id}` });
+      out.push({ key: `announcement:${a.id}`, date: a.deadline_on, title: a.title, note: tr('notifications.obyavlenie_dekanata'), own: true, link: `/announcements/${a.id}` });
     }
   }
 
@@ -88,8 +89,8 @@ function deadlines(user, today) {
         out.push({
           key: `exam:${d.id}`,
           date: d.examDate,
-          title: `${d.control === 'exam' ? 'Экзамен' : 'Зачёт'}: ${d.discipline}`,
-          note: 'Сессия',
+          title: `${d.control === 'exam' ? tr('notifications.ekzamen') : tr('notifications.zachet')}: ${d.discipline}`,
+          note: tr('notifications.sessiya'),
           own: true,
           link: '/grades',
         });
@@ -102,16 +103,16 @@ function deadlines(user, today) {
       waiting.set(k, { what, due, n: (waiting.get(k)?.n || 0) + 1 });
     };
     for (const d of data.disciplines) {
-      if (d.currentStatus.state === 'pending') addWaiting('Баллы за семестр', d.currentStatus.due);
-      if (d.gradeStatus.state === 'pending') addWaiting(d.control === 'exam' ? 'Оценки за экзамены' : 'Оценки за зачёты', d.gradeStatus.due);
+      if (d.currentStatus.state === 'pending') addWaiting(tr('notifications.bally_za_semestr'), d.currentStatus.due);
+      if (d.gradeStatus.state === 'pending') addWaiting(d.control === 'exam' ? tr('notifications.otsenki_za_ekzameny') : tr('notifications.otsenki_za_zachety'), d.gradeStatus.due);
     }
-    if (data.social && data.social.status.state === 'pending') addWaiting('Общественная активность', data.social.status.due);
+    if (data.social && data.social.status.state === 'pending') addWaiting(tr('notifications.obschestvennaya_aktivnost'), data.social.status.due);
     for (const w of waiting.values()) {
       out.push({
         key: `waiting:${w.what}:${w.due}`,
         date: w.due,
-        title: w.n > 1 ? `${w.what}: ${w.n} ${w.n < 5 ? 'дисциплины' : 'дисциплин'}` : w.what,
-        note: 'Ожидается от преподавателя',
+        title: w.n > 1 ? `${w.what}: ${w.n} ${w.n < 5 ? tr('notifications.distsipliny') : tr('notifications.distsiplin')}` : w.what,
+        note: tr('notifications.ozhidaetsya_ot_prepodavatelya'),
         own: false,
         link: '/grades',
       });
@@ -128,14 +129,14 @@ function feed(user, today) {
   const items = [];
   const facultyOfGroup = q.faculty.get(user.group_name);
   const pairs = pairsFor(facultyOfGroup ? facultyOfGroup.faculty : user.faculty);
-  const slot = (date, pair) => `${dayLabel(date)}, ${pair} пара (${pairs[pair].start})`;
+  const slot = (date, pair) => tr('notifications.p0_pair_para_start', { p0: dayLabel(date), pair, start: pairs[pair].start });
 
   // 1. Объявления деканата.
   for (const a of q.announcements.all({ faculty: user.faculty, course: user.course, group: user.group_name })) {
     items.push({
       key: `announcement:${a.id}`,
       kind: 'announcement',
-      kindLabel: 'Объявление',
+      kindLabel: tr('notifications.obyavlenie'),
       important: Boolean(a.important),
       title: a.title,
       body: preview(a.body),
@@ -145,17 +146,17 @@ function feed(user, today) {
   }
 
   // 2. Изменения в расписании группы (сегодня и дальше).
-  const TITLES = { moved: 'Пара перенесена', teacher_changed: 'Замена преподавателя', room_changed: 'Другая аудитория', cancelled: 'Пара отменена' };
+  const TITLES = { moved: tr('notifications.para_perenesena'), teacher_changed: tr('notifications.zamena_prepodavatelya'), room_changed: tr('notifications.drugaya_auditoriya'), cancelled: tr('notifications.para_otmenena') };
   for (const l of q.lessonChanges.all({ group: user.group_name, today })) {
     let body = `${l.discipline}, ${slot(l.date, l.pair)}`;
     if (l.status === 'moved') body = `${l.discipline}: ${slot(l.old_date, l.old_pair)} → ${slot(l.date, l.pair)}`;
-    if (l.status === 'teacher_changed') body += `. Ведёт ${shortName(l.teacher)} вместо ${shortName(l.old_teacher)}`;
-    if (l.status === 'room_changed') body += `. Аудитория ${l.room} вместо ${l.old_room}`;
+    if (l.status === 'teacher_changed') body += tr('notifications.vedet_p0_vmesto_p1', { p0: shortName(l.teacher), p1: shortName(l.old_teacher) });
+    if (l.status === 'room_changed') body += tr('notifications.auditoriya_room_vmesto_old', { room: l.room, old_room: l.old_room });
     if (l.change_note) body += `. ${l.change_note}`;
     items.push({
       key: `lesson:${l.id}:${l.changed_at}`,
       kind: 'schedule',
-      kindLabel: 'Расписание',
+      kindLabel: tr('notifications.raspisanie'),
       important: false,
       title: TITLES[l.status],
       body,
@@ -171,12 +172,12 @@ function feed(user, today) {
   for (const e of events) {
     let body = T.statusHint(e.status, e);
     if (e.status === 'ready' && e.format === 'paper' && e.pickup_place) body = `${e.pickup_place}. ${e.pickup_hours || ''}`.trim();
-    if (e.status === 'rejected' && e.reject_reason) body = `Причина: ${e.reject_reason}`;
+    if (e.status === 'rejected' && e.reject_reason) body = tr('notifications.prichina_reject_reason', { reject_reason: e.reject_reason });
     if (e.note && e.status !== 'rejected') body = preview(e.note);
     items.push({
       key: `request_event:${e.id}`,
       kind: 'request',
-      kindLabel: 'Заявка',
+      kindLabel: tr('notifications.zayavka'),
       important: false,
       title: `${requestTitle(e)}: ${T.statusLabel(e.status, e)}`,
       body,
@@ -190,9 +191,9 @@ function feed(user, today) {
     items.push({
       key: `request_message:${m.id}`,
       kind: 'request',
-      kindLabel: 'Заявка',
+      kindLabel: tr('notifications.zayavka'),
       important: false,
-      title: `Ответ деканата: ${m.type === 'appeal' ? m.subject : requestTitle(m)}`,
+      title: tr('notifications.otvet_dekanata_p0', { p0: m.type === 'appeal' ? m.subject : requestTitle(m) }),
       body: preview(m.text),
       at: m.created_at,
       link: `/requests/${m.request_id}`,
@@ -204,9 +205,9 @@ function feed(user, today) {
     items.push({
       key: `appointment:${a.id}:${a.date}:${a.time}`,
       kind: 'appointment',
-      kindLabel: 'Приём',
+      kindLabel: tr('notifications.priem'),
       important: false,
-      title: `Завтра приём в деканате в ${a.time}`,
+      title: tr('notifications.zavtra_priem_v_dekanate', { time: a.time }),
       body: `${a.topic} · ${a.place}`,
       at: `${today} 08:00`,
       link: '/appointments',
@@ -214,12 +215,12 @@ function feed(user, today) {
   }
 
   // Надбавка: что решил деканат по записям студента.
-  const BONUS_TITLES = { confirmed: 'Участие подтверждено', awarded: 'Баллы надбавки начислены', rejected: 'Заявка на активность отклонена' };
+  const BONUS_TITLES = { confirmed: tr('notifications.uchastie_podtverzhdeno'), awarded: tr('notifications.bally_nadbavki_nachisleny'), rejected: tr('notifications.zayavka_na_aktivnost_otklonena') };
   for (const e of bonusEvents(user.id, today, HISTORY_DAYS)) {
     items.push({
       key: `bonus:${e.id}:${e.status}`,
       kind: 'bonus',
-      kindLabel: 'Надбавка',
+      kindLabel: tr('notifications.nadbavka'),
       important: false,
       title: e.status === 'awarded' ? `${BONUS_TITLES.awarded}: +${e.points}` : BONUS_TITLES[e.status],
       body: e.title,
@@ -231,14 +232,14 @@ function feed(user, today) {
   // 4. Напоминания о дедлайнах, которые должен выполнить сам студент (за 7 дней).
   for (const d of deadlines(user, today)) {
     if (!d.own || d.daysLeft > REMIND_DAYS) continue;
-    const when = d.daysLeft === 0 ? 'Сегодня' : d.daysLeft === 1 ? 'Завтра' : `Через ${d.daysLeft} ${d.daysLeft < 5 ? 'дня' : 'дней'}`;
+    const when = d.daysLeft === 0 ? tr('notifications.segodnya') : d.daysLeft === 1 ? tr('notifications.zavtra') : tr('notifications.cherez_daysleft_p1', { daysLeft: d.daysLeft, p1: d.daysLeft < 5 ? tr('notifications.dnya') : tr('notifications.dney') });
     items.push({
       key: `deadline:${d.key}:${d.date}`,
       kind: 'deadline',
-      kindLabel: 'Дедлайн',
+      kindLabel: tr('notifications.dedlayn'),
       important: d.daysLeft <= 1,
       title: `${when} — ${d.title}`,
-      body: `Срок: ${fmt(d.date, { day: 'numeric', month: 'long' })}`,
+      body: tr('notifications.srok_p0', { p0: fmt(d.date, { day: 'numeric', month: 'long' }) }),
       at: `${addDays(d.date, -REMIND_DAYS) > today ? today : addDays(d.date, -REMIND_DAYS)} 09:00`,
       link: d.link,
     });

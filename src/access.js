@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('./i18n');
 // Проверка прав. Все решения «можно / нельзя» принимаются здесь, на сервере.
 const { findById } = require('./users');
 
@@ -8,7 +9,7 @@ function requireAuth(req, res, next) {
   const user = req.session.userId ? findById(req.session.userId) : undefined;
   if (!user) {
     return req.session.destroy(() => {
-      res.status(401).json({ error: 'Нужно войти в систему' });
+      res.status(401).json({ error: tr('access.nuzhno_voyti_v_sistemu') });
     });
   }
   req.user = user;

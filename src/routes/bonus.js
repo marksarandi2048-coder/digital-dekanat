@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('../i18n');
 // Надбавка. Студент работает только со своими записями (id — из сессии),
 // подтверждать и начислять может только сотрудник.
 const express = require('express');
@@ -16,17 +17,17 @@ const send = (res, result) => (result.error ? res.status(result.status).json({ e
 function idFrom(req, res) {
   const id = Number(req.params.id);
   if (Number.isInteger(id) && id > 0) return id;
-  res.status(404).json({ error: 'Запись не найдена' });
+  res.status(404).json({ error: tr('bonus.zapis_ne_naydena') });
   return null;
 }
 
 function onlyStudent(req, res, next) {
-  if (req.user.role !== 'student') return res.status(403).json({ error: 'Только для студентов' });
+  if (req.user.role !== 'student') return res.status(403).json({ error: tr('bonus.tolko_dlya_studentov') });
   next();
 }
 
 function onlyStaff(req, res, next) {
-  if (req.user.role !== 'staff') return res.status(403).json({ error: 'Только для сотрудников деканата' });
+  if (req.user.role !== 'staff') return res.status(403).json({ error: tr('bonus.tolko_dlya_sotrudnikov_dekanata') });
   next();
 }
 

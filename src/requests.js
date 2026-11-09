@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('./i18n');
 // Заявки: чтение, создание, смена статуса, переписка, электронные справки.
 // Проверка ПРАВ — в маршрутах (src/routes/requests.js); здесь только работа с данными.
 const crypto = require('node:crypto');
@@ -7,7 +8,7 @@ const { nowStamp, addDays, nowInMoscow } = require('./dates');
 const { PUBLIC_URL } = require('./config');
 const T = require('./requestTypes');
 
-const STUDY_FORM = 'очная';
+const STUDY_FORM = 'очная'; // снимок справки хранится по-русски, перевод — при показе
 
 const q = {
   byId: db.prepare(`
@@ -92,8 +93,8 @@ function shortName(fullName) {
 // сроком или отозванная — не «Готова», а «Срок истёк» / «Отозвана».
 function displayStatus(r) {
   if (r.status === 'ready' && r.format === 'electronic') {
-    if (r.cert_revoked_at) return { statusLabel: 'Отозвана', statusClass: 'expired' };
-    if (r.cert_valid_until && nowInMoscow().date > r.cert_valid_until) return { statusLabel: 'Срок истёк', statusClass: 'expired' };
+    if (r.cert_revoked_at) return { statusLabel: tr('requests.otozvana'), statusClass: 'expired' };
+    if (r.cert_valid_until && nowInMoscow().date > r.cert_valid_until) return { statusLabel: tr('requests.srok_istek'), statusClass: 'expired' };
   }
   return { statusLabel: T.statusLabel(r.status, r), statusClass: r.status };
 }
@@ -158,7 +159,7 @@ function toDetail(r, viewer, today) {
       id: m.id,
       text: m.text,
       createdAt: m.created_at,
-      author: m.author_role === 'staff' ? `${shortName(m.author_name)}, деканат` : shortName(m.author_name),
+      author: m.author_role === 'staff' ? tr('requests.p0_dekanat', { p0: shortName(m.author_name) }) : shortName(m.author_name),
       fromStaff: m.author_role === 'staff',
       mine: m.author_id === viewer.id,
     })),

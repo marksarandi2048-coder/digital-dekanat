@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('../i18n');
 // Заявки и справки.
 const express = require('express');
 const QRCode = require('qrcode');
@@ -21,14 +22,14 @@ function loadAllowed(req, res) {
   const id = Number(req.params.id);
   const r = Number.isSafeInteger(id) && id > 0 ? R.getRequest(id) : undefined;
   if (!r || (req.user.role !== 'staff' && r.student_id !== req.user.id)) {
-    res.status(404).json({ error: 'Заявка не найдена' });
+    res.status(404).json({ error: tr('requests.zayavka_ne_naydena') });
     return null;
   }
   return r;
 }
 
 function staffOnly(req, res, next) {
-  if (req.user.role !== 'staff') return res.status(403).json({ error: 'Только для сотрудников деканата' });
+  if (req.user.role !== 'staff') return res.status(403).json({ error: tr('requests.tolko_dlya_sotrudnikov_dekanata') });
   next();
 }
 
@@ -41,7 +42,7 @@ function text(value, max) {
 
 // ---------- Справочник для формы ----------
 router.get('/request-types', (req, res) => {
-  res.json({ types: T.publicTypes(), purposeHints: T.PURPOSE_HINTS, orderHints: T.ORDER_HINTS, maxCopies: T.MAX_COPIES });
+  res.json({ types: T.publicTypes(), purposeHints: T.purposeHints(), orderHints: T.orderHints(), maxCopies: T.MAX_COPIES });
 });
 
 // ---------- Список ----------
@@ -55,10 +56,10 @@ router.get('/requests', (req, res) => {
 
 // ---------- Новая заявка (только студент) ----------
 router.post('/requests', (req, res) => {
-  if (req.user.role !== 'student') return res.status(403).json({ error: 'Заявки подают студенты' });
+  if (req.user.role !== 'student') return res.status(403).json({ error: tr('requests.zayavki_podayut_studenty') });
   const b = req.body || {};
   const type = T.TYPES[b.type] ? b.type : null;
-  if (!type) return res.status(400).json({ error: 'Выберите тип заявки' });
+  if (!type) return res.status(400).json({ error: tr('requests.vyberite_tip_zayavki') });
   const def = T.TYPES[type];
 
   const data = { type, format: null, purpose: null, order_ref: null, copies: null, subject: null, comment: null };
@@ -66,27 +67,27 @@ router.post('/requests', (req, res) => {
   if (def.kind === 'appeal') {
     const subject = text(b.subject, 200);
     const comment = text(b.comment, 2000);
-    if (subject === null || comment === null) return res.status(400).json({ error: 'Слишком длинный текст' });
-    if (!subject) return res.status(400).json({ error: 'Укажите тему обращения' });
-    if (!comment) return res.status(400).json({ error: 'Напишите, в чём вопрос' });
+    if (subject === null || comment === null) return res.status(400).json({ error: tr('requests.slishkom_dlinnyy_tekst') });
+    if (!subject) return res.status(400).json({ error: tr('requests.ukazhite_temu_obrascheniya') });
+    if (!comment) return res.status(400).json({ error: tr('requests.napishite_v_chem_vopros') });
     Object.assign(data, { subject, comment });
   } else {
     data.format = def.electronic && b.format === 'electronic' ? 'electronic' : 'paper';
     const purpose = text(b.purpose, 200);
     const comment = text(b.comment, 1000);
-    if (purpose === null || comment === null) return res.status(400).json({ error: 'Слишком длинный текст' });
-    if (!purpose) return res.status(400).json({ error: 'Укажите, для чего или куда нужен документ' });
+    if (purpose === null || comment === null) return res.status(400).json({ error: tr('requests.slishkom_dlinnyy_tekst') });
+    if (!purpose) return res.status(400).json({ error: tr('requests.ukazhite_dlya_chego_ili') });
     data.purpose = purpose;
     data.comment = comment || null;
     if (def.needsOrder) {
       const orderRef = text(b.orderRef, 200);
-      if (!orderRef) return res.status(400).json({ error: 'Укажите, выписка из какого приказа нужна' });
+      if (!orderRef) return res.status(400).json({ error: tr('requests.ukazhite_vypiska_iz_kakogo') });
       data.order_ref = orderRef;
     }
     if (data.format === 'paper') {
       const copies = Number(b.copies);
       if (!Number.isInteger(copies) || copies < 1 || copies > T.MAX_COPIES) {
-        return res.status(400).json({ error: `Количество экземпляров — от 1 до ${T.MAX_COPIES}` });
+        return res.status(400).json({ error: tr('requests.kolichestvo_ekzemplyarov_ot_1', { MAX_COPIES: T.MAX_COPIES }) });
       }
       data.copies = copies;
     }
@@ -108,7 +109,7 @@ router.get('/requests/:id/qr.svg', async (req, res, next) => {
   const r = loadAllowed(req, res);
   if (!r) return;
   const cert = R.certificateForRequest(r.id);
-  if (!cert) return res.status(404).json({ error: 'Справка ещё не готова' });
+  if (!cert) return res.status(404).json({ error: tr('requests.spravka_esche_ne_gotova') });
   try {
     const detail = R.toDetail(r, req.user, nowInMoscow().date);
     const svg = await QRCode.toString(detail.certificate.verifyUrl, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' });
@@ -123,8 +124,8 @@ router.post('/requests/:id/messages', (req, res) => {
   const r = loadAllowed(req, res);
   if (!r) return;
   const msg = text((req.body || {}).text, 2000);
-  if (msg === null) return res.status(400).json({ error: 'Сообщение слишком длинное (до 2000 символов)' });
-  if (!msg) return res.status(400).json({ error: 'Напишите сообщение' });
+  if (msg === null) return res.status(400).json({ error: tr('requests.soobschenie_slishkom_dlinnoe_do') });
+  if (!msg) return res.status(400).json({ error: tr('requests.napishite_soobschenie') });
   R.addMessage(r.id, req.user.id, msg);
   res.status(201).json({ ok: true });
 });
@@ -141,21 +142,21 @@ router.post('/requests/:id/status', staffOnly, (req, res) => {
   const pickupPlace = text(b.pickupPlace, 200);
   const pickupHours = text(b.pickupHours, 200);
   if ([note, reason, pickupPlace, pickupHours].includes(null)) {
-    return res.status(400).json({ error: 'Слишком длинный текст' });
+    return res.status(400).json({ error: tr('requests.slishkom_dlinnyy_tekst') });
   }
 
   if (status === 'rejected') {
-    if (!T.canReject(r)) return res.status(409).json({ error: 'Эту заявку уже нельзя отклонить' });
-    if (!reason) return res.status(400).json({ error: 'Укажите причину отказа' });
+    if (!T.canReject(r)) return res.status(409).json({ error: tr('requests.etu_zayavku_uzhe_nelzya') });
+    if (!reason) return res.status(400).json({ error: tr('requests.ukazhite_prichinu_otkaza') });
     R.changeStatus(r, req.user, { status, rejectReason: reason });
     return res.json({ ok: true });
   }
 
   // Только следующий шаг по цепочке: перескочить или вернуться назад нельзя.
   if (status !== T.nextStatus(r)) {
-    return res.status(409).json({ error: 'Статус можно менять только на следующий шаг' });
+    return res.status(409).json({ error: tr('requests.status_mozhno_menyat_tolko') });
   }
-  if (status === 'answered' && !note) return res.status(400).json({ error: 'Напишите ответ студенту' });
+  if (status === 'answered' && !note) return res.status(400).json({ error: tr('requests.napishite_otvet_studentu') });
 
   let place = null;
   let hours = null;

@@ -1,4 +1,5 @@
 'use strict';
+const { tr } = require('./i18n');
 // Чтение успеваемости студента из базы и сборка сводки «как у меня дела».
 const { db } = require('./db');
 const { calculate, statusOf } = require('./rating');
@@ -65,10 +66,10 @@ function semesterData(student, semesterId, today) {
   // Все «ожидаемые» оценки (баллы, экзамен/зачёт, общественная активность).
   const items = [];
   for (const d of disciplines) {
-    items.push({ what: 'Баллы за семестр', discipline: d.discipline, status: d.currentStatus });
-    items.push({ what: d.control === 'exam' ? 'Экзамен' : 'Зачёт', discipline: d.discipline, status: d.gradeStatus });
+    items.push({ what: tr('grades.bally_za_semestr'), discipline: d.discipline, status: d.currentStatus });
+    items.push({ what: d.control === 'exam' ? tr('grades.ekzamen') : tr('grades.zachet'), discipline: d.discipline, status: d.gradeStatus });
   }
-  if (social) items.push({ what: 'Общественная активность', discipline: null, status: social.status });
+  if (social) items.push({ what: tr('grades.obschestvennaya_aktivnost'), discipline: null, status: social.status });
 
   const pending = items.filter((i) => i.status.state === 'pending');
   // Ближайший срок и всё, что к нему ожидается.
