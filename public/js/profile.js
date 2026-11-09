@@ -148,6 +148,15 @@
   load();
 
   // ---------- Оформление: три темы, меняются сразу ----------
+  // ВРЕМЕННО: сравнение вариантов фона. Убрать после выбора.
+  const currentPaper = window.DekanatPaper ? window.DekanatPaper.get() : 'current';
+  for (const input of document.querySelectorAll('input[name="paper"]')) {
+    input.checked = input.value === currentPaper;
+    input.addEventListener('change', () => {
+      if (input.checked && window.DekanatPaper) window.DekanatPaper.set(input.value);
+    });
+  }
+
   const current = window.DekanatTheme ? window.DekanatTheme.get() : 'classic';
   for (const input of document.querySelectorAll('input[name="theme"]')) {
     input.checked = input.value === current;

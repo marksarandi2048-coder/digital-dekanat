@@ -7990,3 +7990,94 @@ button.appt-arrow {
     transform: none;
   }
 }
+
+/* =================== ВРЕМЕННО: сравнение вариантов A и B (переключатель в профиле). Убрать после выбора. =================== */
+[data-paper] .journal-compare {
+  --sheet-bg: #ffffff;
+  --sheet-border: #dcc48f;
+  --control-bg: #ffffff;
+  --control-border: #a37c2c;
+  --color-surface: var(--sheet-bg);
+  --journal-card: var(--sheet-bg);
+}
+
+/* A: слоновая кость без фактуры, листы с мягкой тенью */
+[data-paper="a"] .journal-compare {
+  --journal-bg: #fcfaf4;
+  --journal-grain: none;
+  --sheet-shadow: 0 1px 2px rgba(70, 52, 16, 0.07), 0 4px 14px rgba(70, 52, 16, 0.09);
+}
+
+/* B: светлая бумага с едва заметной фактурой, листы без тени */
+[data-paper="b"] .journal-compare {
+  --journal-bg: #f8f4eb;
+  --journal-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .26 0 0 0 0 .1 .15 0 0 0 -.05'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
+  --sheet-shadow: 0 0 0 transparent;
+}
+
+/* Тёмная тема: та же иерархия, но «лист» — светлее страницы, а не белый */
+[data-theme="dark"][data-paper] .journal-compare {
+  --sheet-bg: #252d47;
+  --sheet-border: rgba(201, 169, 97, 0.5);
+  --control-bg: #2f3957;
+  --control-border: #c9a961;
+}
+
+[data-theme="dark"][data-paper="a"] .journal-compare {
+  --journal-bg: #171d2e;
+  --journal-grain: none;
+  --sheet-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.32);
+}
+
+[data-theme="dark"][data-paper="b"] .journal-compare {
+  --journal-bg: #171d2e;
+  --journal-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .92 0 0 0 0 .86 0 0 0 0 .68 .09 0 0 0 -.03'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
+  --sheet-shadow: 0 0 0 transparent;
+}
+
+[data-paper] .journal-compare .tile:not(.tile--card),
+[data-paper] .journal-compare .card,
+[data-paper] .journal-compare .install-hint,
+[data-paper] .journal-compare .today-important,
+[data-paper] .journal-compare .today-deadlines,
+[data-paper] .journal-compare .today-bring,
+[data-paper] .journal-compare .tl-done {
+  padding: var(--space-4);
+  background: var(--sheet-bg);
+  border: 1px solid var(--sheet-border);
+  border-radius: 3px;
+  box-shadow: var(--sheet-shadow);
+}
+
+[data-paper] .journal-compare .tile--card {
+  box-shadow: var(--sheet-shadow);
+}
+
+/* У карточки дисциплины левая полоса несёт смысл — её не трогаем */
+[data-paper] .journal-compare .subject {
+  background: var(--sheet-bg);
+  border-top-color: var(--sheet-border);
+  border-right-color: var(--sheet-border);
+  border-bottom-color: var(--sheet-border);
+  box-shadow: var(--sheet-shadow);
+}
+
+[data-paper] .journal-compare .tiles {
+  gap: var(--space-4);
+}
+
+/* Блоки стали листами, вертикальные линейки между колонками больше не нужны */
+[data-paper] .journal-compare .tiles--student > .tile::before {
+  display: none;
+}
+
+/* Кнопки дней, поля ввода и кнопки оценок */
+[data-paper] .journal-compare .day-nav__day:not(.day-nav__day--selected),
+[data-paper] .journal-compare .fc__pick:not([aria-pressed="true"]),
+[data-paper] .journal-compare .fc__input,
+[data-paper] .journal-compare select,
+[data-paper] .journal-compare input[type="text"],
+[data-paper] .journal-compare textarea {
+  background-color: var(--control-bg);
+  border-color: var(--control-border);
+}
