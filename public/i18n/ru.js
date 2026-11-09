@@ -481,6 +481,7 @@
   "lesson_card.vmesto_oldteacher": "Вместо: {oldTeacher}.",
   "lesson_card.zamena_prepodavatelya": "Замена преподавателя",
   "lesson_card.zanyatie": "Занятие",
+  "login.forgot_href": "/help?q=%D0%B7%D0%B0%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8C",
   "login.ne_udalos_voyti_poprobuyte": "Не удалось войти. Попробуйте ещё раз.",
   "login.net_podklyucheniya_voyti_mozhno": "Нет подключения. Войти можно, когда появится интернет.",
   "login.nevernyy_login_ili_parol": "Неверный логин или пароль. Проверьте раскладку клавиатуры и Caps Lock.",

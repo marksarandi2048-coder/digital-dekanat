@@ -481,6 +481,7 @@
   "lesson_card.vmesto_oldteacher": "Instead of: {oldTeacher}.",
   "lesson_card.zamena_prepodavatelya": "Substitute teacher",
   "lesson_card.zanyatie": "Class type",
+  "login.forgot_href": "/help?q=forgot%20password",
   "login.ne_udalos_voyti_poprobuyte": "Could not sign in. Please try again.",
   "login.net_podklyucheniya_voyti_mozhno": "No connection. You can sign in when you are back online.",
   "login.nevernyy_login_ili_parol": "Incorrect username or password. Check your keyboard layout and Caps Lock.",

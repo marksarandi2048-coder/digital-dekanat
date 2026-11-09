@@ -2,6 +2,8 @@
 // Поиск по базе ответов без ИИ и без библиотек. Понимает формы слов (простое отсечение
 // русских окончаний), опечатки (расстояние между словами) и синонимы из живой речи.
 const { FAQ, POPULAR } = require('./faq');
+const { FAQ_EN, ACTION_LABELS } = require('./faqEn');
+const { currentLang } = require('./i18n');
 
 // Служебные слова и общие глаголы: сами по себе они ничего не говорят о теме вопроса.
 const STOP = new Set('взять заказать найти оформить получить сделать сменить узнать а без бы в вы где да для до если же за и из или к как какая какие какой когда кто ли мне мой можно на надо не нет нужно о об от по при про с со сколько так то у уже что чтобы это я'.split(' '));
@@ -31,9 +33,35 @@ function stem(word) {
   return ending ? w.slice(0, -ending.length) : w;
 }
 
+// Английский: простое отсечение окончаний, свои служебные слова и синонимы.
+const STOP_EN = new Set('a an the and or of to in on at for from with by is are am be do does did can could how what when where which who why my i me you your it this that get make take find need want about'.split(' '));
+const SYNONYMS_EN = [
+  'academic leave sabbatical gap',
+  'dorm dormitory hostel housing accommodation',
+  'scholarship stipend grant',
+  'retake resit debt failed fail',
+  'military army draft conscription deferral deferment',
+  'id card pass',
+  'transfer switch change',
+  'bonus extra',
+  'password login username',
+  'appointment queue booking',
+  'visa embassy consulate',
+];
+
+function stemEn(word) {
+  const w = word;
+  if (w.length > 5 && w.endsWith('ing')) return w.slice(0, -3);
+  if (w.length > 4 && w.endsWith('ed')) return w.slice(0, -2);
+  if (w.length > 4 && w.endsWith('es')) return w.slice(0, -2);
+  if (w.length > 3 && w.endsWith('s') && !w.endsWith('ss')) return w.slice(0, -1);
+  return w;
+}
+
 const normalize = (text) => text.toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]+/g, ' ').trim();
-const toToken = (word) => ({ word, stem: stem(word) });
-const tokens = (text) => normalize(text).split(' ').filter((w) => w.length > 1 && !STOP.has(w)).map(toToken);
+const RULES = { ru: { stop: STOP, stem }, en: { stop: STOP_EN, stem: stemEn } };
+const toToken = (word, lang) => ({ word, stem: RULES[lang].stem(word) });
+const tokens = (text, lang) => normalize(text).split(' ').filter((w) => w.length > 1 && !RULES[lang].stop.has(w)).map((w) => toToken(w, lang));
 
 // Расстояние между словами: вставка, удаление, замена и перестановка соседних букв.
 function distance(a, b) {
@@ -69,10 +97,13 @@ function match(q, f) {
   return 0;
 }
 
-const GROUPS = SYNONYMS.map((line) => line.split(' ').map(toToken));
-function expand(token) {
+const GROUPS = {
+  ru: SYNONYMS.map((line) => line.split(' ').map((w) => toToken(w, 'ru'))),
+  en: SYNONYMS_EN.map((line) => line.split(' ').map((w) => toToken(w, 'en'))),
+};
+function expand(token, lang) {
   const out = [{ token, weight: 1 }];
-  for (const group of GROUPS) {
+  for (const group of GROUPS[lang]) {
     if (group.some((g) => match(token, g) > 0)) {
       for (const g of group) out.push({ token: g, weight: 0.9 });
     }
@@ -80,32 +111,45 @@ function expand(token) {
   return out;
 }
 
-const INDEX = FAQ.map((item) => ({
-  item,
-  phrase: normalize(item.question),
-  fields: [
-    { weight: 6, tokens: tokens(item.question) },
-    { weight: 5, tokens: tokens(item.keywords) },
-    { weight: 1, tokens: tokens(item.answer) },
-  ],
-}));
+const textOf = (item, lang) => (lang === 'en' ? { ...item, ...FAQ_EN[item.id] } : item);
+function buildIndex(lang) {
+  return FAQ.map((source) => {
+    const item = textOf(source, lang);
+    return {
+      item,
+      phrase: normalize(item.question),
+      fields: [
+        { weight: 6, tokens: tokens(item.question, lang) },
+        { weight: 5, tokens: tokens(item.keywords, lang) },
+        { weight: 1, tokens: tokens(item.answer, lang) },
+      ],
+    };
+  });
+}
+const INDEX = { ru: buildIndex('ru'), en: buildIndex('en') };
 
 const MIN_SCORE = 3;
 const MIN_COVERAGE = 0.5;
 const RELATIVE_CUTOFF = 0.45;
 const MAX_RESULTS = 5;
 
+// Ответ — на языке интерфейса, даже если вопрос задан на другом.
 function publicItem(item) {
-  return { id: item.id, category: item.category, question: item.question, answer: item.answer, action: item.action };
+  const lang = currentLang();
+  const text = textOf(item, lang);
+  const action = item.action && lang === 'en' ? { ...item.action, label: ACTION_LABELS[item.action.href] } : item.action;
+  return { id: item.id, category: text.category, question: text.question, answer: text.answer, action };
 }
 
 function search(rawQuery) {
-  const query = tokens(rawQuery);
+  // Индекс выбирается по языку самого вопроса: на английском интерфейсе можно спросить и по-русски.
+  const lang = /[а-яё]/i.test(rawQuery) ? 'ru' : 'en';
+  const query = tokens(rawQuery, lang);
   if (!query.length) return [];
-  const expanded = query.map(expand);
+  const expanded = query.map((token) => expand(token, lang));
   const phrase = normalize(rawQuery);
 
-  const scored = INDEX.map(({ item, phrase: itemPhrase, fields }) => {
+  const scored = INDEX[lang].map(({ item, phrase: itemPhrase, fields }) => {
     let score = 0;
     let matched = 0;
     for (const variants of expanded) {
@@ -132,7 +176,7 @@ function search(rawQuery) {
 }
 
 function popular() {
-  return POPULAR.map((id) => FAQ.find((f) => f.id === id)).map((f) => ({ id: f.id, question: f.question }));
+  return POPULAR.map((id) => FAQ.find((f) => f.id === id)).map((f) => ({ id: f.id, question: textOf(f, currentLang()).question }));
 }
 
 module.exports = { search, popular };
