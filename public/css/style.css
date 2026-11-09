@@ -7491,6 +7491,52 @@ button.appt-arrow {
   border-top: 0;
 }
 
+/* Плашки: текст с тонкой цветной линией слева, без заливки. Цвет линии говорит о смысле, значение есть и в тексте. */
+.journal .verdict,
+.journal .next-deadline,
+.journal .status--overdue,
+.journal .notice,
+.journal .notice-box,
+.journal .alert,
+.journal .tile__alert,
+.journal .offline-bar,
+.journal .week-tools__changes,
+.journal .fact,
+.journal .message--staff {
+  padding: var(--space-1) 0 var(--space-1) var(--space-3);
+  border: 0;
+  border-left: 2px solid var(--plaque-line, var(--journal-rule));
+  border-radius: 0;
+  background: none;
+}
+
+.journal .verdict--ok,
+.journal .notice-box--ok {
+  --plaque-line: var(--color-ok);
+}
+
+.journal .verdict--bad,
+.journal .notice-box--bad,
+.journal .status--overdue,
+.journal .alert,
+.journal .fact--bad {
+  --plaque-line: var(--color-bad);
+}
+
+.journal .verdict--info,
+.journal .next-deadline,
+.journal .message--staff {
+  --plaque-line: var(--color-pending);
+}
+
+.journal .notice--calm {
+  --plaque-line: var(--color-border-strong);
+}
+
+.journal .fact:not(.fact--bad) {
+  --plaque-line: var(--journal-rule-soft);
+}
+
 @keyframes journal-rise {
   from {
     opacity: 0;
