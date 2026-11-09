@@ -35,7 +35,7 @@
       if (!res.ok) throw new Error(data.error || 'Не удалось проверить билет');
     } catch (err) {
       loading.hidden = true;
-      const alert = el('p', 'alert', err.message === 'Failed to fetch' ? 'Нет связи с сервером' : err.message);
+      const alert = el('p', 'alert', err instanceof TypeError ? 'Нет подключения. Проверка работает только с интернетом.' : err.message);
       alert.setAttribute('role', 'alert');
       result.replaceChildren(alert);
       return;

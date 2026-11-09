@@ -110,8 +110,14 @@
 
   readAll.addEventListener('click', async () => {
     readAll.disabled = true;
-    await D.postJSON('/api/notifications/read', { all: true });
+    const { ok, data } = await D.postJSON('/api/notifications/read', { all: true });
     readAll.disabled = false;
+    if (!ok) {
+      errorBox.textContent = data.error || 'Не удалось отметить уведомления';
+      errorBox.hidden = false;
+      return;
+    }
+    errorBox.hidden = true;
     await load();
     D.updateBell();
   });

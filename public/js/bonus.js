@@ -24,10 +24,14 @@
   // Запрос-действие: при ошибке сообщение остаётся на экране, список обновляется в любом случае.
   async function run(button, url, body, done) {
     button.disabled = true;
-    const { ok, data } = await D.postJSON(url, body);
+    const { ok, offline, data } = await D.postJSON(url, body);
     errorBox.hidden = ok;
     if (!ok) errorBox.textContent = data.error || 'Не удалось выполнить действие';
     statusBox.textContent = ok ? done : '';
+    if (offline) {
+      button.disabled = false;
+      return;
+    }
     await load();
   }
 

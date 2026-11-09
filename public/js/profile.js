@@ -59,7 +59,8 @@
     try {
       res = await fetch(url, { headers: { Accept: 'application/json' } });
     } catch {
-      showError('Нет связи с сервером. Обновите страницу.');
+      window.Dekanat.offlineBar();
+      showError('Нет подключения. Когда появится интернет, обновите страницу.');
       return;
     }
 

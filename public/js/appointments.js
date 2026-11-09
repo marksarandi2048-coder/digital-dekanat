@@ -58,9 +58,13 @@
     cancel.addEventListener('click', async () => {
       if (!window.confirm(`Отменить запись: ${whenText(a)}?`)) return;
       cancel.disabled = true;
-      const { ok, data } = await D.postJSON(`/api/appointments/${a.id}/cancel`, {});
+      const { ok, offline, data } = await D.postJSON(`/api/appointments/${a.id}/cancel`, {});
       showError(ok ? '' : data.error);
       showStatus(ok ? `Запись отменена: ${whenText(a)}` : '');
+      if (offline) {
+        cancel.disabled = false;
+        return;
+      }
       if (ok && form.moving && form.moving.id === a.id) resetForm();
       await load();
     });
@@ -189,7 +193,14 @@
       submit.disabled = true;
       const url = moving ? `/api/appointments/${moving.id}/reschedule` : '/api/appointments';
       const body = moving ? { date: form.date, time: form.time } : { topic: form.topic, comment: form.comment, date: form.date, time: form.time };
-      const { ok, data: answer } = await D.postJSON(url, body);
+      const { ok, offline, data: answer } = await D.postJSON(url, body);
+      if (offline) {
+        // Выбранное время и тема остаются на экране: можно нажать ещё раз.
+        showStatus('');
+        showError(answer.error);
+        submit.disabled = false;
+        return;
+      }
       if (!ok) {
         showStatus('');
         showError(answer.error || 'Не удалось записаться');
@@ -253,9 +264,13 @@
       b.setAttribute('aria-label', `${label}: ${a.student.fullName}, ${a.time}`);
       b.addEventListener('click', async () => {
         b.disabled = true;
-        const { ok, data } = await D.postJSON(`/api/appointments/${a.id}/mark`, { result });
+        const { ok, offline, data } = await D.postJSON(`/api/appointments/${a.id}/mark`, { result });
         showError(ok ? '' : data.error);
         showStatus(ok ? `${a.student.fullName}: ${label.toLowerCase()}` : '');
+        if (offline) {
+          b.disabled = false;
+          return;
+        }
         await load();
       });
       actions.append(b);

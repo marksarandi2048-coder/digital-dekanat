@@ -18,6 +18,7 @@ window.Dekanat = (function () {
     try {
       res = await fetch(url, { headers: { Accept: 'application/json' } });
     } catch {
+      offlineBar();
       const error = new Error(NO_CONNECTION);
       error.offline = true;
       throw error;
@@ -31,6 +32,7 @@ window.Dekanat = (function () {
     // Ответ из сохранённой копии: сервис-воркер сообщает, когда она получена.
     const savedAt = res.headers.get('X-Offline-Saved-At');
     if (savedAt) data.offlineSavedAt = savedAt;
+    else hideNoConnectionBar();
     return data;
   }
 
@@ -58,12 +60,18 @@ window.Dekanat = (function () {
       bar.setAttribute('role', 'status');
       main.prepend(bar);
     }
-    bar.textContent = savedAt ? savedLabel(savedAt) : 'Нет подключения';
+    if (savedAt) {
+      bar.dataset.saved = '1';
+      bar.textContent = savedLabel(savedAt);
+    } else if (!bar.dataset.saved) {
+      bar.textContent = 'Нет подключения';
+    }
   }
 
-  function hideOfflineBar() {
+  // Связь вернулась. Плашку «Офлайн · обновлено…» убирает обновление страницы.
+  function hideNoConnectionBar() {
     const bar = document.getElementById('offline-bar');
-    if (bar) bar.remove();
+    if (bar && !bar.dataset.saved) bar.remove();
   }
 
   // Для страниц без форм: связь вернулась — показываем свежие данные.
@@ -111,12 +119,15 @@ window.Dekanat = (function () {
     try {
       res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     } catch {
-      return { ok: false, data: { error: 'Нет связи с сервером. Попробуйте ещё раз.' } };
+      // Очереди «отправим потом» нет: действие не выполнено, и студент об этом знает.
+      offlineBar();
+      return { ok: false, offline: true, data: { error: 'Нет подключения. Ничего не отправлено — попробуйте ещё раз, когда появится интернет.' } };
     }
     if (res.status === 401) {
       window.location.href = '/';
       return new Promise(() => {});
     }
+    hideNoConnectionBar();
     const data = await res.json().catch(() => ({}));
     return { ok: res.ok, data };
   }
@@ -384,6 +395,21 @@ window.Dekanat = (function () {
     }
   }
 
+  // ---------- Состояние связи ----------
+  window.addEventListener('offline', () => offlineBar());
+  window.addEventListener('online', hideNoConnectionBar);
+  if (!navigator.onLine) offlineBar();
+
+  // Файлы с сервера (например, календарь) без сети скачать нельзя — говорим об этом сразу,
+  // иначе браузер показал бы свою страницу ошибки.
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href^="/api/"]');
+    if (link && (!navigator.onLine || document.getElementById('offline-bar'))) {
+      event.preventDefault();
+      window.alert('Нет подключения. Скачать файл можно, когда появится интернет.');
+    }
+  });
+
   // ---------- Выход ----------
   const logout = document.getElementById('logout-button');
   if (logout) {
@@ -394,5 +420,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { offlineBar, hideOfflineBar, reloadWhenOnline, savedLabel, todayInMoscow, disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, setupGroup, changeLines, shortName, place, toMinutes, minutesBetween, KIND, BADGE, illustration, emptyState };
+  return { offlineBar, reloadWhenOnline, savedLabel, todayInMoscow, disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, setupGroup, changeLines, shortName, place, toMinutes, minutesBetween, KIND, BADGE, illustration, emptyState };
 })();

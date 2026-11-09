@@ -67,7 +67,7 @@
       if (!res.ok) throw new Error(data.error || 'Не удалось проверить справку');
     } catch (err) {
       loading.hidden = true;
-      result.replaceChildren(el('p', 'alert', err.message || 'Нет связи с сервером'));
+      result.replaceChildren(el('p', 'alert', err instanceof TypeError ? 'Нет подключения. Проверка работает только с интернетом.' : err.message));
       return;
     }
     loading.hidden = true;

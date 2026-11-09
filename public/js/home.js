@@ -424,7 +424,6 @@
       window.location.reload(); // связь вернулась
       return;
     }
-    D.hideOfflineBar();
     document.getElementById('greeting').textContent = `${greeting(data.now.time)}, ${data.firstName}`;
     document.getElementById('date-label').textContent = D.capitalize(`${D.weekdayLong(data.now.date)}, ${D.dayMonth(data.now.date)}`);
     if (data.role === 'staff') renderStaff(data);

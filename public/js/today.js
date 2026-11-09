@@ -385,6 +385,12 @@
       if (signature) return err.message;
       loading.hidden = true;
       errorBox.textContent = err.message;
+      if (err.offline) {
+        const week = el('a', null, 'Открыть расписание на неделю');
+        week.href = '/week';
+        errorBox.textContent = 'Нет подключения. ';
+        errorBox.append(week);
+      }
       errorBox.hidden = false;
       return err.message;
     }
