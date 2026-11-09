@@ -71,7 +71,10 @@
     appointment.append(el('span', 'quick__label', 'Записаться на приём'), el('span', 'quick__hint', 'без очереди'));
     grid.append(appointment);
     quick.append(grid);
-    top.replaceChildren(quick);
+    const ask = el('section', 'help-ask');
+    ask.setAttribute('aria-label', 'Спроси деканат');
+    window.DekanatHelp.mount(ask, { compact: true, limit: 3, chips: 4 });
+    top.replaceChildren(ask, quick);
 
     const list = el('section', 'req-section');
     list.append(el('h2', 'section-title', 'Мои заявки'));

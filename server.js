@@ -16,6 +16,7 @@ const homeRoutes = require('./src/routes/home');
 const studentCardRoutes = require('./src/routes/studentCard');
 const bonusRoutes = require('./src/routes/bonus');
 const appointmentRoutes = require('./src/routes/appointments');
+const helpRoutes = require('./src/routes/help');
 const { findById } = require('./src/users');
 const { PUBLIC_URL } = require('./src/config');
 const { checkPathFor } = require('./src/studentCard');
@@ -94,6 +95,7 @@ app.use('/api', homeRoutes);
 app.use('/api', studentCardRoutes);
 app.use('/api', bonusRoutes);
 app.use('/api', appointmentRoutes);
+app.use('/api', helpRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Не найдено' }));
 
 // Страницы.
@@ -152,6 +154,12 @@ app.get('/contact', (req, res) => {
 app.get(['/verify', '/verify/:code'], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'verify.html'));
 });
+// «Помощь» открыта и без входа: гостю — страница без меню кабинета.
+app.get('/help', (req, res) => {
+  const user = req.session.userId ? findById(req.session.userId) : null;
+  res.sendFile(path.join(PUBLIC_DIR, user ? 'help.html' : 'help-guest.html'));
+});
+
 // «Проверить мой билет»: ведёт вошедшего студента на проверку его собственного билета.
 app.get('/student-card/check', (req, res) => {
   const user = req.session.userId ? findById(req.session.userId) : null;
