@@ -129,6 +129,7 @@
   --journal-button-text: #ffffff;
   --journal-button-hover: #0d1a45;
   --journal-press: inset 0 2px 7px rgba(5, 12, 40, 0.42);
+  --journal-card: #faf6ea;
   --journal-side-bg: #ebe2cd;
   --journal-side-hover: rgba(184, 144, 58, 0.16);
   --journal-side-active: rgba(184, 144, 58, 0.24);
@@ -261,6 +262,7 @@
   --journal-button-text: #1b1608;
   --journal-button-hover: #edd08d;
   --journal-press: inset 0 2px 7px rgba(60, 42, 5, 0.5);
+  --journal-card: #1f2740;
   --journal-side-bg: #11172a;
   --journal-side-hover: rgba(201, 169, 97, 0.1);
   --journal-side-active: rgba(201, 169, 97, 0.17);
@@ -6815,16 +6817,103 @@ button.appt-arrow {
   scroll-margin-top: var(--space-4);
 }
 
-/* =================== «Университетский журнал»: пока только Главная (body.journal) =================== */
+/* =================== «Университетский журнал» (body.journal) =================== */
+/* Страница переводится в стиль одним классом. Общие цвета и формы заменяются здесь же,
+   поэтому формы, панели и списки получают бумагу и линейки без отдельных правил. */
 .journal {
+  --color-bg: var(--journal-bg);
+  --color-surface: var(--journal-card);
+  --color-border: var(--journal-rule-soft);
+  --font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
+  --radius: 2px;
+  --radius-small: 2px;
+  --shadow: none;
+  --shadow-hover: none;
   background-color: var(--journal-bg);
   background-image: var(--journal-grain);
 }
 
-/* Заголовки журнала одним шрифтом в обеих темах. Меню остаётся в шрифте своей темы. */
 .journal .app-main {
-  --font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
   font-variant-numeric: lining-nums;
+}
+
+/* Заголовок страницы с двойной золотой линейкой (на Главной линейка у блока .masthead) */
+.journal .app-main > .page-title,
+.journal .page-head {
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 3px double var(--journal-rule);
+}
+
+.journal .page-head .page-title {
+  flex: 1;
+}
+
+.journal .app-main > .page-title,
+.journal .page-head .page-title,
+.journal .req-head .page-title,
+.journal .announcement .page-title {
+  font-size: clamp(30px, 4vw, 44px);
+}
+
+.journal .page-subtitle {
+  color: var(--color-muted);
+}
+
+/* Подзаголовки разделов — заголовочным шрифтом */
+.journal .section-title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Карточки превращаются в разделы на бумаге: линейка сверху вместо рамки */
+.journal .card {
+  padding: var(--space-3) 0 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--journal-rule);
+  border-radius: 0;
+}
+
+/* Вкладки — подчёркивание золотом */
+.journal .tabs {
+  gap: var(--space-4);
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+
+.journal .tab {
+  padding-inline: 2px;
+  background: none;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  box-shadow: none;
+  color: var(--color-muted);
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.journal .tab:hover {
+  background: none;
+  color: var(--color-text);
+}
+
+.journal .tab[aria-current="page"] {
+  background: none;
+  border-bottom-color: var(--journal-rule);
+  box-shadow: none;
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+@media print {
+  .journal {
+    background: #ffffff;
+  }
 }
 
 .masthead {
@@ -7110,6 +7199,16 @@ button.appt-arrow {
   background: var(--journal-button-hover);
 }
 
+/* Опасное действие остаётся красным и в журнальном стиле */
+.journal .button--danger {
+  background: var(--color-danger);
+  color: var(--color-primary-text);
+}
+
+.journal .button--danger:hover {
+  background: var(--color-danger-hover);
+}
+
 .journal .button--secondary {
   background: none;
   border: 1px solid var(--journal-rule);
@@ -7140,6 +7239,59 @@ button.appt-arrow {
 
 .journal .tile__list li + li {
   border-color: var(--journal-rule-soft);
+}
+
+/* Страница «Сегодня» */
+.journal .day-chip,
+.journal .day-nav__day {
+  border-radius: 2px;
+}
+
+.journal .day-chip:not(.day-chip--changes) {
+  background: none;
+  border-color: var(--journal-rule-soft);
+}
+
+.journal .day-nav__day--selected,
+.journal .day-nav__day--selected .day-nav__name {
+  background: var(--journal-button-bg);
+  color: var(--journal-button-text);
+}
+
+.journal .day-nav__day--selected {
+  border-color: var(--journal-button-bg);
+}
+
+.journal .today-important,
+.journal .today-deadlines,
+.journal .today-bring,
+.journal .tl-done {
+  padding: var(--space-3) 0 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--journal-rule);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.journal .today-deadlines__title,
+.journal .today-bring__title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Пустые состояния — на бумаге, с тонкой линейкой */
+.journal .empty {
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--journal-rule-soft);
+  border-bottom: 1px solid var(--journal-rule-soft);
+  border-radius: 0;
+}
+
+.journal .empty__title {
+  font-family: var(--font-heading);
+  font-size: 22px;
 }
 
 @keyframes journal-rise {
