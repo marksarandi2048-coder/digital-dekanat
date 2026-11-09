@@ -206,6 +206,13 @@
   --content-width-wide: 1320px;
   --sidebar-width: 240px;
   --bottom-nav-height: 64px;
+  --fab-size: 48px;
+}
+
+@media (min-width: 900px) {
+  :root {
+    --fab-size: 52px;
+  }
 }
 
 /* ================= Тема 2: «Тёмный» =================
@@ -6564,8 +6571,9 @@ button.appt-arrow {
 }
 
 /* =================== ИИ-помощник «Спроси деканат» =================== */
+/* Отступ снизу: при прокрутке до конца последний элемент всегда выше кнопки помощника */
 .has-assistant .app-main {
-  padding-bottom: 96px;
+  padding-bottom: calc(var(--fab-size) + var(--space-6) + var(--space-5));
 }
 
 .assistant-fab {
@@ -7637,18 +7645,21 @@ button.appt-arrow {
   }
 }
 
-/* «Спроси деканат» — книжный штамп: прямые углы, золотая внутренняя рамка */
+/* «Спроси деканат» — круглая печать с золотой внутренней рамкой. На компьютере подпись появляется при наведении. */
 .assistant-fab {
-  height: 52px;
-  min-width: 52px;
+  width: var(--fab-size);
+  min-width: var(--fab-size);
+  height: var(--fab-size);
+  padding: 0;
+  gap: 0;
   border: 1px solid var(--journal-rule);
-  border-radius: 2px;
+  border-radius: calc(var(--fab-size) / 2);
   background: var(--journal-button-bg);
   color: var(--journal-button-text);
   box-shadow:
     inset 0 0 0 2px var(--journal-button-bg),
     inset 0 0 0 3px var(--journal-stamp-ring),
-    0 6px 16px rgba(10, 14, 30, 0.28);
+    0 4px 12px rgba(10, 14, 30, 0.26);
   transition:
     transform var(--dur-fast) var(--ease),
     box-shadow var(--dur-fast) var(--ease),
@@ -7670,10 +7681,41 @@ button.appt-arrow {
   height: 24px;
 }
 
-.assistant-fab__label {
-  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
-  font-size: 17px;
-  font-weight: 600;
+@media (min-width: 900px) {
+  .assistant-fab {
+    width: auto;
+    padding: 0 13px;
+  }
+
+  .assistant-fab__label {
+    display: inline-block;
+    overflow: hidden;
+    max-width: 0;
+    opacity: 0;
+    white-space: nowrap;
+    font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    font-weight: 600;
+    transition:
+      max-width var(--dur) var(--ease),
+      opacity var(--dur) var(--ease),
+      margin-left var(--dur) var(--ease);
+  }
+
+  .assistant-fab:hover .assistant-fab__label,
+  .assistant-fab:focus-visible .assistant-fab__label {
+    max-width: 180px;
+    margin-left: var(--space-2);
+    opacity: 1;
+  }
+}
+
+/* Полоса справа под кнопку: при любой прокрутке кнопка не закрывает содержимое.
+   Задана заранее, а не после проверки доступа к помощнику, чтобы страница не сдвигалась при загрузке. */
+@media screen and (min-width: 900px) {
+  .has-bottom-nav .app-main {
+    padding-right: calc(var(--space-5) + var(--fab-size) + var(--space-3));
+  }
 }
 
 /* Панель помощника — та же бумага */
