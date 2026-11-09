@@ -17,6 +17,7 @@ const studentCardRoutes = require('./src/routes/studentCard');
 const bonusRoutes = require('./src/routes/bonus');
 const appointmentRoutes = require('./src/routes/appointments');
 const helpRoutes = require('./src/routes/help');
+const assistantRoutes = require('./src/routes/assistant');
 const { findById } = require('./src/users');
 const { PUBLIC_URL } = require('./src/config');
 const { checkPathFor } = require('./src/studentCard');
@@ -103,6 +104,7 @@ app.use('/api', studentCardRoutes);
 app.use('/api', bonusRoutes);
 app.use('/api', appointmentRoutes);
 app.use('/api', helpRoutes);
+app.use('/api', assistantRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: tr('server.ne_naydeno') }));
 
 // Страницы.

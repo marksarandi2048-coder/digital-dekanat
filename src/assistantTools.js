@@ -24,8 +24,8 @@ const MAX_OPPORTUNITIES = 15;
 const QUERY_MAX = 200;
 const FREE_TEXT_MAX = 200;
 
-// Кнопки: модель называет только код из этого списка, адрес и подпись подставляет сервер.
-// Кнопка лишь открывает страницу. Отправить заявку или записаться студент может только сам.
+// Кнопки выбирает сервер по тому, какие сведения понадобились для ответа. Модель на них не влияет:
+// ни ссылку, ни подпись подсунуть нельзя. Кнопка лишь открывает страницу, отправляет форму сам студент.
 const ACTIONS = {
   order_certificate: { label: 'assistant.action.order_certificate', href: '/requests/new?type=study_certificate' },
   order_enrollment_certificate: { label: 'assistant.action.order_enrollment_certificate', href: '/requests/new?type=enrollment_certificate' },
@@ -39,7 +39,14 @@ const ACTIONS = {
   open_bonus: { label: 'assistant.action.open_bonus', href: '/grades/bonus' },
   open_student_card: { label: 'assistant.action.open_student_card', href: '/student-card' },
 };
-const SUGGEST_ACTION = 'suggest_action';
+const ACTION_BY_HREF = Object.fromEntries(Object.entries(ACTIONS).map(([id, a]) => [a.href, id]));
+const ACTIONS_FOR_TOOL = {
+  get_schedule: ['open_week'],
+  get_grades: ['open_grades'],
+  get_requests: ['order_certificate', 'open_requests'],
+  get_bonus: ['open_bonus'],
+  get_appointments: ['book_appointment'],
+};
 
 const noParams = { type: 'object', properties: {} };
 
@@ -76,17 +83,17 @@ const TOOLS = [
   },
   {
     name: 'get_requests',
-    description: 'Заявки и справки студента и их текущие статусы.',
+    description: 'Заявки и справки студента и их текущие статусы. Вызывай и тогда, когда студент хочет заказать справку.',
     parameters: noParams,
   },
   {
     name: 'get_bonus',
-    description: 'Надбавка студента: сколько баллов набрано, его записи на активности и открытые возможности заработать баллы.',
+    description: 'Надбавка — это дополнительные баллы рейтинга за волонтёрство, спорт и науку, а не деньги и не стипендия. Функция показывает, сколько баллов набрано, записи студента на активности и где ещё можно заработать баллы.',
     parameters: noParams,
   },
   {
     name: 'get_appointments',
-    description: 'Записи студента на приём в деканат и дни, на которые есть свободное время.',
+    description: 'Записи студента на приём в деканат и дни со свободным временем. Вызывай и тогда, когда студент хочет записаться на приём.',
     parameters: noParams,
   },
   {
@@ -96,21 +103,6 @@ const TOOLS = [
       type: 'object',
       properties: { query: { type: 'string', description: 'Вопрос своими словами.' } },
       required: ['query'],
-    },
-  },
-  {
-    name: SUGGEST_ACTION,
-    description: 'Показать студенту кнопки под ответом. Кнопка только открывает страницу кабинета, студент сам решает, что делать дальше. Вызывай, если действие действительно помогает.',
-    parameters: {
-      type: 'object',
-      properties: {
-        actions: {
-          type: 'array',
-          items: { type: 'string', enum: Object.keys(ACTIONS) },
-          description: 'От одной до трёх кнопок.',
-        },
-      },
-      required: ['actions'],
     },
   },
 ];
@@ -281,7 +273,13 @@ function getAppointmentsTool(user) {
 function searchHelpTool(user, args) {
   const query = typeof args.query === 'string' ? args.query.slice(0, QUERY_MAX) : '';
   if (!query.trim()) return { results: [] };
-  return { results: search(query).map((r) => ({ question: r.question, answer: r.answer })) };
+  return {
+    results: search(query).map((r) => ({
+      question: r.question,
+      answer: r.answer,
+      action: (r.action && ACTION_BY_HREF[r.action.href]) || null,
+    })),
+  };
 }
 
 const RUNNERS = {
@@ -314,15 +312,17 @@ function runTool(name, rawArgs, user) {
   return currentLang() === 'en' ? translated(result) : result;
 }
 
-// Из ответа модели в кнопки: только известные коды, без повторов, не больше трёх.
-function pickActions(rawArgs) {
-  const { actions } = parseArguments(rawArgs);
-  if (!Array.isArray(actions)) return [];
-  return [...new Set(actions)].filter((id) => typeof id === 'string' && Object.hasOwn(ACTIONS, id)).slice(0, 3);
+// Какие кнопки предложить после вызова функции. У базы ответов кнопка берётся из лучшего ответа.
+function actionsAfterTool(name, result) {
+  if (name === 'search_help') {
+    const top = result.results && result.results[0];
+    return top && top.action ? [top.action] : [];
+  }
+  return Object.hasOwn(ACTIONS_FOR_TOOL, name) ? ACTIONS_FOR_TOOL[name] : [];
 }
 
 function actionButtons(ids) {
-  return ids.map((id) => ({ id, label: tr(ACTIONS[id].label), href: ACTIONS[id].href }));
+  return [...new Set(ids)].slice(0, 3).map((id) => ({ id, label: tr(ACTIONS[id].label), href: ACTIONS[id].href }));
 }
 
-module.exports = { TOOLS, SUGGEST_ACTION, runTool, pickActions, actionButtons };
+module.exports = { TOOLS, runTool, actionsAfterTool, actionButtons };

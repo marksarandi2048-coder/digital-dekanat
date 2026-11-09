@@ -9,7 +9,7 @@ const crypto = require('node:crypto');
 const OAUTH_URL = 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth';
 const API_URL = 'https://gigachat.devices.sberbank.ru/api/v1';
 const CERT_PATH = path.join(__dirname, '..', 'certs', 'russian_trusted_root_ca.pem');
-const MODEL = 'GigaChat-2';
+const MODEL = (process.env.GIGACHAT_MODEL || '').trim() || 'GigaChat-2-Pro';
 
 const TOKEN_TIMEOUT_MS = 10_000;
 const CHAT_TIMEOUT_MS = 30_000;
