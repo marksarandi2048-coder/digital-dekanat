@@ -130,9 +130,15 @@
   --journal-button-hover: #0d1a45;
   --journal-press: inset 0 2px 7px rgba(5, 12, 40, 0.42);
   --journal-card: #faf6ea;
-  --journal-side-bg: #ebe2cd;
   --journal-side-hover: rgba(184, 144, 58, 0.16);
-  --journal-side-active: rgba(184, 144, 58, 0.24);
+  /* Боковое меню — обложка журнала */
+  --journal-cover-bg: #13245a;
+  --journal-cover-text: #f4ead2;
+  --journal-cover-muted: #d3cbb6;
+  --journal-cover-gold: #e6c67c;
+  --journal-cover-rule: rgba(230, 198, 124, 0.38);
+  --journal-cover-hover: rgba(230, 198, 124, 0.12);
+  --journal-cover-active: rgba(230, 198, 124, 0.2);
   --journal-stamp-ring: #c9a24d;
 
   --tile-icon-bg: #f5ecd6;
@@ -263,9 +269,14 @@
   --journal-button-hover: #edd08d;
   --journal-press: inset 0 2px 7px rgba(60, 42, 5, 0.5);
   --journal-card: #1f2740;
-  --journal-side-bg: #11172a;
   --journal-side-hover: rgba(201, 169, 97, 0.1);
-  --journal-side-active: rgba(201, 169, 97, 0.17);
+  --journal-cover-bg: #0b0f1c;
+  --journal-cover-text: #e9e0c8;
+  --journal-cover-muted: #b9b3a2;
+  --journal-cover-gold: #e2c071;
+  --journal-cover-rule: rgba(226, 192, 113, 0.32);
+  --journal-cover-hover: rgba(226, 192, 113, 0.09);
+  --journal-cover-active: rgba(226, 192, 113, 0.16);
   --journal-stamp-ring: rgba(27, 22, 8, 0.5);
 
   --showcase-card: #1c2336;
@@ -7551,18 +7562,19 @@ button.appt-arrow {
   text-align: center;
 }
 
-/* Боковое меню как оглавление журнала: бумага, линейки, заголовочный шрифт. На всех страницах кабинета. */
+/* Боковое меню — обложка журнала: тёмный фон, золото, засечки. Содержимое остаётся бумажным,
+   на стыке — тонкая золотая линия, как корешок книги. На всех страницах кабинета. */
 @media (min-width: 900px) {
   .has-bottom-nav .app-header {
-    --header-bg: var(--journal-side-bg);
-    --header-text: var(--color-text);
-    --header-hover-bg: var(--journal-side-hover);
-    --header-active-bg: var(--journal-side-active);
-    --header-active-text: var(--color-text);
-    --nav-active-mark: inset 3px 0 0 var(--journal-rule);
-    --focus-ring-on-dark: var(--focus-ring);
-    background-image: var(--journal-grain);
-    border-right: 3px double var(--journal-rule);
+    --header-bg: var(--journal-cover-bg);
+    --header-text: var(--journal-cover-text);
+    --header-hover-bg: var(--journal-cover-hover);
+    --header-active-bg: var(--journal-cover-active);
+    --header-active-text: var(--journal-cover-gold);
+    --nav-active-mark: inset 3px 0 0 var(--journal-cover-gold);
+    color-scheme: dark;
+    border-right: 1px solid var(--journal-rule);
+    box-shadow: 3px 0 10px rgba(8, 12, 28, 0.22);
   }
 
   .has-bottom-nav .app-header__inner {
@@ -7571,7 +7583,8 @@ button.appt-arrow {
 
   .has-bottom-nav .logo {
     padding: 0 var(--space-2) var(--space-3);
-    border-bottom: 3px double var(--journal-rule);
+    border-bottom: 1px solid var(--journal-cover-gold);
+    color: var(--journal-cover-text);
     font-family: "Playfair Display", Georgia, "Times New Roman", serif;
   }
 
@@ -7595,7 +7608,7 @@ button.appt-arrow {
 
   .has-bottom-nav .nav__item svg {
     stroke-width: 1.5;
-    color: var(--journal-kicker);
+    color: var(--journal-cover-gold);
   }
 
   .nav__count {
@@ -7606,9 +7619,11 @@ button.appt-arrow {
   .nav__group {
     margin-top: var(--space-2);
     padding: var(--space-2) var(--space-3) var(--space-1);
-    border-top: 1px solid var(--journal-rule-soft);
-    color: var(--journal-kicker);
-    font-size: 11px;
+    border-top: 1px solid var(--journal-cover-rule);
+    color: var(--journal-cover-gold);
+    font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+    font-size: 12px;
+    font-weight: 600;
     letter-spacing: 0.14em;
     opacity: 1;
     text-transform: uppercase;
@@ -7616,8 +7631,8 @@ button.appt-arrow {
 
   .sidebar-note {
     padding: var(--space-3) var(--space-2) 0;
-    border-top: 1px solid var(--journal-rule-soft);
-    color: var(--color-muted);
+    border-top: 1px solid var(--journal-cover-rule);
+    color: var(--journal-cover-muted);
     opacity: 1;
   }
 }
