@@ -5141,3 +5141,269 @@ main[tabindex="-1"]:focus {
     grid-template-columns: minmax(0, 650px);
   }
 }
+
+/* =================== Студенческий билет =================== */
+/* Показ на весь экран — яркий в любой теме, чтобы экран было видно издалека */
+:root {
+  --stc-full-bg: #ffe27a;
+  --stc-full-text: #161d33;
+}
+
+.stc-page {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-3);
+}
+
+.stc {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 480px;
+  padding: var(--space-4);
+  border-radius: var(--radius);
+  background: var(--hero-bg);
+  color: var(--hero-text);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Лёгкий блик: проходит по карточке раз в несколько секунд */
+.stc::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  pointer-events: none;
+  transform: translateX(-130%) skewX(-18deg);
+  animation: stc-shine 7s ease-in-out 1s infinite;
+}
+
+@keyframes stc-shine {
+  0% { transform: translateX(-130%) skewX(-18deg); }
+  35%, 100% { transform: translateX(260%) skewX(-18deg); }
+}
+
+.stc__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-2);
+}
+
+.stc__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+}
+
+.stc__type {
+  color: var(--hero-accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stc__person {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stc__avatar {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--hero-accent);
+  color: var(--header-bg);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.stc__who p {
+  margin: 0;
+}
+
+.stc__name {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.stc__line {
+  margin-top: 2px;
+  color: var(--hero-muted);
+  font-size: var(--font-size-small);
+  line-height: 1.3;
+}
+
+.stc__bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.stc__facts {
+  margin: 0;
+}
+
+.stc__facts dt {
+  color: var(--hero-muted);
+  font-size: 13px;
+}
+
+.stc__facts dd {
+  margin: 0 0 var(--space-2);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 700;
+}
+
+.stc__facts dd:last-child {
+  margin-bottom: 0;
+}
+
+.stc__qr {
+  display: block;
+  padding: var(--space-1);
+  border-radius: var(--radius-small);
+  background: #ffffff;
+}
+
+/* Пометка видна всегда: на карточке, на весь экран и на странице проверки */
+.stc-concept {
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-small);
+  background: var(--hero-accent);
+  color: var(--header-bg);
+  font-size: var(--font-size-small);
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.stc-concept--full {
+  background: var(--stc-full-text);
+  color: var(--stc-full-bg);
+  font-size: 16px;
+}
+
+.stc-concept--check {
+  margin-bottom: var(--space-3);
+}
+
+.stc-open {
+  width: 100%;
+  max-width: 480px;
+}
+
+.stc-hint {
+  max-width: 480px;
+  margin: 0;
+  font-size: var(--font-size-small);
+}
+
+/* На компьютере показывать охраннику нечего — кнопка только на телефоне и планшете */
+@media (min-width: 900px) {
+  .stc-open {
+    display: none;
+  }
+}
+
+.stc-full {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: max(var(--space-4), env(safe-area-inset-top)) var(--space-4) max(var(--space-4), env(safe-area-inset-bottom));
+  border: 0;
+  background: var(--stc-full-bg);
+  color: var(--stc-full-text);
+}
+
+.stc-full::backdrop {
+  background: var(--stc-full-bg);
+}
+
+.stc-full[open] {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+}
+
+.stc-full__close {
+  position: absolute;
+  top: max(var(--space-2), env(safe-area-inset-top));
+  right: var(--space-2);
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  color: var(--stc-full-text);
+}
+
+.stc-full__body {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+}
+
+.stc-full__body p {
+  margin: 0;
+}
+
+.stc-full__brand {
+  padding-inline: var(--space-6);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+}
+
+.stc-full__qr {
+  display: block;
+  width: min(76vw, 46dvh);
+  height: min(76vw, 46dvh);
+  padding: var(--space-2);
+  border-radius: var(--radius-small);
+  background: #ffffff;
+}
+
+.stc-full__name {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.stc-full__line {
+  font-size: var(--font-size);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 600;
+}
+
+/* Плитка на «Главной»: пятая плитка не должна оставаться одна в ряду */
+@media (min-width: 641px) {
+  .tile--card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1180px) {
+  .tile--card {
+    grid-column: auto;
+  }
+
+  .tiles--student .tile--quick {
+    grid-column: span 3;
+  }
+}

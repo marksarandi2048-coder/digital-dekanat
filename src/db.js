@@ -183,6 +183,16 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS request_messages_request ON request_messages (request_id);
 
+  -- Цифровые студенческие билеты (концепт). code — случайный код для открытой проверки.
+  CREATE TABLE IF NOT EXISTS student_cards (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER NOT NULL UNIQUE REFERENCES users(id),
+    code        TEXT    NOT NULL UNIQUE,
+    number      TEXT    NOT NULL UNIQUE,
+    issued_on   TEXT    NOT NULL,
+    valid_until TEXT    NOT NULL
+  );
+
   -- Реестр электронных справок. code — длинный случайный секрет для QR-проверки.
   -- Данные студента — снимок на момент выдачи.
   CREATE TABLE IF NOT EXISTS e_certificates (

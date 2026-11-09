@@ -192,7 +192,7 @@ let announcementCount = 0;
 let colorInfo = { colored: 0, conflicts: 0 };
 
 db.transaction(() => {
-  const tables = ['notification_reads', 'announcements', 'e_certificates', 'request_messages', 'request_events', 'requests', 'bonuses', 'social_scores', 'results', 'assessments', 'semesters', 'lessons', 'teachers', 'disciplines', 'groups', 'users'];
+  const tables = ['student_cards', 'notification_reads', 'announcements', 'e_certificates', 'request_messages', 'request_events', 'requests', 'bonuses', 'social_scores', 'results', 'assessments', 'semesters', 'lessons', 'teachers', 'disciplines', 'groups', 'users'];
   for (const table of tables) {
     db.prepare(`DELETE FROM ${table}`).run();
     db.prepare('DELETE FROM sqlite_sequence WHERE name = ?').run(table);

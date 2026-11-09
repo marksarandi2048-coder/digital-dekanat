@@ -15,6 +15,7 @@
     request: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
     bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
     bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+    card: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M5.5 16c.6-1.6 2-2.4 3.5-2.4s2.9.8 3.5 2.4M15 10h3M15 14h3"/>',
     megaphone: '<path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M17 8a5 5 0 0 1 0 8"/>',
   };
 
@@ -243,6 +244,12 @@
     return t.node;
   }
 
+  function cardTile() {
+    const t = tile({ kind: 'card', title: 'Студенческий', iconName: 'card', href: '/student-card', more: 'Открыть студенческий билет' });
+    t.body.append(el('p', 'tile__text', 'Цифровой билет с QR-кодом для проверки'));
+    return t.node;
+  }
+
   function quickTile() {
     const t = tile({ kind: 'quick', title: 'Быстрые действия', iconName: 'bolt' });
     t.node.classList.add('tile--full');
@@ -264,6 +271,7 @@
       ratingTile(data.rating),
       requestTile(data.request, data.activeRequests),
       notificationsTile(data.notifications),
+      cardTile(),
       quickTile(),
     );
   }

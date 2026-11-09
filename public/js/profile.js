@@ -106,6 +106,7 @@
   function renderUseful(u) {
     const list = document.getElementById('useful-list');
     list.replaceChildren();
+    usefulRow(list, 'Студенческий билет', link('/student-card', 'Открыть билет'));
     if (u.group) {
       const dd = usefulRow(list, 'Группа');
       const line = document.createElement('p');

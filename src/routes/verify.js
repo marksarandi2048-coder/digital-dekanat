@@ -1,8 +1,10 @@
 'use strict';
-// Открытая проверка подлинности электронной справки по коду из QR.
-// Вход не нужен. Показывает только то, что и так напечатано в справке.
+// Открытые проверки по коду из QR: электронная справка и студенческий билет.
+// Вход не нужен. Справка показывает только то, что и так напечатано в ней,
+// билет — только статус и срок, без данных о студенте.
 const express = require('express');
 const { verifyCode } = require('../requests');
+const { checkCode } = require('../studentCard');
 const { nowInMoscow } = require('../dates');
 
 const router = express.Router();
@@ -29,6 +31,13 @@ router.get('/verify/:code', (req, res) => {
   // Код — 22 символа из латиницы, цифр, «-» и «_». Иное — сразу «не найдена».
   if (!/^[A-Za-z0-9_-]{22}$/.test(code)) return res.json({ state: 'not_found' });
   res.json(verifyCode(code, nowInMoscow().date));
+});
+
+router.get('/check/:code', (req, res) => {
+  if (tooMany(req.ip)) return res.status(429).json({ error: 'Слишком много проверок. Попробуйте через 10 минут.' });
+  const code = req.params.code;
+  if (!/^[A-Za-z0-9_-]{22}$/.test(code)) return res.json({ state: 'not_found' });
+  res.json(checkCode(code, nowInMoscow().date));
 });
 
 module.exports = router;

@@ -13,6 +13,7 @@ const requestsRoutes = require('./src/routes/requests');
 const verifyRoutes = require('./src/routes/verify');
 const notificationsRoutes = require('./src/routes/notifications');
 const homeRoutes = require('./src/routes/home');
+const studentCardRoutes = require('./src/routes/studentCard');
 const { findById } = require('./src/users');
 const { PUBLIC_URL } = require('./src/config');
 
@@ -86,6 +87,7 @@ app.use('/api', requestsRoutes);
 app.use('/api', verifyRoutes);
 app.use('/api', notificationsRoutes);
 app.use('/api', homeRoutes);
+app.use('/api', studentCardRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Не найдено' }));
 
 // Страницы.
@@ -108,6 +110,7 @@ const pages = {
   '/requests/:id': 'request.html',
   '/requests/:id/certificate': 'certificate.html',
   '/announcements/:id': 'announcement.html',
+  '/student-card': 'student-card.html',
 };
 
 // Лента — у студента, объявления — у сотрудника; каждого ведём на «своё».
@@ -140,6 +143,10 @@ app.get('/contact', (req, res) => {
 // Проверка подлинности справки — открыта для всех, вход не нужен.
 app.get(['/verify', '/verify/:code'], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'verify.html'));
+});
+// Проверка студенческого билета по QR — тоже открыта для всех.
+app.get('/check/:code', (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'check.html'));
 });
 // Стили и скрипты: браузер каждый раз сверяется с сервером (по ETag),
 // чтобы после обновления сайта не показывать страницу со старыми стилями.
