@@ -58,6 +58,37 @@
     return tr('home.dobroy_nochi');
   }
 
+  // Обложка: небо зависит от времени суток (московского, как приветствие).
+  const cover = document.getElementById('cover');
+
+  function skyFor(time) {
+    const h = Number(time.slice(0, 2));
+    if (h >= 5 && h < 9) return 'dawn';
+    if (h >= 9 && h < 17) return 'day';
+    if (h >= 17 && h < 21) return 'sunset';
+    return 'night';
+  }
+
+  // Пока ответ сервера не пришёл, берём московский час из часов устройства, чтобы небо не сменилось на глазах.
+  cover.dataset.sky = skyFor(new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Moscow' }).format(new Date()));
+
+  // Лёгкий параллакс: дальние слои обложки отстают при прокрутке. При «Уменьшить движение» его нет.
+  function setupParallax() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let queued = false;
+    const apply = () => {
+      queued = false;
+      cover.style.setProperty('--cover-y', `${Math.min(window.scrollY, cover.offsetTop + cover.offsetHeight)}px`);
+    };
+    window.addEventListener('scroll', () => {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(apply);
+    }, { passive: true });
+  }
+
+  setupParallax();
+
   const num = D.decimal;
 
   // Крупная цифра. При первом показе она «набегает» от нуля.
@@ -472,6 +503,7 @@
       return;
     }
     document.getElementById('greeting').textContent = `${greeting(data.now.time)}, ${data.firstName}`;
+    cover.dataset.sky = skyFor(data.now.time);
     const today = D.capitalize(`${D.weekdayLong(data.now.date)}, ${D.dayMonth(data.now.date)}`);
     document.getElementById('date-label').textContent = data.rating ? `${today} · ${data.rating.semester}` : today;
     if (data.role === 'staff') renderStaff(data);

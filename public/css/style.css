@@ -7926,3 +7926,185 @@ button.appt-arrow {
     transform: none;
   }
 }
+
+/* =================== Обложка Главной: небо по времени суток, высотка, параллакс =================== */
+.cover {
+  --cover-text: #fff8e6;
+  --cover-kicker: #f6dd9f;
+  --cover-y: 0px;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-height: clamp(210px, 21vw, 270px);
+  margin-bottom: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--journal-rule);
+  border-radius: 3px;
+  background: var(--cover-sky);
+}
+
+/* Затемнение слева: текст читается на любом небе */
+.cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(7, 12, 38, 0.62) 0%, rgba(7, 12, 38, 0.44) 34%, rgba(7, 12, 38, 0) 56%);
+}
+
+.cover[data-sky="dawn"] {
+  --cover-sky: linear-gradient(180deg, #16225a 0%, #4a3f7e 50%, #c98a6a 84%, #f0c27a 100%);
+  --cover-far: #3a3a74;
+  --cover-stone: #17235a;
+  --cover-near: #0f1743;
+  --cover-cloud: rgba(255, 214, 170, 0.34);
+  --cover-win: 0.7;
+}
+
+.cover[data-sky="day"] {
+  --cover-sky: linear-gradient(180deg, #123072 0%, #2a5aa6 55%, #7ea6d8 90%, #e8d3a0 100%);
+  --cover-far: #48719f;
+  --cover-stone: #16306e;
+  --cover-near: #102556;
+  --cover-cloud: rgba(255, 255, 255, 0.5);
+  --cover-win: 0.3;
+}
+
+.cover[data-sky="sunset"] {
+  --cover-sky: linear-gradient(180deg, #141c4e 0%, #6b3566 50%, #d9743f 84%, #f2b457 100%);
+  --cover-far: #4c2a5e;
+  --cover-stone: #171a4c;
+  --cover-near: #0e1136;
+  --cover-cloud: rgba(255, 180, 130, 0.36);
+  --cover-win: 0.85;
+}
+
+.cover[data-sky="night"] {
+  --cover-sky: linear-gradient(180deg, #060b22 0%, #0e1a48 60%, #1c2f6e 100%);
+  --cover-far: #17265c;
+  --cover-stone: #0f1b4c;
+  --cover-near: #070d28;
+  --cover-cloud: rgba(170, 190, 240, 0.12);
+  --cover-win: 1;
+}
+
+.cover__art {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 0;
+  width: 100%;
+  height: 90%;
+  overflow: visible;
+}
+
+.cover__layer--sky { transform: translateY(calc(var(--cover-y) * 0.3)); }
+.cover__layer--far { transform: translateY(calc(var(--cover-y) * 0.2)); }
+.cover__layer--tower { transform: translateY(calc(var(--cover-y) * 0.1)); }
+
+.cover__layer--far { fill: var(--cover-far); }
+.cover__layer--near { fill: var(--cover-near); }
+.cover__clouds { fill: var(--cover-cloud); }
+.cover__stone { fill: var(--cover-stone); }
+.cover__windows rect { opacity: var(--cover-win); }
+#cover-win rect { fill: #f3cf85; }
+
+.cover__gold {
+  fill: none;
+  stroke: #e6c67c;
+  stroke-width: 1.4;
+  stroke-linecap: square;
+}
+
+.cover__finial { fill: #f3d68f; }
+.cover__stars { fill: #fff6dd; opacity: 0; }
+.cover__body { opacity: 0; }
+
+.cover[data-sky="night"] .cover__stars { opacity: 1; }
+.cover[data-sky="dawn"] .cover__stars { opacity: 0.28; }
+.cover[data-sky="dawn"] .cover__body--dawn,
+.cover[data-sky="day"] .cover__body--day,
+.cover[data-sky="sunset"] .cover__body--sunset,
+.cover[data-sky="night"] .cover__body--night {
+  opacity: 1;
+}
+
+@keyframes cover-twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.cover__twinkle {
+  animation: cover-twinkle 3.6s ease-in-out infinite;
+}
+
+.cover__twinkle:nth-child(12n) { animation-delay: 1.3s; }
+.cover__twinkle:nth-child(18n) { animation-delay: 2.4s; }
+
+.cover__text {
+  position: relative;
+  z-index: 2;
+  max-width: 64%;
+  transform: translateY(calc(var(--cover-y) * 0.06));
+}
+
+.cover .masthead__kicker {
+  color: var(--cover-kicker);
+}
+
+.journal .cover .page-title {
+  color: var(--cover-text);
+  text-shadow: 0 1px 10px rgba(7, 12, 38, 0.45);
+}
+
+/* Двойная золотая линейка — нижний край обложки */
+.cover.masthead::after {
+  z-index: 2;
+  background: var(--journal-bg);
+}
+
+/* В тёмной теме рисунок чуть приглушён, чтобы не слепить на тёмной странице */
+[data-theme="dark"] .cover__art {
+  filter: brightness(0.86);
+}
+
+@media (max-width: 640px) {
+  /* На телефоне обложка во всю ширину экрана, рисунок ниже и правее текста */
+  .cover {
+    min-height: 216px;
+    align-items: flex-start;
+    margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) var(--space-4);
+    padding: var(--space-4);
+    border-width: 0 0 1px;
+    border-radius: 0;
+  }
+
+  .cover::before {
+    background: linear-gradient(180deg, rgba(7, 12, 38, 0.5) 0%, rgba(7, 12, 38, 0.3) 52%, rgba(7, 12, 38, 0) 80%);
+  }
+
+  .cover__art {
+    height: 68%;
+  }
+
+  .cover__text {
+    max-width: 100%;
+  }
+
+  .journal .cover .page-title {
+    font-size: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover__layer--sky,
+  .cover__layer--far,
+  .cover__layer--tower,
+  .cover__text {
+    transform: none;
+  }
+
+  .cover__twinkle {
+    animation: none;
+  }
+}
