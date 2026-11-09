@@ -7448,6 +7448,30 @@ button.appt-arrow {
   --color-notice-text: #5f4500;
 }
 
+/* Страница входа и страницы ошибок */
+.journal .login-main .page-title {
+  margin-bottom: var(--space-3);
+  font-size: clamp(30px, 3vw, 38px);
+}
+
+.journal .error-card__title {
+  margin-bottom: var(--space-2);
+  font-size: clamp(30px, 4vw, 44px);
+}
+
+.journal .login-feature,
+.journal .login-lang {
+  border-radius: 2px;
+}
+
+/* Под двойной линейкой заголовка первая тонкая линейка не нужна */
+.journal .app-main > .page-title + .split > .split__side:first-child > .card:first-child,
+.journal .app-main > .page-title + #result > .card:first-child,
+.journal .app-main > .page-title + #state-loading + #result > .card:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
 @keyframes journal-rise {
   from {
     opacity: 0;
