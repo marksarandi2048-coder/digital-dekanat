@@ -19,11 +19,6 @@
     els.error.hidden = false;
   }
 
-  function initials(fullName) {
-    const parts = fullName.split(/\s+/).filter(Boolean);
-    return parts.slice(0, 2).map((p) => p[0].toUpperCase()).join('');
-  }
-
   function addField(label, value) {
     if (value === null || value === undefined || value === '') return;
     const dt = document.createElement('dt');
@@ -36,7 +31,7 @@
   function render(user, isOwn) {
     els.title.textContent = isOwn ? 'Мой профиль' : 'Профиль студента';
     document.title = `${els.title.textContent} — Цифровой деканат`;
-    els.avatar.textContent = initials(user.fullName);
+    els.avatar.textContent = user.initials;
     els.fullName.textContent = user.fullName;
     els.role.textContent = user.role === 'student' ? 'Студент' : 'Сотрудник деканата';
 

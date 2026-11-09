@@ -9,6 +9,7 @@ const N = require('../notifications');
 const R = require('../requests');
 const A = require('../announcements');
 const { nowInMoscow, addDays } = require('../dates');
+const { cardFor } = require('../studentCard');
 
 const router = express.Router();
 
@@ -82,6 +83,7 @@ function studentHome(user, now) {
     schedule: scheduleTile(user.group_name, now),
     deadline: deadline && { ...deadline, more: deadlines.filter((d) => d.own).length - 1 },
     rating: ratingTile(user, today),
+    card: (({ number, validUntil }) => ({ number, validUntil }))(cardFor(user, today)),
     request: requests[0] || null,
     activeRequests: requests.filter((r) => !r.closed).length,
     notifications: {

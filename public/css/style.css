@@ -5149,10 +5149,85 @@ main[tabindex="-1"]:focus {
   --stc-full-text: #161d33;
 }
 
+/* Телефон: всё в колонку; компьютер: билет слева, «Как пользоваться» справа */
 .stc-page {
   display: grid;
-  justify-items: start;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.stc-page__card {
+  display: grid;
   gap: var(--space-3);
+  max-width: 480px;
+}
+
+@media (min-width: 1100px) {
+  .stc-page {
+    grid-template-columns: minmax(0, 480px) minmax(300px, 560px);
+    gap: var(--space-5);
+  }
+}
+
+.stc-howto {
+  margin: 0;
+}
+
+.stc-howto .section-title {
+  margin-top: 0;
+}
+
+.stc-howto__steps {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+  counter-reset: stc-step;
+}
+
+.stc-howto__steps li {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding-left: 40px;
+  line-height: 1.35;
+  counter-increment: stc-step;
+}
+
+.stc-howto__steps li::before {
+  content: counter(stc-step);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--tile-icon-bg);
+  color: var(--tile-icon-color);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+}
+
+.stc-howto__check {
+  width: auto;
+  text-decoration: none;
+}
+
+.stc-howto__note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-small);
+}
+
+/* Иконка билета в шапке: рядом с колокольчиком */
+.header-card {
+  margin-left: auto;
+}
+
+.header-card + .bell {
+  margin-left: 0;
 }
 
 .stc {
@@ -5302,13 +5377,6 @@ main[tabindex="-1"]:focus {
 
 .stc-open {
   width: 100%;
-  max-width: 480px;
-}
-
-.stc-hint {
-  max-width: 480px;
-  margin: 0;
-  font-size: var(--font-size-small);
 }
 
 /* На компьютере показывать охраннику нечего — кнопка только на телефоне и планшете */
@@ -5389,6 +5457,65 @@ main[tabindex="-1"]:focus {
   font-size: var(--font-size);
   font-variant-numeric: lining-nums tabular-nums;
   font-weight: 600;
+}
+
+/* Плитка на «Главной»: мини-превью билета */
+.tile--card {
+  border-color: transparent;
+  background: var(--hero-bg);
+  color: var(--hero-text);
+}
+
+.tile--card .tile__title {
+  color: var(--hero-text);
+}
+
+.tile--card .tile__icon {
+  background: var(--hero-track);
+  color: var(--hero-accent);
+}
+
+.tile--card .tile__go {
+  color: var(--hero-accent);
+}
+
+.tile-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.tile-card__facts {
+  margin: 0;
+}
+
+.tile-card__facts dt {
+  color: var(--hero-muted);
+  font-size: 13px;
+}
+
+.tile-card__facts dd {
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-small);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 700;
+}
+
+.tile-card__facts dd:last-child {
+  margin-bottom: 0;
+}
+
+.tile-card__qr {
+  display: block;
+  padding: 3px;
+  border-radius: var(--radius-small);
+  background: #ffffff;
+}
+
+.stc-concept--tile {
+  padding-inline: var(--space-1);
+  font-size: 12px;
 }
 
 /* Плитка на «Главной»: пятая плитка не должна оставаться одна в ряду */

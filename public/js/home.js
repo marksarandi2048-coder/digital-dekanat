@@ -244,9 +244,19 @@
     return t.node;
   }
 
-  function cardTile() {
+  // Мини-превью билета. Картинка одна на все обновления плиток (раз в минуту), чтобы QR не мигал.
+  let cardQr = null;
+  function cardTile(card) {
     const t = tile({ kind: 'card', title: 'Студенческий', iconName: 'card', href: '/student-card', more: 'Открыть студенческий билет' });
-    t.body.append(el('p', 'tile__text', 'Цифровой билет с QR-кодом для проверки'));
+    if (!cardQr) {
+      cardQr = window.DekanatCardFull.qrImage('tile-card__qr', 72);
+      cardQr.alt = '';
+    }
+    const row = el('div', 'tile-card');
+    const facts = el('dl', 'tile-card__facts');
+    facts.append(el('dt', null, 'Номер'), el('dd', null, card.number), el('dt', null, 'Действует до'), el('dd', null, D.fullDate(card.validUntil)));
+    row.append(facts, cardQr);
+    t.body.append(row, el('p', 'stc-concept stc-concept--tile', window.DekanatCardFull.CONCEPT));
     return t.node;
   }
 
@@ -271,7 +281,7 @@
       ratingTile(data.rating),
       requestTile(data.request, data.activeRequests),
       notificationsTile(data.notifications),
-      cardTile(),
+      cardTile(data.card),
       quickTile(),
     );
   }

@@ -1,28 +1,13 @@
 'use strict';
-// Страница «Студенческий»: карточка билета и показ на весь экран.
+// Страница «Студенческий»: карточка билета и подсказка, как им пользоваться.
 // Все данные выводятся через textContent.
 (function () {
   const D = window.Dekanat;
   const el = D.el;
+  const Full = window.DekanatCardFull;
   const loading = document.getElementById('state-loading');
   const errorBox = document.getElementById('state-error');
   const content = document.getElementById('content');
-  const full = document.getElementById('card-full');
-  const fullBody = document.getElementById('card-full-body');
-
-  const CONCEPT = 'Концепт, не является документом';
-  const QR_URL = '/api/student-card/qr.svg';
-
-  function qrImage(className, size) {
-    const img = el('img', className);
-    img.src = QR_URL;
-    img.alt = 'QR-код для проверки билета';
-    img.width = size;
-    img.height = size;
-    return img;
-  }
-
-  const studyLine = (c) => [c.course ? `${c.course} курс` : null, c.group ? `группа ${c.group}` : null].filter(Boolean).join(' · ');
 
   function fact(dl, term, value) {
     dl.append(el('dt', null, term), el('dd', null, value));
@@ -47,68 +32,41 @@
     avatar.setAttribute('aria-hidden', 'true');
     const who = el('div', 'stc__who');
     who.append(el('p', 'stc__name', c.fullName), el('p', 'stc__line', c.faculty));
-    if (studyLine(c)) who.append(el('p', 'stc__line', studyLine(c)));
+    if (Full.studyLine(c)) who.append(el('p', 'stc__line', Full.studyLine(c)));
     person.append(avatar, who);
 
     const bottom = el('div', 'stc__bottom');
     const facts = el('dl', 'stc__facts');
     fact(facts, 'Номер билета', c.number);
     fact(facts, 'Действует до', D.fullDate(c.validUntil));
-    bottom.append(facts, qrImage('stc__qr', 112));
+    bottom.append(facts, Full.qrImage('stc__qr', 112));
 
-    card.append(head, person, bottom, el('p', 'stc-concept', CONCEPT));
+    card.append(head, person, bottom, el('p', 'stc-concept', Full.CONCEPT));
     return card;
   }
 
-  function fillFullScreen(c) {
-    const title = el('p', 'stc-full__name', c.fullName);
-    title.id = 'card-full-name';
-    const line = [c.number, studyLine(c)].filter(Boolean).join(' · ');
-    fullBody.replaceChildren(
-      el('p', 'stc-full__brand', 'Цифровой деканат · студенческий билет'),
-      qrImage('stc-full__qr', 320),
-      title,
-      el('p', 'stc-full__line', line),
-      el('p', 'stc-concept stc-concept--full', CONCEPT),
-    );
-  }
-
-  // ---------- На весь экран ----------
-  // Экран не гаснет там, где браузер это умеет; яркость экрана сайт менять не может.
-  let wakeLock = null;
-  let inFullscreen = false;
-
-  async function keepAwake() {
-    if (!('wakeLock' in navigator)) return;
-    try {
-      wakeLock = await navigator.wakeLock.request('screen');
-    } catch {
-      wakeLock = null; // не получилось — показ всё равно работает
+  function renderHowTo() {
+    const box = el('section', 'card stc-howto');
+    box.setAttribute('aria-labelledby', 'stc-howto-title');
+    const title = el('h2', 'section-title', 'Как пользоваться');
+    title.id = 'stc-howto-title';
+    const steps = el('ol', 'stc-howto__steps');
+    for (const [head, text] of [
+      ['Откройте билет', 'На телефоне — иконка билета в шапке, на компьютере — пункт «Студенческий» в меню.'],
+      ['Покажите на весь экран', 'На телефоне фон станет ярким, а QR-код — крупным.'],
+      ['Дайте отсканировать QR-код', 'Проверяющий увидит только статус и срок билета, без ваших личных данных.'],
+    ]) {
+      const li = el('li');
+      li.append(el('strong', null, head), el('span', 'muted', text));
+      steps.append(li);
     }
+    const check = el('a', 'button button--secondary stc-howto__check', 'Проверить мой билет');
+    check.href = '/student-card/check';
+    check.target = '_blank';
+    check.rel = 'noopener';
+    box.append(title, steps, check, el('p', 'muted stc-howto__note', 'Откроется та же страница, что и у проверяющего.'));
+    return box;
   }
-
-  function openFull() {
-    full.showModal();
-    keepAwake();
-    if (full.requestFullscreen) full.requestFullscreen().catch(() => {});
-  }
-
-  document.addEventListener('fullscreenchange', () => {
-    if (document.fullscreenElement === full) inFullscreen = true;
-    else if (inFullscreen) {
-      inFullscreen = false;
-      if (full.open) full.close();
-    }
-  });
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && full.open) keepAwake();
-  });
-  full.addEventListener('close', () => {
-    if (wakeLock) wakeLock.release().catch(() => {});
-    wakeLock = null;
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-  });
-  document.getElementById('card-full-close').addEventListener('click', () => full.close());
 
   async function load() {
     let data;
@@ -128,15 +86,13 @@
         action: { href: '/home', label: 'На главную', secondary: true },
       }));
     } else {
+      const side = el('div', 'stc-page__card');
       const button = el('button', 'button stc-open', 'На весь экран');
       button.type = 'button';
-      button.addEventListener('click', openFull);
-      fillFullScreen(data.card);
-      content.replaceChildren(
-        renderCard(data.card),
-        button,
-        el('p', 'muted stc-hint', 'Покажите QR-код: при проверке откроется страница со статусом и сроком билета, без ваших личных данных.'),
-      );
+      button.addEventListener('click', Full.open);
+      side.append(renderCard(data.card), button);
+      content.classList.add('stc-page');
+      content.replaceChildren(side, renderHowTo());
     }
     loading.hidden = true;
     content.hidden = false;

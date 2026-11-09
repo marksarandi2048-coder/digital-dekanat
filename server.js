@@ -16,6 +16,8 @@ const homeRoutes = require('./src/routes/home');
 const studentCardRoutes = require('./src/routes/studentCard');
 const { findById } = require('./src/users');
 const { PUBLIC_URL } = require('./src/config');
+const { checkPathFor } = require('./src/studentCard');
+const { nowInMoscow } = require('./src/dates');
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 if (!SESSION_SECRET) {
@@ -144,6 +146,14 @@ app.get('/contact', (req, res) => {
 app.get(['/verify', '/verify/:code'], (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'verify.html'));
 });
+// «Проверить мой билет»: ведёт вошедшего студента на проверку его собственного билета.
+app.get('/student-card/check', (req, res) => {
+  const user = req.session.userId ? findById(req.session.userId) : null;
+  if (!user) return res.redirect('/');
+  if (user.role !== 'student') return res.redirect('/home');
+  res.redirect(checkPathFor(user, nowInMoscow().date));
+});
+
 // Проверка студенческого билета по QR — тоже открыта для всех.
 app.get('/check/:code', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'check.html'));

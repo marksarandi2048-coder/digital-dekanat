@@ -298,6 +298,11 @@ window.Dekanat = (function () {
     const navItem = document.getElementById('nav-notifications');
     const navCount = document.getElementById('nav-count');
     if (data.role === 'staff') {
+      // Студенческий билет есть только у студента.
+      for (const id of ['nav-student-card', 'header-card']) {
+        const node = document.getElementById(id);
+        if (node) node.hidden = true;
+      }
       bell.href = '/announcements';
       bell.setAttribute('aria-label', 'Объявления');
       if (navItem) {

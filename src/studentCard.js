@@ -5,6 +5,7 @@
 const crypto = require('node:crypto');
 const { db } = require('./db');
 const { PUBLIC_URL } = require('./config');
+const { initials } = require('./users');
 
 const q = {
   byUser: db.prepare('SELECT * FROM student_cards WHERE user_id = ?'),
@@ -44,12 +45,6 @@ function ensureCard(user, today) {
   return existing;
 }
 
-// «Аксёнова Вероника Игоревна» → «ВА»
-function initials(fullName) {
-  const [last = '', first = ''] = fullName.split(/\s+/);
-  return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
-}
-
 // То, что видит сам студент. Секретный код в браузер не отдаётся: QR приходит картинкой.
 function cardFor(user, today) {
   const row = ensureCard(user, today);
@@ -64,8 +59,13 @@ function cardFor(user, today) {
   };
 }
 
+// Адрес открытой проверки: без сайта — для кнопки «Проверить мой билет», с сайтом — для QR.
+function checkPathFor(user, today) {
+  return `/check/${ensureCard(user, today).code}`;
+}
+
 function checkUrlFor(user, today) {
-  return `${PUBLIC_URL}/check/${ensureCard(user, today).code}`;
+  return `${PUBLIC_URL}${checkPathFor(user, today)}`;
 }
 
 // Открытая проверка: только статус и срок, никаких данных о студенте.
@@ -75,4 +75,4 @@ function checkCode(code, today) {
   return { state: row.valid_until >= today ? 'valid' : 'expired', validUntil: row.valid_until };
 }
 
-module.exports = { cardFor, checkUrlFor, checkCode };
+module.exports = { cardFor, checkPathFor, checkUrlFor, checkCode };
