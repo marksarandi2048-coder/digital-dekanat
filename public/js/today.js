@@ -180,7 +180,7 @@
   let signature = '';
   let bringKey = null;
 
-  // Сводка дня чипами: «3 пары», «9:00–13:30», «Свободна с 13:30», «1 изменение».
+  // Сводка дня чипами: «3 пары», «9:00–13:30», «После 13:30 свободно», «1 изменение».
   function renderChips(data, real) {
     const noZero = (time) => time.replace(/^0/, '');
     const chips = [];
@@ -189,7 +189,7 @@
       const last = noZero(real[real.length - 1].lesson.time.end);
       chips.push(el('li', 'day-chip', `${real.length} ${D.plural(real.length, 'пара', 'пары', 'пар')}`));
       chips.push(el('li', 'day-chip', `${first}–${last}`));
-      chips.push(el('li', 'day-chip', `Свободна с ${last}`));
+      chips.push(el('li', 'day-chip', `После ${last} свободно`));
     } else {
       chips.push(el('li', 'day-chip', 'Пар нет'));
     }
