@@ -6827,8 +6827,9 @@ button.appt-arrow {
   --font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
   --radius: 2px;
   --radius-small: 2px;
-  --shadow: none;
-  --shadow-hover: none;
+  /* Прозрачная тень, а не none: переменная стоит и внутри списков из нескольких теней */
+  --shadow: 0 0 0 transparent;
+  --shadow-hover: 0 0 0 transparent;
   background-color: var(--journal-bg);
   background-image: var(--journal-grain);
 }
@@ -6850,10 +6851,16 @@ button.appt-arrow {
 }
 
 .journal .app-main > .page-title,
-.journal .page-head .page-title,
+.journal .page-head .page-title {
+  font-size: clamp(30px, 4vw, 44px);
+}
+
+/* Заголовок заявки и объявления внутри материала — меньше заголовка страницы */
 .journal .req-head .page-title,
 .journal .announcement .page-title {
-  font-size: clamp(30px, 4vw, 44px);
+  margin-bottom: var(--space-2);
+  font-size: clamp(25px, 2.6vw, 32px);
+  line-height: 1.2;
 }
 
 .journal .page-subtitle {
@@ -7390,6 +7397,43 @@ button.appt-arrow {
 
 .journal .bonus-track span {
   border-radius: 0;
+}
+
+/* Формы */
+.journal .req-card[aria-current="true"] {
+  background: var(--journal-side-hover);
+  border-color: var(--journal-rule);
+  box-shadow: inset 3px 0 0 var(--journal-rule);
+}
+
+.journal .form-block__title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.journal .form-block {
+  padding: var(--space-3) 0 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--journal-rule);
+  border-radius: 0;
+}
+
+.journal .choice {
+  border-color: var(--journal-rule-soft);
+}
+
+.journal .choice:has(input:checked) {
+  background: var(--journal-side-hover);
+  border-color: var(--journal-rule);
+}
+
+@media (max-width: 899px) {
+  /* Подсказки формы — удобно попасть пальцем */
+  .journal .chip {
+    min-height: 44px;
+  }
 }
 
 @keyframes journal-rise {
