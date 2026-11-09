@@ -87,6 +87,37 @@
     return node;
   }
 
+  // Строка «Идёт сейчас · Прошло 68 из 80 минут»: видна только у текущей пары.
+  function addLiveRow(btn) {
+    const box = el('span', 'tl-live');
+    box.hidden = true;
+    const elapsed = el('span', 'tl-live__elapsed');
+    box.append(el('span', 'tl-live__label', 'Идёт сейчас'), elapsed);
+    btn.append(box);
+    return { btn, box, elapsed, label: btn.getAttribute('aria-label') };
+  }
+
+  function updateLive(slot, t) {
+    const { btn, box, elapsed, label } = slot.live;
+    const isNow = t >= slot.start && t < slot.end;
+    btn.classList.toggle('wk-card--live', isNow);
+    box.hidden = !isNow;
+    if (!isNow) {
+      btn.style.removeProperty('--progress');
+      btn.setAttribute('aria-label', label);
+      elapsed.textContent = '';
+      return;
+    }
+    const length = slot.end - slot.start;
+    // Заливка идёт сверху вниз и заканчивается ровно на линии «сейчас».
+    btn.style.setProperty('--progress', `${(((t - slot.start) / length) * 100).toFixed(2)}%`);
+    const text = `Прошло ${Math.floor(t - slot.start)} из ${length} ${D.plural(length, 'минуты', 'минут', 'минут')}`;
+    if (elapsed.textContent !== text) {
+      elapsed.textContent = text;
+      btn.setAttribute('aria-label', `${label}. Идёт сейчас. ${text}`);
+    }
+  }
+
   function renderScale(slots, gaps) {
     const rangeStart = slots[0].start;
     const rangeEnd = Math.max(...slots.map((s) => s.end));
@@ -109,10 +140,15 @@
     const track = el('ol', 'tl-track');
     const rows = [];
     for (const s of slots) {
-      const li = positioned(el('li', `tl-slot${s.entries.length > 1 ? ' tl-slot--split' : ''}`), rangeStart, s.start, s.end);
-      for (const e of s.entries) li.append(card(e.lesson, e.ghost, { showEnd: true }));
+      // Две карточки рядом — узкие: полное название и преподаватель в них не поместятся.
+      const split = s.entries.length > 1;
+      const li = positioned(el('li', `tl-slot${split ? ' tl-slot--split' : ''}`), rangeStart, s.start, s.end);
+      for (const e of s.entries) {
+        const btn = card(e.lesson, e.ghost, { showEnd: true, detailed: !split });
+        li.append(btn);
+        if (!e.ghost && e.lesson.status !== 'cancelled') s.live = addLiveRow(btn);
+      }
       s.node = li;
-      s.hasReal = s.entries.some((e) => !e.ghost && e.lesson.status !== 'cancelled');
       rows.push({ at: s.start, node: li });
     }
     for (const g of gaps) {
@@ -202,7 +238,7 @@
 
     for (const s of view.slots) {
       s.node.classList.toggle('tl-slot--past', t >= s.end);
-      s.node.classList.toggle('tl-slot--now', s.hasReal && t >= s.start && t < s.end);
+      if (s.live) updateLive(s, t);
     }
 
     const finished = real.length > 0 && t >= real[real.length - 1].end;

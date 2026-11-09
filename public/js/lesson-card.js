@@ -33,12 +33,16 @@ window.DekanatLesson = (function () {
     return icon;
   }
 
+  // На карточке коротко, чтобы строка помещалась на телефоне; полное название — в панели.
+  const KIND_SHORT = { lecture: 'Лекция', seminar: 'Семинар', practice: 'Практика' };
+
   const roomText = (room) => (/^\d+[а-яА-Яa-zA-Z]?$/.test(room) ? `ауд. ${room}` : room);
   const slotText = (date, pair, time) => `${D.capitalize(D.weekdayShort(date))}, ${D.dayMonth(date)}, ${pair} пара${time ? ` (${time.start}–${time.end})` : ''}`;
 
   // ---------- Карточка пары: полоска цвета, время, короткое название, аудитория ----------
   // showEnd — показать время целиком («09:00–10:20»), а не только начало.
-  function card(lesson, ghost, { showEnd = false } = {}) {
+  // detailed — полное название, вид занятия и преподаватель (где на карточке есть место).
+  function card(lesson, ghost, { showEnd = false, detailed = false } = {}) {
     const kind = ghost ? 'moved_away' : lesson.status;
     const btn = el('button', `wk-card disc-c${Number.isInteger(lesson.color) ? lesson.color : 0}${kind !== 'normal' ? ` wk-card--${kind}` : ''}`);
     btn.type = 'button';
@@ -49,12 +53,18 @@ window.DekanatLesson = (function () {
     const shown = time ? (showEnd ? `${time.start}–${time.end}` : time.start) : `${pair} пара`;
     top.append(el('span', 'wk-card__time', shown));
     if (kind !== 'normal') top.append(statusIcon(kind));
-    btn.append(top, el('span', 'wk-card__name', lesson.shortName || lesson.discipline));
+    btn.append(top, el('span', 'wk-card__name', detailed ? lesson.discipline : lesson.shortName || lesson.discipline));
     if (!ghost) btn.append(el('span', 'wk-card__room', roomText(lesson.room)));
+    if (detailed) {
+      const meta = el('span', 'wk-card__meta', `${KIND_SHORT[lesson.kind] || ''} · `);
+      meta.append(el('span', !ghost && lesson.status === 'teacher_changed' ? 'is-changed' : null, D.shortName(lesson.teacher)));
+      btn.append(meta);
+    }
 
     // Полное описание для программ экранного доступа.
     const parts = [lesson.discipline, time ? `${time.start}–${time.end}` : `${pair} пара`];
     if (!ghost) parts.push(D.place(lesson.building, lesson.room));
+    if (detailed) parts.push(D.KIND[lesson.kind], lesson.teacher);
     if (kind !== 'normal') parts.push(LABEL[kind]);
     btn.setAttribute('aria-label', `${parts.join(', ')}. Подробнее`);
     btn.addEventListener('click', () => openSheet(lesson, ghost));
