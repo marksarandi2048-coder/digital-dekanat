@@ -22,6 +22,7 @@ const { PUBLIC_URL } = require('./src/config');
 const { checkPathFor } = require('./src/studentCard');
 const { nowInMoscow } = require('./src/dates');
 const { buildServiceWorker } = require('./src/serviceWorker');
+const { languageMiddleware } = require('./src/i18n');
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 if (!SESSION_SECRET) {
@@ -71,6 +72,9 @@ app.use(
     },
   }),
 );
+
+// Язык запроса — из настройки браузера. Стоит после сессии: дальше обработка идёт без ожидания сети.
+app.use(languageMiddleware);
 
 // API: ответы с личными данными не кешируются.
 app.use('/api', (req, res, next) => {

@@ -3,32 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Что-то пошло не так — Цифровой деканат</title>
+  <title data-i18n="page.chto_to_poshlo_ne"></title>
   <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
   <script src="/js/theme.js"></script>
+  <script src="/i18n/ru.js"></script>
+  <script src="/i18n/en.js"></script>
+  <script src="/js/i18n.js"></script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="login-page error-page">
-  <p class="concept-note">Концепт для конкурса MGIMO×AI Challenge, не официальный сервис МГИМО</p>
+  <p class="concept-note" data-i18n="page.kontsept_dlya_konkursa_mgimo"></p>
 
   <main class="app-main" id="main">
     <div class="login-brand">
       <a class="logo" href="/">
         <img src="/img/logo.svg" alt="" width="44" height="44">
-        Цифровой деканат
+        <span data-i18n="page.tsifrovoy_dekanat"></span>
       </a>
     </div>
 
     <div class="card error-card">
       <div class="error-card__illu" data-illu="error"></div>
-      <p class="error-card__code">Ошибка 500</p>
-      <h1 class="page-title error-card__title">Что-то пошло не так</h1>
-      <p class="muted error-card__text">На сервере произошла ошибка, мы её уже записали. Попробуйте обновить страницу через минуту или вернитесь на главную.</p>
-      <a class="button error-card__button" href="/">На главную</a>
+      <p class="error-card__code" data-i18n="page.oshibka_500"></p>
+      <h1 class="page-title error-card__title" data-i18n="page.chto_to_poshlo_ne_2"></h1>
+      <p class="muted error-card__text" data-i18n="page.na_servere_proizoshla_oshibka"></p>
+      <a class="button error-card__button" href="/" data-i18n="page.na_glavnuyu"></a>
     </div>
   </main>
 
-  <footer class="app-footer">Все данные вымышлены</footer>
+  <footer class="app-footer" data-i18n="page.vse_dannye_vymyshleny"></footer>
   <script src="/js/common.js"></script>
   <script src="/js/error-page.js"></script>
 </body>

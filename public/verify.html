@@ -3,41 +3,44 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Проверка справки — Цифровой деканат</title>
+  <title data-i18n="page.proverka_spravki_tsifrovoy_dekanat"></title>
   <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
   <script src="/js/theme.js"></script>
+  <script src="/i18n/ru.js"></script>
+  <script src="/i18n/en.js"></script>
+  <script src="/js/i18n.js"></script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <p class="concept-note">Концепт для конкурса MGIMO×AI Challenge, не официальный сервис МГИМО</p>
+  <p class="concept-note" data-i18n="page.kontsept_dlya_konkursa_mgimo"></p>
 
   <header class="app-header">
     <div class="app-header__inner">
       <span class="logo">
         <img src="/img/logo.svg" alt="" width="32" height="32">
-        Цифровой деканат
+        <span data-i18n="page.tsifrovoy_dekanat"></span>
       </span>
     </div>
   </header>
 
   <main class="app-main">
-    <h1 class="page-title">Проверка электронной справки</h1>
-    <p class="state" id="state-loading" hidden>Проверяем…</p>
+    <h1 class="page-title" data-i18n="page.proverka_elektronnoy_spravki"></h1>
+    <p class="state" id="state-loading" hidden data-i18n="page.proveryaem"></p>
     <div id="result"></div>
 
     <form class="card verify-form" id="verify-form" novalidate>
-      <label class="form-block__title" for="code-input" id="form-title">Введите код со справки</label>
-      <p class="muted">Код напечатан под QR-кодом. Можно вставить и ссылку целиком.</p>
+      <label class="form-block__title" for="code-input" id="form-title" data-i18n="page.vvedite_kod_so_spravki"></label>
+      <p class="muted" data-i18n="page.kod_napechatan_pod_qr"></p>
       <div class="verify-form__row">
         <input id="code-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="300" inputmode="text">
-        <button class="button" type="submit">Проверить</button>
+        <button class="button" type="submit" data-i18n="page.proverit"></button>
       </div>
     </form>
 
-    <p class="muted verify-note">Демонстрационная проверка в концепте для конкурса MGIMO×AI Challenge. Не является официальным сервисом МГИМО, справки не имеют юридической силы.</p>
+    <p class="muted verify-note" data-i18n="page.demonstratsionnaya_proverka_v_kontsepte_2"></p>
   </main>
 
-  <footer class="app-footer">Все данные вымышлены</footer>
+  <footer class="app-footer" data-i18n="page.vse_dannye_vymyshleny"></footer>
   <script src="/js/verify.js"></script>
 </body>
 </html>

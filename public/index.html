@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Вход — Цифровой деканат</title>
+  <title data-i18n="page.vkhod_tsifrovoy_dekanat"></title>
   <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#13245a">
@@ -12,29 +12,33 @@
   <meta name="apple-mobile-web-app-title" content="Деканат">
   <link rel="apple-touch-icon" href="/img/icons/apple-touch-icon.png">
   <script src="/js/theme.js"></script>
+  <script src="/i18n/ru.js"></script>
+  <script src="/i18n/en.js"></script>
+  <script src="/js/i18n.js"></script>
   <script src="/js/pwa.js"></script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="login-page login-page--showcase">
-  <p class="concept-note">Концепт для конкурса MGIMO×AI Challenge, не официальный сервис МГИМО</p>
+  <p class="concept-note" data-i18n="page.kontsept_dlya_konkursa_mgimo"></p>
 
   <!-- Порядок блоков один: шапка, форма, преимущества. На компьютере их расставляет сетка в стилях. -->
   <div class="login-layout">
     <header class="login-hero">
       <span class="logo login-hero__logo">
         <img src="/img/logo.svg" alt="" width="44" height="44">
-        Цифровой деканат
+        <span data-i18n="page.tsifrovoy_dekanat"></span>
       </span>
-      <p class="login-hero__slogan">Весь деканат — в&nbsp;одном&nbsp;окне</p>
+      <p class="login-hero__slogan" data-i18n="page.ves_dekanat_v_odnom"></p>
     </header>
 
     <main class="login-main" id="main">
+      <div class="lang-switch--login" data-lang-switch></div>
       <form class="card login-form" id="login-form" novalidate>
-        <h1 class="page-title">Вход</h1>
+        <h1 class="page-title" data-i18n="page.vkhod"></h1>
         <p class="alert" id="login-error" role="alert" hidden></p>
 
         <div class="field">
-          <label for="login">Логин</label>
+          <label for="login" data-i18n="page.login"></label>
           <div class="input-wrap" id="login-wrap">
             <svg class="input-wrap__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
             <input id="login" name="login" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="login-error" required>
@@ -42,47 +46,47 @@
         </div>
 
         <div class="field">
-          <label for="password">Пароль</label>
+          <label for="password" data-i18n="page.parol"></label>
           <div class="input-wrap input-wrap--action" id="password-wrap">
             <svg class="input-wrap__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
             <input id="password" name="password" type="password" autocomplete="current-password" aria-describedby="login-error" required>
-            <button class="input-wrap__toggle" type="button" id="password-toggle" aria-label="Показать пароль" aria-pressed="false" aria-controls="password">
+            <button class="input-wrap__toggle" type="button" id="password-toggle" aria-pressed="false" aria-controls="password" data-i18n-attr="aria-label=page.pokazat_parol">
               <svg class="icon-eye" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
               <svg class="icon-eye-off" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16"/><path d="M9.9 5.8A9 9 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a16 16 0 0 1-3.2 3.9M6.2 7.6A16 16 0 0 0 2.5 12S6 18.5 12 18.5a9 9 0 0 0 4-.9"/><path d="M10 10a3 3 0 0 0 4 4"/></svg>
             </button>
           </div>
         </div>
 
-        <a class="login-forgot" href="/help?q=%D0%B7%D0%B0%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8C">Забыли пароль?</a>
+        <a class="login-forgot" href="/help?q=%D0%B7%D0%B0%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8C" data-i18n="page.zabyli_parol"></a>
         <button class="button login-submit" type="submit" id="login-button">
           <span class="login-submit__spinner" aria-hidden="true"></span>
-          <span id="login-button-text">Войти</span>
+          <span id="login-button-text" data-i18n="page.voyti"></span>
         </button>
       </form>
 
       <section class="demo" aria-labelledby="demo-title">
-        <h2 class="demo__title" id="demo-title">Демо-доступ для жюри</h2>
-        <p class="demo__hint">Нажмите карточку: логин и пароль подставятся сами. У каждого свои оценки, расписание и заявки.</p>
+        <h2 class="demo__title" id="demo-title" data-i18n="page.demo_dostup_dlya_zhyuri"></h2>
+        <p class="demo__hint" data-i18n="page.nazhmite_kartochku_login_i"></p>
         <div class="demo__cards">
           <button class="demo-card" type="button" data-demo="student-fmo" aria-pressed="false">
             <svg class="demo-card__icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.5 9.5 12 5l9.5 4.5L12 14Z"/><path d="M6.5 11.5V16c0 1.2 2.5 2.5 5.5 2.5s5.5-1.3 5.5-2.5v-4.5"/></svg>
             <span class="demo-card__text">
-              <span class="demo-card__name">Студентка ФМО</span>
-              <span class="demo-card__sub">Группа <span class="demo-card__nowrap">МО-2-03</span></span>
+              <span class="demo-card__name" data-i18n="page.studentka_fmo"></span>
+              <span class="demo-card__sub"><span data-i18n="page.gruppa"></span> <span class="demo-card__nowrap" data-i18n="page.mo_2_03"></span></span>
             </span>
           </button>
           <button class="demo-card" type="button" data-demo="student-meo" aria-pressed="false">
             <svg class="demo-card__icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.5 9.5 12 5l9.5 4.5L12 14Z"/><path d="M6.5 11.5V16c0 1.2 2.5 2.5 5.5 2.5s5.5-1.3 5.5-2.5v-4.5"/></svg>
             <span class="demo-card__text">
-              <span class="demo-card__name">Студент МЭО</span>
-              <span class="demo-card__sub">Группа <span class="demo-card__nowrap">МЭО-3-07</span></span>
+              <span class="demo-card__name" data-i18n="page.student_meo"></span>
+              <span class="demo-card__sub"><span data-i18n="page.gruppa"></span> <span class="demo-card__nowrap" data-i18n="page.meo_3_07"></span></span>
             </span>
           </button>
           <button class="demo-card" type="button" data-demo="staff" aria-pressed="false">
             <svg class="demo-card__icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5"/><path d="M3.5 12.5h17"/></svg>
             <span class="demo-card__text">
-              <span class="demo-card__name">Сотрудник деканата</span>
-              <span class="demo-card__sub">Заявки всех студентов</span>
+              <span class="demo-card__name" data-i18n="page.sotrudnik_dekanata"></span>
+              <span class="demo-card__sub" data-i18n="page.zayavki_vsekh_studentov"></span>
             </span>
           </button>
         </div>
@@ -91,24 +95,24 @@
     </main>
 
     <section class="login-features" aria-labelledby="features-title">
-      <h2 class="visually-hidden" id="features-title">Что умеет кабинет</h2>
+      <h2 class="visually-hidden" id="features-title" data-i18n="page.chto_umeet_kabinet"></h2>
       <!-- tabindex: на телефоне список прокручивается вбок, так его можно листать и с клавиатуры -->
       <ul class="login-features__list" tabindex="0" aria-labelledby="features-title">
         <li class="login-feature">
           <span class="login-feature__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M15 13.5a3.3 3.3 0 1 0 .6 2.6"/><path d="M15.4 11.8v2h-2"/></svg></span>
-          <span>Переносы и отмены — сразу на виду</span>
+          <span data-i18n="page.perenosy_i_otmeny_srazu"></span>
         </li>
         <li class="login-feature">
           <span class="login-feature__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3.5h8l4.5 4.5v12.5H6Z"/><path d="M14 3.5V8h4.5"/><path d="M9 12h2.5v2.5H9ZM14 16.5v.5M9 17.5h2M14 12h1"/></svg></span>
-          <span>Справка в два касания и с QR</span>
+          <span data-i18n="page.spravka_v_dva_kasaniya"></span>
         </li>
         <li class="login-feature">
           <span class="login-feature__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 20.5v-6M10 20.5V9.5M15.5 20.5v-8M20 20.5V4.5"/></svg></span>
-          <span>Оценки без пустого «Нет данных»</span>
+          <span data-i18n="page.otsenki_bez_pustogo_net"></span>
         </li>
         <li class="login-feature">
           <span class="login-feature__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 10a6 6 0 0 1 12 0c0 6 2.5 7 2.5 7h-17S6 16 6 10Z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg></span>
-          <span>Уведомления только для тебя</span>
+          <span data-i18n="page.uvedomleniya_tolko_dlya_tebya"></span>
         </li>
       </ul>
     </section>
@@ -121,38 +125,38 @@
 
         <g class="sv-float sv-float--1">
           <rect class="sv-card" x="16" y="34" width="244" height="132" rx="14"/>
-          <text class="sv-muted" x="34" y="60">Сегодня</text>
+          <text class="sv-muted" x="34" y="60" data-i18n="page.segodnya"></text>
           <rect class="sv-stripe-a" x="34" y="72" width="4" height="36" rx="2"/>
-          <text class="sv-strong" x="48" y="88">9:00 · ТМО</text>
-          <text class="sv-muted" x="48" y="105">Ауд. 214</text>
+          <text class="sv-strong" x="48" y="88" data-i18n="page.9_00_tmo"></text>
+          <text class="sv-muted" x="48" y="105" data-i18n="page.aud_214"></text>
           <rect class="sv-stripe-b" x="34" y="118" width="4" height="36" rx="2"/>
-          <text class="sv-strong" x="48" y="134">10:35 · МВКО</text>
-          <text class="sv-muted" x="48" y="151">Ауд. 412</text>
+          <text class="sv-strong" x="48" y="134" data-i18n="page.10_35_mvko"></text>
+          <text class="sv-muted" x="48" y="151" data-i18n="page.aud_412"></text>
           <rect class="sv-tag-moved" x="174" y="126" width="70" height="24" rx="12"/>
-          <text class="sv-tag-moved-text" x="209" y="142" text-anchor="middle">Перенос</text>
+          <text class="sv-tag-moved-text" x="209" y="142" text-anchor="middle" data-i18n="page.perenos"></text>
         </g>
 
         <g class="sv-float sv-float--2">
           <rect class="sv-card" x="284" y="12" width="180" height="156" rx="14"/>
-          <text class="sv-strong" x="302" y="42">Справка</text>
-          <text class="sv-muted" x="302" y="60">об обучении</text>
+          <text class="sv-strong" x="302" y="42" data-i18n="page.spravka"></text>
+          <text class="sv-muted" x="302" y="60" data-i18n="page.ob_obuchenii"></text>
           <path class="sv-qr" fill-rule="evenodd" d="M302 76h24v24h-24zM306 80v16h16V80zM310 84h8v8h-8zM342 76h24v24h-24zM346 80v16h16V80zM350 84h8v8h-8zM302 116h24v24h-24zM306 120v16h16v-16zM310 124h8v8h-8zM332 76h4v8h-4zM332 92h4v12h-4zM340 106h8v4h-8zM354 106h12v4h-12zM334 116h8v8h-8zM350 118h4v12h-4zM360 118h6v8h-6zM336 132h10v8h-10zM354 136h12v4h-12z"/>
           <rect class="sv-tag-ok" x="384" y="124" width="64" height="24" rx="12"/>
-          <text class="sv-tag-ok-text" x="416" y="140" text-anchor="middle">Готова</text>
+          <text class="sv-tag-ok-text" x="416" y="140" text-anchor="middle" data-i18n="page.gotova"></text>
         </g>
 
         <g class="sv-float sv-float--3">
           <rect class="sv-card" x="116" y="182" width="264" height="86" rx="14"/>
-          <text class="sv-muted" x="134" y="208">Набрано на сегодня</text>
+          <text class="sv-muted" x="134" y="208" data-i18n="page.nabrano_na_segodnya"></text>
           <text class="sv-big" x="134" y="248">86%</text>
-          <text class="sv-ok-text" x="228" y="232">Всё по плану</text>
+          <text class="sv-ok-text" x="228" y="232" data-i18n="page.vse_po_planu"></text>
           <rect class="sv-track" x="228" y="242" width="134" height="8" rx="4"/>
           <rect class="sv-fill" x="228" y="242" width="115" height="8" rx="4"/>
         </g>
       </svg>
     </div>
 
-    <footer class="app-footer">Все данные вымышлены</footer>
+    <footer class="app-footer" data-i18n="page.vse_dannye_vymyshleny"></footer>
   </div>
 
   <script src="/js/login.js"></script>
