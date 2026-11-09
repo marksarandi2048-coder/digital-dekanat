@@ -39,8 +39,29 @@
     } catch (err) {
       loading.hidden = true;
       errorBox.textContent = err.message;
+      if (err.offline) {
+        D.offlineBar();
+        D.reloadWhenOnline();
+        if (params.get('start')) {
+          const back = el('a', null, 'Открыть сохранённую неделю');
+          back.href = '/week';
+          errorBox.textContent = 'Нет подключения: эта неделя не сохранена. ';
+          errorBox.append(back);
+        } else {
+          errorBox.textContent = 'Нет подключения. Сохранённого расписания на этом устройстве нет.';
+        }
+      }
       errorBox.hidden = false;
       return;
+    }
+
+    // Сохранённая копия: «сегодня» считаем по текущей дате, а не по дате сохранения.
+    const offline = Boolean(data.offlineSavedAt);
+    const today = offline ? D.todayInMoscow() : data.now.date;
+    const isCurrentWeek = offline ? today >= data.weekStart && today <= data.weekEnd : data.isCurrentWeek;
+    if (offline) {
+      D.offlineBar(data.offlineSavedAt);
+      D.reloadWhenOnline();
     }
 
     D.setupGroup(data);
@@ -53,7 +74,8 @@
     document.getElementById('week-prev').href = weekLink(data.prevWeek);
     document.getElementById('week-next').href = weekLink(data.nextWeek);
     const current = document.getElementById('week-current');
-    if (data.isCurrentWeek) current.replaceWith(el('span', 'week-nav__note', 'Текущая неделя'));
+    if (isCurrentWeek) current.replaceWith(el('span', 'week-nav__note', 'Текущая неделя'));
+    else if (offline && !params.get('start')) current.replaceWith(el('span', 'week-nav__note', 'Новее данных нет'));
     else {
       current.href = weekLink(null);
       current.hidden = false;
@@ -89,7 +111,7 @@
     const nodes = [];
     days.forEach((date, i) => {
       const col = i + 2; // колонка 1 — номера пар
-      const isToday = date === data.now.date;
+      const isToday = date === today;
       const section = el('section', `wk-day${isToday ? ' wk-day--today' : ''}`);
       section.id = `day-${date}`;
       const head = el('h2', 'wk-day__title');

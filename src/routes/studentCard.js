@@ -11,6 +11,7 @@ router.use('/student-card', requireAuth);
 
 router.get('/student-card', (req, res) => {
   if (req.user.role !== 'student') return res.json({ card: null });
+  res.set('X-Offline-Allowed', '1'); // билет доступен без сети
   res.json({ card: cardFor(req.user, nowInMoscow().date) });
 });
 
@@ -19,7 +20,7 @@ router.get('/student-card/qr.svg', async (req, res, next) => {
   try {
     const url = checkUrlFor(req.user, nowInMoscow().date);
     const svg = await QRCode.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' });
-    res.type('image/svg+xml').send(svg);
+    res.set('X-Offline-Allowed', '1').type('image/svg+xml').send(svg);
   } catch (err) {
     next(err);
   }

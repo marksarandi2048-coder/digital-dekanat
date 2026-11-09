@@ -17,6 +17,12 @@ window.DekanatPwa = (function () {
     return null;
   }
 
+  // Что держим наготове для работы без сети, даже если студент это ещё не открывал.
+  const OFFLINE_URLS = ['/api/schedule/week', '/api/student-card', '/api/student-card/qr.svg'];
+  const SYNC_KEY = 'dekanat-offline-sync';
+  const SYNC_EVERY_MS = 15 * 60 * 1000;
+  let currentRole = null;
+
   // Просим сервис-воркер стереть личные данные и ждём ответа (не дольше секунды).
   function askWorkerToWipe() {
     const worker = 'serviceWorker' in navigator ? navigator.serviceWorker.controller : null;
@@ -30,6 +36,7 @@ window.DekanatPwa = (function () {
   }
 
   async function wipe() {
+    store('remove', SYNC_KEY);
     await askWorkerToWipe();
     if ('caches' in window) await window.caches.delete(PERSONAL_CACHE).catch(() => {});
   }
@@ -82,11 +89,33 @@ window.DekanatPwa = (function () {
   }
 
   // Сервер подтвердил, что вход действует: без сети кабинет откроется, а не форма входа.
-  async function sessionConfirmed() {
+  async function sessionConfirmed(role) {
+    currentRole = role;
     if (store('get', LOGOUT_KEY)) return;
     const worker = await controllingWorker();
-    if (worker && !store('get', LOGOUT_KEY)) worker.postMessage({ type: 'signed-in' });
+    if (worker && !store('get', LOGOUT_KEY)) {
+      worker.postMessage({ type: 'signed-in' });
+      refreshOfflineData();
+    }
   }
+
+  // Тихо обновляет неделю и билет. Только у студента: у сотрудника офлайн-данных нет.
+  async function refreshOfflineData() {
+    if (currentRole !== 'student' || store('get', LOGOUT_KEY)) return;
+    if (Date.now() - Number(store('get', SYNC_KEY) || 0) < SYNC_EVERY_MS) return;
+    if (!navigator.serviceWorker.controller) return;
+    store('set', SYNC_KEY, String(Date.now()));
+    try {
+      await Promise.all(OFFLINE_URLS.map((url) => fetch(url)));
+    } catch {
+      store('remove', SYNC_KEY); // сети нет — попробуем в следующий раз
+    }
+  }
+
+  // Приложение вернули на экран после перерыва.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshOfflineData();
+  });
 
   // Новый вход: всё, что могло остаться от прежней сессии, убираем.
   async function signedIn() {

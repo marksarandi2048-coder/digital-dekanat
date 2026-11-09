@@ -10,13 +10,17 @@ window.Dekanat = (function () {
     return node;
   }
 
+  const NO_CONNECTION = 'Нет подключения. Когда появится интернет, обновите страницу.';
+
   // Запрос к серверу. Если сессия закончилась — отправляем на страницу входа.
   async function fetchJSON(url) {
     let res;
     try {
       res = await fetch(url, { headers: { Accept: 'application/json' } });
     } catch {
-      throw new Error('Нет связи с сервером. Проверьте интернет и обновите страницу.');
+      const error = new Error(NO_CONNECTION);
+      error.offline = true;
+      throw error;
     }
     if (res.status === 401) {
       window.location.href = '/';
@@ -24,7 +28,54 @@ window.Dekanat = (function () {
     }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Не удалось загрузить данные');
+    // Ответ из сохранённой копии: сервис-воркер сообщает, когда она получена.
+    const savedAt = res.headers.get('X-Offline-Saved-At');
+    if (savedAt) data.offlineSavedAt = savedAt;
     return data;
+  }
+
+  // ---------- Работа без сети ----------
+  const MOSCOW = 'Europe/Moscow';
+  const moscowDate = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: MOSCOW }).format(d); // ГГГГ-ММ-ДД
+  const todayInMoscow = () => moscowDate(new Date());
+
+  // «Офлайн · обновлено в 10:24», а если данные не сегодняшние — с датой.
+  function savedLabel(iso) {
+    const saved = new Date(iso);
+    const time = new Intl.DateTimeFormat('ru-RU', { timeZone: MOSCOW, hour: '2-digit', minute: '2-digit' }).format(saved);
+    const day = moscowDate(saved);
+    return `Офлайн · обновлено ${day === todayInMoscow() ? '' : `${dayMonth(day)} `}в ${time}`;
+  }
+
+  // Плашка вверху страницы: без аргумента — «Нет подключения», с датой — когда обновлены данные.
+  function offlineBar(savedAt) {
+    const main = document.getElementById('main');
+    if (!main) return;
+    let bar = document.getElementById('offline-bar');
+    if (!bar) {
+      bar = el('p', 'offline-bar');
+      bar.id = 'offline-bar';
+      bar.setAttribute('role', 'status');
+      main.prepend(bar);
+    }
+    bar.textContent = savedAt ? savedLabel(savedAt) : 'Нет подключения';
+  }
+
+  function hideOfflineBar() {
+    const bar = document.getElementById('offline-bar');
+    if (bar) bar.remove();
+  }
+
+  // Для страниц без форм: связь вернулась — показываем свежие данные.
+  function reloadWhenOnline() {
+    window.addEventListener('online', async () => {
+      try {
+        await fetch('/api/notifications/count'); // событие бывает ложным: убеждаемся, что сервер отвечает
+        window.location.reload();
+      } catch {
+        // связи ещё нет — дождёмся следующего раза
+      }
+    });
   }
 
   // ---------- Даты ----------
@@ -294,7 +345,7 @@ window.Dekanat = (function () {
     } catch {
       return;
     }
-    window.DekanatPwa.sessionConfirmed();
+    window.DekanatPwa.sessionConfirmed(data.role);
     // Пункт «Уведомления» в боковом меню (на компьютере) — с тем же счётчиком.
     const navItem = document.getElementById('nav-notifications');
     const navCount = document.getElementById('nav-count');
@@ -343,5 +394,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, setupGroup, changeLines, shortName, place, toMinutes, minutesBetween, KIND, BADGE, illustration, emptyState };
+  return { offlineBar, hideOfflineBar, reloadWhenOnline, savedLabel, todayInMoscow, disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, setupGroup, changeLines, shortName, place, toMinutes, minutesBetween, KIND, BADGE, illustration, emptyState };
 })();

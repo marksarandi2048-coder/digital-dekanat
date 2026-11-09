@@ -63,7 +63,7 @@ window.DekanatCardFull = (function () {
     });
   }
 
-  function fill(c) {
+  function fill(c, savedAt) {
     const line = [c.number, studyLine(c)].filter(Boolean).join(' · ');
     body.replaceChildren(
       el('p', 'stc-full__brand', 'Цифровой деканат · студенческий билет'),
@@ -72,6 +72,7 @@ window.DekanatCardFull = (function () {
       el('p', 'stc-full__line', line),
       el('p', 'stc-concept stc-concept--full', CONCEPT),
     );
+    if (savedAt) body.append(el('p', 'stc-full__line', D.savedLabel(savedAt)));
   }
 
   async function open() {
@@ -87,10 +88,10 @@ window.DekanatCardFull = (function () {
     try {
       data = await D.fetchJSON('/api/student-card');
     } catch (err) {
-      body.replaceChildren(el('p', 'stc-full__line', err.message));
+      body.replaceChildren(el('p', 'stc-full__line', err.offline ? 'Нет подключения. Сохранённого билета на этом устройстве нет.' : err.message));
       return;
     }
-    if (data.card) fill(data.card);
+    if (data.card) fill(data.card, data.offlineSavedAt);
     else body.replaceChildren(el('p', 'stc-full__line', 'Билет есть только у студентов.'));
   }
 

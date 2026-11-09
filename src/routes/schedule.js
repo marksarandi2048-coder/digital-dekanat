@@ -40,6 +40,8 @@ router.get('/schedule/week', (req, res) => {
   const weekStart = mondayOf(base);
   const weekEnd = addDays(weekStart, 6);
   const data = group ? getSchedule(group, weekStart, weekEnd) : { pairs: null, lessons: [], movedAway: [] };
+  // Только расписание студента можно хранить на устройстве для работы без сети.
+  if (req.user.role === 'student') res.set('X-Offline-Allowed', '1');
   res.json({
     group,
     groups,

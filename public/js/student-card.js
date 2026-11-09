@@ -74,9 +74,19 @@
       data = await D.fetchJSON('/api/student-card');
     } catch (err) {
       loading.hidden = true;
-      errorBox.textContent = err.message;
+      errorBox.textContent = err.offline
+        ? 'Нет подключения. Сохранённого билета на этом устройстве нет.'
+        : err.message;
+      if (err.offline) {
+        D.offlineBar();
+        D.reloadWhenOnline();
+      }
       errorBox.hidden = false;
       return;
+    }
+    if (data.offlineSavedAt) {
+      D.offlineBar(data.offlineSavedAt);
+      D.reloadWhenOnline();
     }
     if (!data.card) {
       content.replaceChildren(D.emptyState({

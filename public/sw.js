@@ -17,6 +17,21 @@ const shellFiles = new Set(SHELL_FILES);
 // Каждая очистка увеличивает счётчик. Ответ на запрос, начатый до очистки, не сохраняется.
 let wipeCount = 0;
 
+// Личные данные на устройстве — только расписание недели и студенческий билет.
+// Дополнительно сервер помечает ответ заголовком (только для студентов): см. personalKey и savePersonal.
+const MAX_SAVED_WEEKS = 6; // кроме текущей: недели, которые студент открывал сам
+
+function personalKey(url) {
+  const path = url.pathname;
+  if (path === '/api/student-card' || path === '/api/student-card/qr.svg') return path;
+  if (path === '/api/schedule/week') {
+    const start = url.searchParams.get('start');
+    if (!start) return path;
+    return /^\d{4}-\d{2}-\d{2}$/.test(start) ? `${path}?start=${start}` : null;
+  }
+  return null;
+}
+
 // Какая заготовка отвечает за адрес, когда сети нет.
 const CABINET_PAGES = [
   [/^\/home$/, 'home.html'],
@@ -91,6 +106,48 @@ async function wipeIfSignedOut(path, response) {
   if (path === '/' && response.type === 'basic' && response.status === 200) await wipePersonal();
 }
 
+async function trimSavedWeeks(cache) {
+  const requests = (await cache.keys()).filter((r) => r.url.includes('/api/schedule/week?start='));
+  if (requests.length <= MAX_SAVED_WEEKS) return;
+  const dated = await Promise.all(
+    requests.map(async (r) => ({ r, at: (await cache.match(r)).headers.get('X-Offline-Saved-At') })),
+  );
+  dated.sort((a, b) => a.at.localeCompare(b.at));
+  await Promise.all(dated.slice(0, dated.length - MAX_SAVED_WEEKS).map(({ r }) => cache.delete(r)));
+}
+
+async function savePersonal(key, response, startedAt) {
+  if (response.status === 401) {
+    await wipePersonal(); // вход истёк
+    return;
+  }
+  if (!response.ok || response.headers.get('X-Offline-Allowed') !== '1') return;
+  const body = await response.clone().blob();
+  if (startedAt !== wipeCount) return; // пока шёл запрос, студент вышел
+  const cache = await caches.open(PERSONAL_CACHE);
+  await cache.put(
+    key,
+    new Response(body, {
+      headers: {
+        'Content-Type': response.headers.get('Content-Type') || 'application/octet-stream',
+        'X-Offline-Saved-At': new Date().toISOString(),
+      },
+    }),
+  );
+  if (startedAt !== wipeCount) {
+    await caches.delete(PERSONAL_CACHE);
+    return;
+  }
+  await trimSavedWeeks(cache);
+}
+
+function handlePersonal(event, key) {
+  const startedAt = wipeCount;
+  const network = fetch(event.request);
+  event.waitUntil(network.then((res) => savePersonal(key, res, startedAt)).catch(() => {}));
+  event.respondWith(networkOrCopy(network.then((res) => res.clone()), () => caches.match(key, { cacheName: PERSONAL_CACHE })));
+}
+
 function handlePage(event, url) {
   const path = normalPath(url.pathname);
   const network = fetch(event.request);
@@ -156,7 +213,11 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  if (url.pathname.startsWith('/api/')) return;
+  if (url.pathname.startsWith('/api/')) {
+    const key = request.mode === 'navigate' ? null : personalKey(url);
+    if (key) handlePersonal(event, key);
+    return;
+  }
   if (request.mode === 'navigate') handlePage(event, url);
   else if (shellFiles.has(url.pathname)) handleShellFile(event, url);
 });

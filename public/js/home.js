@@ -368,16 +368,63 @@
     content.replaceChildren(counters, openRequestsTile(data.openRequests, data.openTotal), announcementsTile(data.announcements));
   }
 
+  // Главная без сети: то, что доступно, — крупными кнопками.
+  async function showOffline() {
+    let saved = null;
+    try {
+      saved = await D.fetchJSON('/api/student-card');
+    } catch {
+      // сохранённого билета нет — покажем просто сообщение
+    }
+    loading.hidden = true;
+    D.offlineBar();
+    if (saved && saved.card && saved.offlineSavedAt) {
+      const box = el('section', 'card offline-home');
+      box.append(el('h2', 'section-title', 'Без интернета доступны'));
+      for (const [href, label] of [['/week', 'Расписание на неделю'], ['/student-card', 'Студенческий билет']]) {
+        const link = el('a', 'button', label);
+        link.href = href;
+        box.append(link);
+      }
+      box.append(el('p', 'muted', 'Заявки, оценки и остальное откроются, когда вернётся интернет.'));
+      content.className = '';
+      content.replaceChildren(box);
+      content.hidden = false;
+    } else {
+      errorBox.textContent = 'Нет подключения. Кабинет откроется, когда вернётся интернет.';
+      errorBox.hidden = false;
+    }
+  }
+
+  let offlineScreen = false;
+
   async function load() {
     let data;
     try {
       data = await D.fetchJSON('/api/home');
     } catch (err) {
+      if (err.offline) {
+        if (!content.hidden && !offlineScreen) {
+          D.offlineBar(); // плитки уже на экране — оставляем их, предупреждаем плашкой
+          return;
+        }
+        if (!offlineScreen) {
+          offlineScreen = true;
+          D.reloadWhenOnline();
+          await showOffline();
+        }
+        return;
+      }
       loading.hidden = true;
       errorBox.textContent = err.message;
       errorBox.hidden = false;
       return;
     }
+    if (offlineScreen) {
+      window.location.reload(); // связь вернулась
+      return;
+    }
+    D.hideOfflineBar();
     document.getElementById('greeting').textContent = `${greeting(data.now.time)}, ${data.firstName}`;
     document.getElementById('date-label').textContent = D.capitalize(`${D.weekdayLong(data.now.date)}, ${D.dayMonth(data.now.date)}`);
     if (data.role === 'staff') renderStaff(data);
