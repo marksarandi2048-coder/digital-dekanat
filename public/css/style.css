@@ -7726,6 +7726,13 @@ button.appt-arrow {
   background: var(--journal-rule-soft);
 }
 
+@media (max-width: 899px) {
+  /* На телефоне панель во всю ширину: линейка слева не нужна */
+  .assistant {
+    border-left: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .assistant-fab:active {
     transform: none;
