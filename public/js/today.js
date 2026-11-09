@@ -113,7 +113,7 @@
       return;
     }
     const length = slot.end - slot.start;
-    // Заливка идёт сверху вниз и заканчивается ровно на линии «сейчас».
+    // Заливка фона идёт слева направо: её край не выглядит как зачёркивание текста.
     btn.style.setProperty('--progress', `${(((t - slot.start) / length) * 100).toFixed(2)}%`);
     const text = `Прошло ${Math.floor(t - slot.start)} из ${length} ${D.plural(length, 'минуты', 'минут', 'минут')}`;
     if (elapsed.textContent !== text) {
