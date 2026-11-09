@@ -14,6 +14,7 @@ const verifyRoutes = require('./src/routes/verify');
 const notificationsRoutes = require('./src/routes/notifications');
 const homeRoutes = require('./src/routes/home');
 const studentCardRoutes = require('./src/routes/studentCard');
+const bonusRoutes = require('./src/routes/bonus');
 const { findById } = require('./src/users');
 const { PUBLIC_URL } = require('./src/config');
 const { checkPathFor } = require('./src/studentCard');
@@ -90,6 +91,7 @@ app.use('/api', verifyRoutes);
 app.use('/api', notificationsRoutes);
 app.use('/api', homeRoutes);
 app.use('/api', studentCardRoutes);
+app.use('/api', bonusRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Не найдено' }));
 
 // Страницы.
@@ -106,6 +108,7 @@ const pages = {
   '/today': 'today.html',
   '/week': 'week.html',
   '/grades': 'grades.html',
+  '/grades/bonus': 'bonus.html',
   '/profile': 'profile.html',
   '/requests': 'requests.html',
   '/requests/new': 'request-new.html',

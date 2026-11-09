@@ -183,6 +183,28 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS request_messages_request ON request_messages (request_id);
 
+  -- Где заработать надбавку: возможности и записи студентов.
+  CREATE TABLE IF NOT EXISTS bonus_opportunities (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    category     TEXT    NOT NULL CHECK (category IN ('volunteering', 'sport', 'research')),
+    title        TEXT    NOT NULL,
+    description  TEXT    NOT NULL,
+    organizer    TEXT    NOT NULL,
+    points       REAL    NOT NULL CHECK (points > 0),
+    signup_until TEXT    NOT NULL,
+    event_on     TEXT
+  );
+  CREATE TABLE IF NOT EXISTS bonus_enrollments (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    opportunity_id INTEGER NOT NULL REFERENCES bonus_opportunities(id),
+    student_id     INTEGER NOT NULL REFERENCES users(id),
+    status         TEXT    NOT NULL CHECK (status IN ('submitted', 'confirmed', 'awarded', 'rejected')),
+    created_at     TEXT    NOT NULL,
+    updated_at     TEXT    NOT NULL,
+    bonus_id       INTEGER REFERENCES bonuses(id),
+    UNIQUE (opportunity_id, student_id)
+  );
+
   -- Цифровые студенческие билеты (концепт). code — случайный код для открытой проверки.
   CREATE TABLE IF NOT EXISTS student_cards (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,

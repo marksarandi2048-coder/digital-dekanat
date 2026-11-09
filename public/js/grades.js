@@ -259,11 +259,16 @@
     return card;
   }
 
-  function renderBonuses(bonuses, bonusBlock) {
+  function renderBonuses(bonuses, bonusBlock, showLink) {
     const card = el('section', 'card');
     const head = el('div', 'subject__head');
     head.append(el('h2', 'section-title', 'Надбавка'), el('span', 'bonus-total', `+${num(bonusBlock.points)} из ${bonusBlock.max}`));
     card.append(head);
+    if (showLink) {
+      const link = el('a', 'bonus-where', 'Где заработать →');
+      link.href = '/grades/bonus';
+      card.append(link);
+    }
     if (!bonuses.length) {
       card.append(el('p', 'muted', 'В этом семестре надбавки пока нет. Её начисляют за волонтёрство, спортивные секции МГИМО и научные работы.'));
       return card;
@@ -353,7 +358,7 @@
       subjects.append(el('p', 'day__empty', 'В этом семестре дисциплин нет'));
     }
     const extra = el('div', 'split__pair');
-    extra.append(renderSocial(data.social), renderBonuses(data.bonuses, data.rating.blocks.find((b) => b.key === 'bonus')));
+    extra.append(renderSocial(data.social), renderBonuses(data.bonuses, data.rating.blocks.find((b) => b.key === 'bonus'), !data.students && data.semester.isCurrent));
     // Калькулятор — только студенту и только за текущий семестр.
     if (!data.students && data.semester.isCurrent && data.disciplines.length) main.append(window.DekanatForecast.render(data));
     main.append(subjects, extra);

@@ -8,6 +8,7 @@ const { addDays, mondayOf, nowStamp } = require('./dates');
 const { pairsFor } = require('./pairs');
 const T = require('./requestTypes');
 const { listSemesters, semesterData } = require('./grades');
+const { eventsFor: bonusEvents } = require('./bonus');
 
 const REMIND_DAYS = 7; // за сколько дней до срока напоминать
 const HISTORY_DAYS = 30; // сколько дней истории заявок показывать
@@ -194,6 +195,21 @@ function feed(user, today) {
       body: preview(m.text),
       at: m.created_at,
       link: `/requests/${m.request_id}`,
+    });
+  }
+
+  // Надбавка: что решил деканат по записям студента.
+  const BONUS_TITLES = { confirmed: 'Участие подтверждено', awarded: 'Баллы надбавки начислены', rejected: 'Заявка на активность отклонена' };
+  for (const e of bonusEvents(user.id, today, HISTORY_DAYS)) {
+    items.push({
+      key: `bonus:${e.id}:${e.status}`,
+      kind: 'bonus',
+      kindLabel: 'Надбавка',
+      important: false,
+      title: e.status === 'awarded' ? `${BONUS_TITLES.awarded}: +${e.points}` : BONUS_TITLES[e.status],
+      body: e.title,
+      at: e.updated_at,
+      link: '/grades/bonus',
     });
   }
 
