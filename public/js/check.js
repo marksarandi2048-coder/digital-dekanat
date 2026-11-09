@@ -12,12 +12,12 @@
   }
 
   const fullDate = (d) =>
-    new Intl.DateTimeFormat('ru-RU', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${d}T00:00:00Z`));
+    new Intl.DateTimeFormat(window.DekanatI18n.locale, { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${d}T00:00:00Z`));
 
   const VIEW = {
-    valid: { tone: 'ok', title: '✓ Билет действителен', text: (d) => `до ${fullDate(d.validUntil)}` },
-    expired: { tone: 'bad', title: '✕ Срок действия билета истёк', text: (d) => `Действовал до ${fullDate(d.validUntil)}` },
-    not_found: { tone: 'bad', title: '✕ Билет не найден', text: () => 'Отсканируйте QR-код ещё раз.' },
+    valid: { tone: 'ok', title: tr('check.bilet_deystvitelen'), text: (d) => tr('check.do_p0', { p0: fullDate(d.validUntil) }) },
+    expired: { tone: 'bad', title: tr('check.srok_deystviya_bileta_istek'), text: (d) => tr('check.deystvoval_do_p0', { p0: fullDate(d.validUntil) }) },
+    not_found: { tone: 'bad', title: tr('check.bilet_ne_nayden'), text: () => tr('check.otskaniruyte_qr_kod_esche') },
   };
 
   function render(data) {
@@ -32,10 +32,10 @@
     try {
       const res = await fetch(`/api/check/${encodeURIComponent(code)}`, { headers: { Accept: 'application/json' } });
       data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Не удалось проверить билет');
+      if (!res.ok) throw new Error(data.error || tr('check.ne_udalos_proverit_bilet'));
     } catch (err) {
       loading.hidden = true;
-      const alert = el('p', 'alert', err instanceof TypeError ? 'Нет подключения. Проверка работает только с интернетом.' : err.message);
+      const alert = el('p', 'alert', err instanceof TypeError ? tr('check.net_podklyucheniya_proverka_rabotaet') : err.message);
       alert.setAttribute('role', 'alert');
       result.replaceChildren(alert);
       return;

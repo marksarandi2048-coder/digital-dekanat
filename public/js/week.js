@@ -43,12 +43,12 @@
         D.offlineBar();
         D.reloadWhenOnline();
         if (params.get('start')) {
-          const back = el('a', null, 'Открыть сохранённую неделю');
+          const back = el('a', null, tr('week.otkryt_sokhranennuyu_nedelyu'));
           back.href = '/week';
-          errorBox.textContent = 'Нет подключения: эта неделя не сохранена. ';
+          errorBox.textContent = tr('week.net_podklyucheniya_eta_nedelya');
           errorBox.append(back);
         } else {
-          errorBox.textContent = 'Нет подключения. Сохранённого расписания на этом устройстве нет.';
+          errorBox.textContent = tr('week.net_podklyucheniya_sokhranennogo_raspisaniya');
         }
       }
       errorBox.hidden = false;
@@ -74,8 +74,8 @@
     document.getElementById('week-prev').href = weekLink(data.prevWeek);
     document.getElementById('week-next').href = weekLink(data.nextWeek);
     const current = document.getElementById('week-current');
-    if (isCurrentWeek) current.replaceWith(el('span', 'week-nav__note', 'Текущая неделя'));
-    else if (offline && !params.get('start')) current.replaceWith(el('span', 'week-nav__note', 'Новее данных нет'));
+    if (isCurrentWeek) current.replaceWith(el('span', 'week-nav__note', tr('week.tekuschaya_nedelya')));
+    else if (offline && !params.get('start')) current.replaceWith(el('span', 'week-nav__note', tr('week.novee_dannykh_net')));
     else {
       current.href = weekLink(null);
       current.hidden = false;
@@ -84,7 +84,7 @@
     const changes = data.lessons.filter((l) => l.status !== 'normal').length;
     const banner = document.getElementById('changes-banner');
     if (changes) {
-      banner.textContent = `${changes} ${D.plural(changes, 'изменение', 'изменения', 'изменений')} на неделе — нажмите на пару, чтобы узнать подробности`;
+      banner.textContent = tr('week.changes_p1_na_nedele', { changes, p1: D.plural(changes, tr('week.izmenenie'), tr('week.izmeneniya'), tr('week.izmeneniy')) });
       banner.hidden = false;
     }
 
@@ -116,12 +116,12 @@
       section.id = `day-${date}`;
       const head = el('h2', 'wk-day__title');
       head.append(el('span', 'wk-day__name', D.capitalize(D.weekdayShort(date))), el('span', 'wk-day__date', D.dayMonth(date)));
-      if (isToday) head.append(el('span', 'tag tag--now', 'Сегодня'));
+      if (isToday) head.append(el('span', 'tag tag--now', tr('week.segodnya')));
       head.style.gridColumn = String(col);
       section.append(head);
 
       const dayItems = items.filter((x) => x.date === date).sort((a, b) => a.pair - b.pair || (a.ghost ? 1 : -1));
-      if (!dayItems.length) section.append(el('p', 'wk-day__empty', 'Занятий нет'));
+      if (!dayItems.length) section.append(el('p', 'wk-day__empty', tr('week.zanyatiy_net')));
       // Ячейка «день × пара»: в ней может быть пара и «след» перенесённой.
       for (const pair of [...new Set(dayItems.map((x) => x.pair))]) {
         const slot = el('div', 'wk-slot');
@@ -146,7 +146,7 @@
       const line = el('div', 'wk-row');
       line.setAttribute('aria-hidden', 'true');
       line.style.gridRow = String(rowOf(p));
-      line.append(el('span', 'wk-row__pair', `${p} пара`));
+      line.append(el('span', 'wk-row__pair', tr('week.p_para', { p })));
       if (time) line.append(el('span', 'wk-row__time', `${time.start}–${time.end}`));
       nodes.push(line);
     }

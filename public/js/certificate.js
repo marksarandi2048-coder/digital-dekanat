@@ -28,17 +28,17 @@
     }
     const c = data.request.certificate;
     if (!c) {
-      showError('Электронная справка по этой заявке ещё не готова.');
+      showError(tr('certificate.elektronnaya_spravka_po_etoy'));
       return;
     }
 
     const parts = [];
     if (c.state !== 'valid') {
-      parts.push(el('p', 'verdict verdict--bad', c.state === 'expired' ? 'Срок действия справки истёк — при проверке она будет недействительна.' : 'Справка отозвана.'));
+      parts.push(el('p', 'verdict verdict--bad', c.state === 'expired' ? tr('certificate.srok_deystviya_spravki_istek') : tr('certificate.spravka_otozvana')));
     }
 
     const doc = el('article', 'certificate');
-    doc.append(el('p', 'certificate__watermark', 'Концепт · не официальный документ'));
+    doc.append(el('p', 'certificate__watermark', tr('certificate.kontsept_ne_ofitsialnyy_dokument')));
 
     const head = el('div', 'certificate__head');
     const logo = document.createElement('img');
@@ -46,37 +46,37 @@
     logo.alt = '';
     logo.width = 40;
     logo.height = 40;
-    head.append(logo, el('p', 'certificate__org', 'Цифровой деканат — электронная справка'));
+    head.append(logo, el('p', 'certificate__org', tr('certificate.tsifrovoy_dekanat_elektronnaya_spravka')));
     doc.append(head);
 
-    doc.append(el('h1', 'certificate__title', 'Справка об обучении'), el('p', 'certificate__number', `№ ${c.number} от ${D.fullDate(c.issuedAt.slice(0, 10))}`));
+    doc.append(el('h1', 'certificate__title', tr('certificate.spravka_ob_obuchenii')), el('p', 'certificate__number', tr('certificate.number_ot_p1', { number: c.number, p1: D.fullDate(c.issuedAt.slice(0, 10)) })));
 
     const text = el('p', 'certificate__text');
     text.append(
       el('strong', null, c.fullName),
       document.createTextNode(
-        ` обучается на ${c.course} курсе, ${c.faculty.charAt(0).toLowerCase()}${c.faculty.slice(1)}, направление подготовки «${c.program}», форма обучения — ${c.studyForm}.`,
+        tr('certificate.obuchaetsya_na_course_kurse', { course: c.course, p1: c.faculty.charAt(0).toLowerCase(), p2: c.faculty.slice(1), program: c.program, studyForm: c.studyForm }),
       ),
     );
     doc.append(text);
-    if (c.purpose) doc.append(el('p', 'certificate__text', `Справка выдана для предоставления: ${c.purpose}.`));
-    doc.append(el('p', 'certificate__text', `Действительна до ${D.fullDate(c.validUntil)}`));
-    doc.append(el('p', 'certificate__sign', `Подписано: ${c.signedBy}`));
+    if (c.purpose) doc.append(el('p', 'certificate__text', tr('certificate.spravka_vydana_dlya_predostavleniya', { purpose: c.purpose })));
+    doc.append(el('p', 'certificate__text', tr('certificate.deystvitelna_do_p0', { p0: D.fullDate(c.validUntil) })));
+    doc.append(el('p', 'certificate__sign', tr('certificate.podpisano_signedby', { signedBy: c.signedBy })));
 
     // QR-код и ручная проверка.
     const check = el('div', 'certificate__check');
     const qr = document.createElement('img');
     qr.className = 'certificate__qr';
     qr.src = `/api/requests/${encodeURIComponent(id)}/qr.svg`;
-    qr.alt = 'QR-код для проверки подлинности справки';
+    qr.alt = tr('certificate.qr_kod_dlya_proverki');
     qr.width = 140;
     qr.height = 140;
     const howto = el('div', 'certificate__howto');
     howto.append(
-      el('p', 'certificate__howto-title', 'Проверка подлинности'),
-      el('p', null, 'Отсканируйте QR-код или откройте страницу'),
+      el('p', 'certificate__howto-title', tr('certificate.proverka_podlinnosti')),
+      el('p', null, tr('certificate.otskaniruyte_qr_kod_ili')),
       el('p', 'certificate__url', c.verifyBase),
-      el('p', null, 'и введите код:'),
+      el('p', null, tr('certificate.i_vvedite_kod')),
       el('p', 'certificate__code', c.code),
     );
     check.append(qr, howto);

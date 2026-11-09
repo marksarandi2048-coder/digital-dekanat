@@ -29,14 +29,14 @@ window.DekanatHelp = (function () {
     const id = `help-q-${(uid += 1)}`;
     const form = el('form', 'help-form');
     form.setAttribute('role', 'search');
-    const label = el('label', compact ? 'help-form__label' : 'visually-hidden', 'Спроси деканат');
+    const label = el('label', compact ? 'help-form__label' : 'visually-hidden', tr('help_search.sprosi_dekanat'));
     label.htmlFor = id;
     const input = el('input', 'help-form__input');
     input.id = id;
     input.type = 'search';
     input.maxLength = 200;
     input.autocomplete = 'off';
-    input.placeholder = 'Например: академ, общага';
+    input.placeholder = tr('help_search.naprimer_akadem_obschaga');
     input.value = initial;
     form.append(label, input);
     form.addEventListener('submit', (e) => {
@@ -53,7 +53,7 @@ window.DekanatHelp = (function () {
 
     function showPopular(list) {
       const wrap = el('div', 'help-popular');
-      wrap.append(el('p', 'muted help-popular__title', 'Часто спрашивают'));
+      wrap.append(el('p', 'muted help-popular__title', tr('help_search.chasto_sprashivayut')));
       const row = el('div', 'help-chips');
       for (const p of list.slice(0, chips)) {
         const b = el('button', 'help-chip', p.question);
@@ -70,8 +70,8 @@ window.DekanatHelp = (function () {
 
     function showNothing(q) {
       const none = el('div', 'help-none');
-      none.append(el('p', 'help-none__title', 'Не нашли ответ? Напишите в деканат'));
-      const a = el('a', 'button button--small help-item__action', 'Написать в деканат');
+      none.append(el('p', 'help-none__title', tr('help_search.ne_nashli_otvet_napishite')));
+      const a = el('a', 'button button--small help-item__action', tr('help_search.napisat_v_dekanat'));
       a.href = `/requests/new?type=appeal&topic=${encodeURIComponent(q)}`;
       none.append(a);
       results.replaceChildren(none);
@@ -82,7 +82,7 @@ window.DekanatHelp = (function () {
       list.slice(0, limit).forEach((r, i) => wrap.append(renderResult(r, i === 0)));
       const parts = [wrap];
       if (compact) {
-        const all = el('a', 'help-all', 'Все ответы →');
+        const all = el('a', 'help-all', tr('help_search.vse_otvety'));
         all.href = `/help?q=${encodeURIComponent(q)}`;
         parts.push(all);
       }

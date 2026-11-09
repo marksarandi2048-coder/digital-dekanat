@@ -10,7 +10,7 @@ window.Dekanat = (function () {
     return node;
   }
 
-  const NO_CONNECTION = 'Нет подключения. Когда появится интернет, обновите страницу.';
+  const NO_CONNECTION = tr('common.net_podklyucheniya_kogda_poyavitsya');
 
   // Запрос к серверу. Если сессия закончилась — отправляем на страницу входа.
   async function fetchJSON(url) {
@@ -28,7 +28,7 @@ window.Dekanat = (function () {
       return new Promise(() => {}); // страница уходит, дальше ничего не делаем
     }
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'Не удалось загрузить данные');
+    if (!res.ok) throw new Error(data.error || tr('common.ne_udalos_zagruzit_dannye'));
     // Ответ из сохранённой копии: сервис-воркер сообщает, когда она получена.
     const savedAt = res.headers.get('X-Offline-Saved-At');
     if (savedAt) data.offlineSavedAt = savedAt;
@@ -44,9 +44,9 @@ window.Dekanat = (function () {
   // «Офлайн · обновлено в 10:24», а если данные не сегодняшние — с датой.
   function savedLabel(iso) {
     const saved = new Date(iso);
-    const time = new Intl.DateTimeFormat('ru-RU', { timeZone: MOSCOW, hour: '2-digit', minute: '2-digit' }).format(saved);
+    const time = new Intl.DateTimeFormat(window.DekanatI18n.locale, { timeZone: MOSCOW, hour: '2-digit', minute: '2-digit' }).format(saved);
     const day = moscowDate(saved);
-    return `Офлайн · обновлено ${day === todayInMoscow() ? '' : `${dayMonth(day)} `}в ${time}`;
+    return tr('common.oflayn_obnovleno_p0_v', { p0: day === todayInMoscow() ? '' : `${dayMonth(day)} `, time });
   }
 
   // Плашка вверху страницы: без аргумента — «Нет подключения», с датой — когда обновлены данные.
@@ -64,7 +64,7 @@ window.Dekanat = (function () {
       bar.dataset.saved = '1';
       bar.textContent = savedLabel(savedAt);
     } else if (!bar.dataset.saved) {
-      bar.textContent = 'Нет подключения';
+      bar.textContent = tr('common.net_podklyucheniya');
     }
   }
 
@@ -89,7 +89,7 @@ window.Dekanat = (function () {
   // ---------- Даты ----------
   // Дата приходит как «ГГГГ-ММ-ДД»; форматируем её без сдвига часовых поясов.
   function formatDate(dateStr, options) {
-    return new Intl.DateTimeFormat('ru-RU', { timeZone: 'UTC', ...options }).format(
+    return new Intl.DateTimeFormat(window.DekanatI18n.locale, { timeZone: 'UTC', ...options }).format(
       new Date(`${dateStr}T00:00:00Z`),
     );
   }
@@ -103,11 +103,11 @@ window.Dekanat = (function () {
   const minutesBetween = (from, to) => toMinutes(to) - toMinutes(from);
   // 25 → «25 мин», 80 → «1 ч 20 мин», 120 → «2 ч»
   function duration(min) {
-    if (min < 1) return 'меньше минуты';
-    if (min < 60) return `${min} мин`;
+    if (min < 1) return tr('common.menshe_minuty');
+    if (min < 60) return tr('common.min_min', { min });
     const h = Math.floor(min / 60);
     const m = min % 60;
-    return m ? `${h} ч ${m} мин` : `${h} ч`;
+    return m ? tr('common.h_ch_m_min', { h, m }) : tr('common.h_ch', { h });
   }
   const fullDate = (d) => formatDate(d, { day: 'numeric', month: 'long', year: 'numeric' });
   // «ГГГГ-ММ-ДД ЧЧ:ММ» → «3 ноября, 15:40»
@@ -121,7 +121,7 @@ window.Dekanat = (function () {
     } catch {
       // Очереди «отправим потом» нет: действие не выполнено, и студент об этом знает.
       offlineBar();
-      return { ok: false, offline: true, data: { error: 'Нет подключения. Ничего не отправлено — попробуйте ещё раз, когда появится интернет.' } };
+      return { ok: false, offline: true, data: { error: tr('common.net_podklyucheniya_nichego_ne') } };
     }
     if (res.status === 401) {
       window.location.href = '/';
@@ -133,6 +133,7 @@ window.Dekanat = (function () {
   }
 
   function plural(n, one, few, many) {
+    if (window.DekanatI18n.lang === 'en') return n === 1 ? one : many;
     const m10 = n % 10;
     const m100 = n % 100;
     if (m10 === 1 && m100 !== 11) return one;
@@ -141,12 +142,12 @@ window.Dekanat = (function () {
   }
 
   // ---------- Занятия ----------
-  const KIND = { lecture: 'Лекция', seminar: 'Семинар', practice: 'Практическое занятие' };
+  const KIND = { lecture: tr('common.lektsiya'), seminar: tr('common.seminar'), practice: tr('common.prakticheskoe_zanyatie') };
   const BADGE = {
-    moved: 'Перенесено',
-    teacher_changed: 'Замена преподавателя',
-    room_changed: 'Другая аудитория',
-    cancelled: 'Отменено',
+    moved: tr('common.pereneseno'),
+    teacher_changed: tr('common.zamena_prepodavatelya'),
+    room_changed: tr('common.drugaya_auditoriya'),
+    cancelled: tr('common.otmeneno'),
   };
 
   // «Беляев Игорь Сергеевич» → «Беляев И. С.»
@@ -157,12 +158,12 @@ window.Dekanat = (function () {
   }
 
   function place(building, room) {
-    const roomText = /^\d+[а-яА-Яa-zA-Z]?$/.test(room) ? `ауд. ${room}` : room;
+    const roomText = /^\d+[а-яА-Яa-zA-Z]?$/.test(room) ? tr('common.aud_room', { room }) : room;
     return `${building}, ${roomText}`;
   }
 
   const slot = (date, pair, time) =>
-    `${weekdayShort(date)}, ${dayMonth(date)}, ${pair} пара${time ? ` (${time.start}–${time.end})` : ''}`;
+    tr('common.p0_p1_pair_para', { p0: weekdayShort(date), p1: dayMonth(date), pair, p3: time ? ` (${time.start}–${time.end})` : '' });
 
   // Название дисциплины с цветной меткой (цвет — подсказка, название всегда рядом).
   function disciplineTitle(tag, className, name, color) {
@@ -178,9 +179,9 @@ window.Dekanat = (function () {
     const c = lesson.change;
     if (!c) return [];
     const lines = [];
-    if (lesson.status === 'moved') lines.push(`Было: ${slot(c.oldDate, c.oldPair, c.oldTime)}`);
-    if (lesson.status === 'teacher_changed') lines.push(`Вместо: ${shortName(c.oldTeacher)}`);
-    if (lesson.status === 'room_changed') lines.push(`Было: ${place(c.oldBuilding, c.oldRoom)}`);
+    if (lesson.status === 'moved') lines.push(tr('common.bylo_p0', { p0: slot(c.oldDate, c.oldPair, c.oldTime) }));
+    if (lesson.status === 'teacher_changed') lines.push(tr('common.vmesto_p0', { p0: shortName(c.oldTeacher) }));
+    if (lesson.status === 'room_changed') lines.push(tr('common.bylo_p0', { p0: place(c.oldBuilding, c.oldRoom) }));
     if (c.note) lines.push(c.note);
     return lines;
   }
@@ -191,7 +192,7 @@ window.Dekanat = (function () {
     const picker = document.getElementById('group-picker');
     if (!data.groups) {
       if (info && data.group) {
-        info.textContent = `Группа ${data.group}`;
+        info.textContent = tr('common.gruppa_group', { group: data.group });
         info.hidden = false;
       }
       return;
@@ -274,9 +275,9 @@ window.Dekanat = (function () {
 
   // ---------- Обратный отсчёт: «сегодня», «завтра», «через 3 дня» ----------
   function countdown(days) {
-    if (days <= 0) return 'сегодня';
-    if (days === 1) return 'завтра';
-    return `через ${days} ${plural(days, 'день', 'дня', 'дней')}`;
+    if (days <= 0) return tr('common.segodnya');
+    if (days === 1) return tr('common.zavtra');
+    return tr('common.cherez_days_p1', { days, p1: plural(days, tr('common.den'), tr('common.dnya'), tr('common.dney')) });
   }
 
   // ---------- Скелетоны: серые заглушки, пока грузятся данные ----------
@@ -367,15 +368,15 @@ window.Dekanat = (function () {
         if (node) node.hidden = true;
       }
       bell.href = '/announcements';
-      bell.setAttribute('aria-label', 'Объявления');
+      bell.setAttribute('aria-label', tr('common.obyavleniya'));
       if (navItem) {
         navItem.href = '/announcements';
-        document.getElementById('nav-notifications-label').textContent = 'Объявления';
+        document.getElementById('nav-notifications-label').textContent = tr('common.obyavleniya');
       }
       return;
     }
     const n = data.count || 0;
-    const label = n ? `Уведомления: ${n} ${plural(n, 'непрочитанное', 'непрочитанных', 'непрочитанных')}` : 'Уведомления';
+    const label = n ? tr('common.uvedomleniya_n_p1', { n, p1: plural(n, tr('common.neprochitannoe'), tr('common.neprochitannykh'), tr('common.neprochitannykh')) }) : tr('common.uvedomleniya');
     badge.textContent = n > 99 ? '99+' : String(n);
     badge.hidden = n === 0;
     bell.setAttribute('aria-label', label);
@@ -406,7 +407,7 @@ window.Dekanat = (function () {
     const link = event.target.closest('a[href^="/api/"]');
     if (link && (!navigator.onLine || document.getElementById('offline-bar'))) {
       event.preventDefault();
-      window.alert('Нет подключения. Скачать файл можно, когда появится интернет.');
+      window.alert(tr('common.net_podklyucheniya_skachat_fayl'));
     }
   });
 

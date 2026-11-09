@@ -15,7 +15,7 @@
 
   function renderCard(c) {
     const card = el('article', 'stc');
-    card.setAttribute('aria-label', 'Цифровой студенческий билет');
+    card.setAttribute('aria-label', tr('student_card.tsifrovoy_studencheskiy_bilet'));
 
     const head = el('div', 'stc__head');
     const brand = el('span', 'stc__brand');
@@ -24,8 +24,8 @@
     logo.alt = '';
     logo.width = 28;
     logo.height = 28;
-    brand.append(logo, document.createTextNode('Цифровой деканат'));
-    head.append(brand, el('span', 'stc__type', 'Студенческий билет'));
+    brand.append(logo, document.createTextNode(tr('student_card.tsifrovoy_dekanat')));
+    head.append(brand, el('span', 'stc__type', tr('student_card.studencheskiy_bilet')));
 
     const person = el('div', 'stc__person');
     const avatar = el('span', 'stc__avatar', c.initials);
@@ -37,8 +37,8 @@
 
     const bottom = el('div', 'stc__bottom');
     const facts = el('dl', 'stc__facts');
-    fact(facts, 'Номер билета', c.number);
-    fact(facts, 'Действует до', D.fullDate(c.validUntil));
+    fact(facts, tr('student_card.nomer_bileta'), c.number);
+    fact(facts, tr('student_card.deystvuet_do'), D.fullDate(c.validUntil));
     bottom.append(facts, Full.qrImage('stc__qr', 112));
 
     card.append(head, person, bottom, el('p', 'stc-concept', Full.CONCEPT));
@@ -48,23 +48,23 @@
   function renderHowTo() {
     const box = el('section', 'card stc-howto');
     box.setAttribute('aria-labelledby', 'stc-howto-title');
-    const title = el('h2', 'section-title', 'Как пользоваться');
+    const title = el('h2', 'section-title', tr('student_card.kak_polzovatsya'));
     title.id = 'stc-howto-title';
     const steps = el('ol', 'stc-howto__steps');
     for (const [head, text] of [
-      ['Откройте билет', 'На телефоне — иконка билета в шапке, на компьютере — пункт «Студенческий» в меню.'],
-      ['Покажите на весь экран', 'На телефоне фон станет ярким, а QR-код — крупным.'],
-      ['Дайте отсканировать QR-код', 'Проверяющий увидит только статус и срок билета, без ваших личных данных.'],
+      [tr('student_card.otkroyte_bilet'), tr('student_card.na_telefone_ikonka_bileta')],
+      [tr('student_card.pokazhite_na_ves_ekran'), tr('student_card.na_telefone_fon_stanet')],
+      [tr('student_card.dayte_otskanirovat_qr_kod'), tr('student_card.proveryayuschiy_uvidit_tolko_status')],
     ]) {
       const li = el('li');
       li.append(el('strong', null, head), el('span', 'muted', text));
       steps.append(li);
     }
-    const check = el('a', 'button button--secondary stc-howto__check', 'Проверить мой билет');
+    const check = el('a', 'button button--secondary stc-howto__check', tr('student_card.proverit_moy_bilet'));
     check.href = '/student-card/check';
     check.target = '_blank';
     check.rel = 'noopener';
-    box.append(title, steps, check, el('p', 'muted stc-howto__note', 'Откроется та же страница, что и у проверяющего.'));
+    box.append(title, steps, check, el('p', 'muted stc-howto__note', tr('student_card.otkroetsya_ta_zhe_stranitsa')));
     return box;
   }
 
@@ -75,7 +75,7 @@
     } catch (err) {
       loading.hidden = true;
       errorBox.textContent = err.offline
-        ? 'Нет подключения. Сохранённого билета на этом устройстве нет.'
+        ? tr('student_card.net_podklyucheniya_sokhranennogo_bileta')
         : err.message;
       if (err.offline) {
         D.offlineBar();
@@ -91,13 +91,13 @@
     if (!data.card) {
       content.replaceChildren(D.emptyState({
         illu: 'lost',
-        title: 'Билет есть только у студентов',
-        text: 'У сотрудника деканата студенческого билета нет.',
-        action: { href: '/home', label: 'На главную', secondary: true },
+        title: tr('student_card.bilet_est_tolko_u'),
+        text: tr('student_card.u_sotrudnika_dekanata_studencheskogo'),
+        action: { href: '/home', label: tr('student_card.na_glavnuyu'), secondary: true },
       }));
     } else {
       const side = el('div', 'stc-page__card');
-      const button = el('button', 'button stc-open', 'На весь экран');
+      const button = el('button', 'button stc-open', tr('student_card.na_ves_ekran'));
       button.type = 'button';
       button.addEventListener('click', Full.open);
       side.append(renderCard(data.card), button);

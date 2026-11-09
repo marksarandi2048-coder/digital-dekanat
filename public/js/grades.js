@@ -7,36 +7,36 @@
   const errorBox = document.getElementById('state-error');
   const content = document.getElementById('content');
 
-  const num = (n) => new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(n);
+  const num = (n) => new Intl.NumberFormat(window.DekanatI18n.locale, { maximumFractionDigits: 1 }).format(n);
   const GRADE = {
-    5: '5 — отлично',
-    4: '4 — хорошо',
-    3: '3 — удовлетворительно',
-    2: '2 — неудовлетворительно',
-    passed: 'Зачтено',
-    failed: 'Не зачтено',
+    5: tr('grades.5_otlichno'),
+    4: tr('grades.4_khorosho'),
+    3: tr('grades.3_udovletvoritelno'),
+    2: tr('grades.2_neudovletvoritelno'),
+    passed: tr('grades.zachteno'),
+    failed: tr('grades.ne_zachteno'),
   };
-  const CONTROL = { exam: 'Экзамен', credit: 'Зачёт' };
-  const BONUS = { volunteering: 'Волонтёрство', sport: 'Спортивная секция', research: 'Научная работа' };
+  const CONTROL = { exam: tr('grades.ekzamen'), credit: tr('grades.zachet') };
+  const BONUS = { volunteering: tr('grades.volonterstvo'), sport: tr('grades.sportivnaya_sektsiya'), research: tr('grades.nauchnaya_rabota') };
   const isDebt = (g) => g === '2' || g === 'failed';
 
   // ---------- Статус оценки ----------
   function contactLink(topic) {
-    const a = el('a', 'button button--danger', 'Написать в деканат');
+    const a = el('a', 'button button--danger', tr('grades.napisat_v_dekanat'));
     a.href = `/requests/new?type=appeal&topic=${encodeURIComponent(topic)}`;
     return a;
   }
 
   function renderStatus(status, topic) {
     if (status.state === 'set') {
-      return el('p', 'status status--set', status.date ? `Выставлено ${D.dayMonth(status.date)}` : 'Выставлено');
+      return el('p', 'status status--set', status.date ? tr('grades.vystavleno_p0', { p0: D.dayMonth(status.date) }) : tr('grades.vystavleno'));
     }
     if (status.state === 'pending') {
-      return el('p', 'status status--pending', `Ожидается до ${D.dayMonth(status.due)}`);
+      return el('p', 'status status--pending', tr('grades.ozhidaetsya_do_p0', { p0: D.dayMonth(status.due) }));
     }
     const box = el('div', 'status status--overdue');
     box.append(
-      el('p', 'status__text', `Срок прошёл ${D.dayMonth(status.due)}, а оценки всё ещё нет. Обратитесь в деканат.`),
+      el('p', 'status__text', tr('grades.srok_proshel_p0_a', { p0: D.dayMonth(status.due) })),
       contactLink(topic),
     );
     return box;
@@ -57,17 +57,17 @@
     const s = data.summary;
     const out = [];
     if (s.debts.length) {
-      out.push(['bad', `${s.debts.length === 1 ? 'Есть долг' : `Есть долги (${s.debts.length})`}: ${s.debts.join(', ')}.`]);
+      out.push(['bad', `${s.debts.length === 1 ? tr('grades.est_dolg') : tr('grades.est_dolgi_length', { length: s.debts.length })}: ${s.debts.join(', ')}.`]);
     }
     if (s.overdue) {
-      out.push(['bad', `${s.overdue} ${D.plural(s.overdue, 'оценка не выставлена', 'оценки не выставлены', 'оценок не выставлено')} в срок — можно написать в деканат.`]);
+      out.push(['bad', tr('grades.overdue_p1_v_srok', { overdue: s.overdue, p1: D.plural(s.overdue, tr('grades.otsenka_ne_vystavlena'), tr('grades.otsenki_ne_vystavleny'), tr('grades.otsenok_ne_vystavleno')) })]);
     }
     if (!out.length && !s.isFinal && !s.pending) {
-      out.push(['info', 'В этом семестре пока нет дисциплин.']);
+      out.push(['info', tr('grades.v_etom_semestre_poka')]);
     } else if (!out.length) {
-      out.push(['ok', s.isFinal ? 'Семестр закрыт без долгов.' : `Всё идёт по плану: долгов нет, ждём ещё ${s.pending} ${D.plural(s.pending, 'оценку', 'оценки', 'оценок')}.`]);
+      out.push(['ok', s.isFinal ? tr('grades.semestr_zakryt_bez_dolgov') : tr('grades.vse_idet_po_planu', { pending: s.pending, p1: D.plural(s.pending, tr('grades.otsenku'), tr('grades.otsenki'), tr('grades.otsenok')) })]);
     } else if (!s.isFinal && s.pending) {
-      out.push(['info', `Ещё ожидается ${s.pending} ${D.plural(s.pending, 'оценка', 'оценки', 'оценок')}.`]);
+      out.push(['info', tr('grades.esche_ozhidaetsya_pending_p1', { pending: s.pending, p1: D.plural(s.pending, tr('grades.otsenka'), tr('grades.otsenki'), tr('grades.otsenok')) })]);
     }
     return out;
   }
@@ -85,10 +85,10 @@
     const empty = byPossible && block.possible === 0;
 
     let value;
-    if (block.key === 'bonus') value = `+${num(block.points)} из ${block.max}`;
-    else if (empty) value = note || 'ещё не выставлено';
-    else if (byPossible) value = `${num(block.points)} из ${num(block.possible)}`;
-    else value = note || `${num(block.points)} из ${block.max}`;
+    if (block.key === 'bonus') value = tr('grades.p0_iz_max', { p0: num(block.points), max: block.max });
+    else if (empty) value = note || tr('grades.esche_ne_vystavleno');
+    else if (byPossible) value = tr('grades.p0_iz_p1', { p0: num(block.points), p1: num(block.possible) });
+    else value = note || tr('grades.p0_iz_max_2', { p0: num(block.points), max: block.max });
     head.append(
       el('span', 'meter__label', block.label),
       el('span', empty || (!byPossible && note) ? 'meter__value meter__value--pending' : 'meter__value', value),
@@ -100,10 +100,10 @@
     track.setAttribute(
       'aria-label',
       empty
-        ? `${block.label}: ещё не выставлено`
+        ? tr('grades.label_esche_ne_vystavleno', { label: block.label })
         : byPossible
-          ? `${block.label}: ${num(block.points)} из ${num(block.possible)} возможных на сегодня, ${Math.round(share * 100)} %`
-          : `${block.label}: ${num(block.points)} из ${block.max}`,
+          ? tr('grades.label_p1_iz_p2', { label: block.label, p1: num(block.points), p2: num(block.possible), p3: Math.round(share * 100) })
+          : tr('grades.label_p1_iz_max', { label: block.label, p1: num(block.points), max: block.max }),
     );
     const fill = el('div', 'meter__fill');
     fill.style.width = `${share * 100}%`;
@@ -111,7 +111,7 @@
     wrap.append(head, track);
 
     if (byPossible && block.key !== 'bonus') {
-      wrap.append(el('p', 'meter__note', empty ? `максимум за семестр — ${block.max}` : `${Math.round(share * 100)} % · максимум за семестр — ${block.max}`));
+      wrap.append(el('p', 'meter__note', empty ? tr('grades.maksimum_za_semestr_max', { max: block.max }) : tr('grades.p0_maksimum_za_semestr', { p0: Math.round(share * 100), max: block.max })));
     }
     return wrap;
   }
@@ -124,28 +124,28 @@
 
     if (s.isFinal) {
       const n = el('p', 'rating__number');
-      n.append(el('span', 'rating__value', num(r.total)), el('span', 'rating__max', ` из ${r.max} + надбавка`));
-      hero.append(el('p', 'rating__label', 'Рейтинг за семестр'), n, el('span', 'tag tag--now', 'Итоговый'));
+      n.append(el('span', 'rating__value', num(r.total)), el('span', 'rating__max', tr('grades.iz_max_nadbavka', { max: r.max })));
+      hero.append(el('p', 'rating__label', tr('grades.reyting_za_semestr')), n, el('span', 'tag tag--now', tr('grades.itogovyy')));
       return hero;
     }
 
     // Семестр идёт: главное — как студент справляется с тем, что уже выставлено.
-    hero.append(el('p', 'rating__label', 'Набрано на сегодня'));
+    hero.append(el('p', 'rating__label', tr('grades.nabrano_na_segodnya')));
     if (r.soFar.percent === null) {
-      hero.append(el('p', 'rating__empty', 'Оценок за этот семестр ещё нет'));
+      hero.append(el('p', 'rating__empty', tr('grades.otsenok_za_etot_semestr')));
     } else {
       const n = el('p', 'rating__number');
-      n.append(el('span', 'rating__value', num(r.soFar.points)), el('span', 'rating__max', ` из ${num(r.soFar.possible)} возможных`));
+      n.append(el('span', 'rating__value', num(r.soFar.points)), el('span', 'rating__max', tr('grades.iz_p0_vozmozhnykh', { p0: num(r.soFar.possible) })));
       const line = el('div', 'rating__line');
-      line.append(el('span', 'tag tag--now', `${r.soFar.percent} % от возможного`));
-      if (r.bonus > 0) line.append(el('span', 'tag', `+${num(r.bonus)} надбавка`));
+      line.append(el('span', 'tag tag--now', tr('grades.percent_ot_vozmozhnogo', { percent: r.soFar.percent })));
+      if (r.bonus > 0) line.append(el('span', 'tag', tr('grades.p0_nadbavka', { p0: num(r.bonus) })));
       hero.append(n, line);
     }
     hero.append(
       el(
         'p',
         'rating__hint',
-        `Рейтинг за семестр: ${num(r.total)} из ${r.max} — предварительный, невыставленное пока считается как 0.`,
+        tr('grades.reyting_za_semestr_p0', { p0: num(r.total), max: r.max }),
       ),
     );
     return hero;
@@ -155,7 +155,7 @@
     const s = data.summary;
     const card = el('section', 'card summary');
     card.setAttribute('aria-labelledby', 'summary-title');
-    const title = el('h2', 'section-title', 'Как у меня дела');
+    const title = el('h2', 'section-title', tr('grades.kak_u_menya_dela'));
     title.id = 'summary-title';
     card.append(title);
 
@@ -170,7 +170,7 @@
     for (const b of data.rating.blocks) {
       let note = null;
       if (b.key === 'social' && socialStatus && socialStatus.state !== 'set') {
-        note = socialStatus.state === 'pending' ? `ожидается до ${D.dayMonth(socialStatus.due)}` : 'срок прошёл';
+        note = socialStatus.state === 'pending' ? tr('grades.ozhidaetsya_do_p0_2', { p0: D.dayMonth(socialStatus.due) }) : tr('grades.srok_proshel');
       }
       meters.append(meter(b, note, !s.isFinal));
     }
@@ -183,15 +183,15 @@
       box.append(el('dt', null, label), el('dd', null, value));
       facts.append(box);
     };
-    fact('Оценки за сессию', `${s.gradesSet} из ${s.gradesTotal}`);
-    fact('Ожидается', String(s.pending));
-    fact('Срок прошёл', String(s.overdue), s.overdue ? 'bad' : null);
-    fact('Долги', s.debts.length ? String(s.debts.length) : 'нет', s.debts.length ? 'bad' : null);
+    fact(tr('grades.otsenki_za_sessiyu'), tr('grades.gradesset_iz_gradestotal', { gradesSet: s.gradesSet, gradesTotal: s.gradesTotal }));
+    fact(tr('grades.ozhidaetsya'), String(s.pending));
+    fact(tr('grades.srok_proshel_2'), String(s.overdue), s.overdue ? 'bad' : null);
+    fact(tr('grades.dolgi'), s.debts.length ? String(s.debts.length) : tr('grades.net'), s.debts.length ? 'bad' : null);
     card.append(facts);
 
     if (s.nextDeadline) {
       const nd = el('div', 'next-deadline');
-      nd.append(el('p', 'next-deadline__title', `Ближайший срок — ${D.dayMonth(s.nextDeadline.due)}`));
+      nd.append(el('p', 'next-deadline__title', tr('grades.blizhayshiy_srok_p0', { p0: D.dayMonth(s.nextDeadline.due) })));
       const ul = el('ul', 'next-deadline__list');
       for (const i of s.nextDeadline.items) ul.append(el('li', null, i.discipline ? `${i.what}: ${i.discipline}` : i.what));
       nd.append(ul);
@@ -202,8 +202,8 @@
       const p = el('p', 'previous');
       p.append(document.createTextNode(`${data.previous.name}: `));
       p.append(el('strong', null, num(data.previous.total)));
-      p.append(document.createTextNode(data.previous.isFinal ? ' (итоговый) · ' : ' · '));
-      const a = el('a', null, 'посмотреть');
+      p.append(document.createTextNode(data.previous.isFinal ? tr('grades.itogovyy_2') : ' · '));
+      const a = el('a', null, tr('grades.posmotret'));
       a.href = semesterLink(data.previous.id);
       p.append(a);
       card.append(p);
@@ -225,11 +225,11 @@
 
     card.append(
       row(
-        'Баллы за семестр',
-        d.currentPoints !== null ? `${num(d.currentPoints)} из ${d.currentMax}` : null,
+        tr('grades.bally_za_semestr'),
+        d.currentPoints !== null ? tr('grades.p0_iz_currentmax', { p0: num(d.currentPoints), currentMax: d.currentMax }) : null,
         null,
         d.currentStatus,
-        `Не выставлены баллы за семестр по дисциплине «${d.discipline}»${d.currentStatus.due ? ` (срок был ${D.dayMonth(d.currentStatus.due)})` : ''}`,
+        tr('grades.ne_vystavleny_bally_za', { discipline: d.discipline, p1: d.currentStatus.due ? tr('grades.srok_byl_p0', { p0: D.dayMonth(d.currentStatus.due) }) : '' }),
       ),
     );
     card.append(
@@ -238,7 +238,7 @@
         d.grade ? GRADE[d.grade] : null,
         d.grade ? (isDebt(d.grade) ? 'grade grade--bad' : 'grade grade--ok') : null,
         d.gradeStatus,
-        `Не выставлена оценка (${CONTROL[d.control].toLowerCase()}) по дисциплине «${d.discipline}»`,
+        tr('grades.ne_vystavlena_otsenka_p0', { p0: CONTROL[d.control].toLowerCase(), discipline: d.discipline }),
       ),
     );
     return card;
@@ -247,13 +247,13 @@
   // ---------- Активность и надбавка ----------
   function renderSocial(social) {
     const card = el('section', 'card');
-    card.append(el('h2', 'section-title', 'Общественная активность'));
+    card.append(el('h2', 'section-title', tr('grades.obschestvennaya_aktivnost')));
     if (!social) {
-      card.append(el('p', 'muted', 'За этот семестр баллы не предусмотрены.'));
+      card.append(el('p', 'muted', tr('grades.za_etot_semestr_bally')));
       return card;
     }
     card.append(
-      row('Баллы', social.points !== null ? `${num(social.points)} из ${social.maxPoints}` : null, null, social.status, 'Не выставлены баллы за общественную активность'),
+      row(tr('grades.bally'), social.points !== null ? tr('grades.p0_iz_maxpoints', { p0: num(social.points), maxPoints: social.maxPoints }) : null, null, social.status, tr('grades.ne_vystavleny_bally_za_2')),
     );
     if (social.note) card.append(el('p', 'muted', social.note));
     return card;
@@ -262,15 +262,15 @@
   function renderBonuses(bonuses, bonusBlock, showLink) {
     const card = el('section', 'card');
     const head = el('div', 'subject__head');
-    head.append(el('h2', 'section-title', 'Надбавка'), el('span', 'bonus-total', `+${num(bonusBlock.points)} из ${bonusBlock.max}`));
+    head.append(el('h2', 'section-title', tr('grades.nadbavka')), el('span', 'bonus-total', tr('grades.p0_iz_max', { p0: num(bonusBlock.points), max: bonusBlock.max })));
     card.append(head);
     if (showLink) {
-      const link = el('a', 'bonus-where', 'Где заработать →');
+      const link = el('a', 'bonus-where', tr('grades.gde_zarabotat'));
       link.href = '/grades/bonus';
       card.append(link);
     }
     if (!bonuses.length) {
-      card.append(el('p', 'muted', 'В этом семестре надбавки пока нет. Её начисляют за волонтёрство, спортивные секции МГИМО и научные работы.'));
+      card.append(el('p', 'muted', tr('grades.v_etom_semestre_nadbavki')));
       return card;
     }
     const ul = el('ul', 'bonus-list');
@@ -331,31 +331,31 @@
     }
     if (!data.student || !data.semester) {
       loading.hidden = true;
-      content.replaceChildren(el('div', 'empty', 'Данных об успеваемости пока нет'));
+      content.replaceChildren(el('div', 'empty', tr('grades.dannykh_ob_uspevaemosti_poka')));
       content.hidden = false;
       return;
     }
     setupPicker(
       'semester-picker',
       'semester-select',
-      data.semesters.map((s) => ({ value: s.id, label: s.isCurrent ? `${s.name} (текущий)` : s.name })),
+      data.semesters.map((s) => ({ value: s.id, label: s.isCurrent ? tr('grades.name_tekuschiy', { name: s.name }) : s.name })),
       data.semester.id,
       'semester',
     );
 
     // На компьютере: слева сводка (остаётся на месте при прокрутке), справа дисциплины.
     const side = el('aside', 'split__side split__side--sticky');
-    side.setAttribute('aria-label', 'Сводка');
+    side.setAttribute('aria-label', tr('grades.svodka'));
     side.append(renderSummary(data));
     const main = el('div', 'split__main');
     const subjects = el('section', 'subjects');
-    subjects.append(el('h2', 'section-title', 'Дисциплины'));
+    subjects.append(el('h2', 'section-title', tr('grades.distsipliny')));
     if (data.disciplines.length) {
       const list = el('div', 'subject-list');
       for (const d of data.disciplines) list.append(renderDiscipline(d));
       subjects.append(list);
     } else {
-      subjects.append(el('p', 'day__empty', 'В этом семестре дисциплин нет'));
+      subjects.append(el('p', 'day__empty', tr('grades.v_etom_semestre_distsiplin')));
     }
     const extra = el('div', 'split__pair');
     extra.append(renderSocial(data.social), renderBonuses(data.bonuses, data.rating.blocks.find((b) => b.key === 'bonus'), !data.students && data.semester.isCurrent));

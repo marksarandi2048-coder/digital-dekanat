@@ -54,7 +54,7 @@
     button.disabled = isLoading;
     button.classList.toggle('is-loading', isLoading);
     form.setAttribute('aria-busy', String(isLoading));
-    buttonText.textContent = isLoading ? 'Входим…' : 'Войти';
+    buttonText.textContent = isLoading ? tr('login.vkhodim') : tr('login.voyti');
   }
 
   function setPasswordVisible(visible) {
@@ -94,7 +94,7 @@
       clearDemoChoice();
       card.setAttribute('aria-pressed', 'true');
       const name = card.querySelector('.demo-card__name').textContent;
-      demoStatus.textContent = `Подставлен доступ «${name}». Нажмите «Войти».`;
+      demoStatus.textContent = tr('login.podstavlen_dostup_name_nazhmite', { name });
 
       // На телефоне кнопка «Войти» выше карточек — показываем её.
       button.focus({ preventScroll: true });
@@ -112,11 +112,11 @@
     const login = loginInput.value.trim();
     const password = passwordInput.value;
     if (!login) {
-      showError(password ? 'Введите логин' : 'Введите логин и пароль', loginInput);
+      showError(password ? tr('login.vvedite_login') : tr('login.vvedite_login_i_parol'), loginInput);
       return;
     }
     if (!password) {
-      showError('Введите пароль', passwordInput);
+      showError(tr('login.vvedite_parol'), passwordInput);
       return;
     }
 
@@ -136,14 +136,14 @@
       }
       setLoading(false);
       if (res.status === 401) {
-        showError('Неверный логин или пароль. Проверьте раскладку клавиатуры и Caps Lock.', passwordInput);
+        showError(tr('login.nevernyy_login_ili_parol'), passwordInput);
         passwordInput.select();
       } else {
-        showError(data.error || 'Не удалось войти. Попробуйте ещё раз.');
+        showError(data.error || tr('login.ne_udalos_voyti_poprobuyte'));
       }
     } catch {
       setLoading(false);
-      showError('Нет подключения. Войти можно, когда появится интернет.');
+      showError(tr('login.net_podklyucheniya_voyti_mozhno'));
     }
   });
 })();

@@ -27,7 +27,7 @@
     },
   }).then((r) => {
     if (!r) return;
-    document.title = `${r.title} — Цифровой деканат`;
+    document.title = tr('request.title_tsifrovoy_dekanat', { title: r.title });
     loading.hidden = true;
     content.hidden = false;
   });

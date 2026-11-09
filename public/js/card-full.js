@@ -4,7 +4,7 @@
 window.DekanatCardFull = (function () {
   const D = window.Dekanat;
   const el = D.el;
-  const CONCEPT = 'Концепт, не является документом';
+  const CONCEPT = tr('card_full.kontsept_ne_yavlyaetsya_dokumentom');
   const QR_URL = '/api/student-card/qr.svg';
 
   let full = null;
@@ -13,12 +13,12 @@ window.DekanatCardFull = (function () {
   let wakeLock = null;
   let inFullscreen = false;
 
-  const studyLine = (c) => [c.course ? `${c.course} курс` : null, c.group ? `группа ${c.group}` : null].filter(Boolean).join(' · ');
+  const studyLine = (c) => [c.course ? tr('card_full.course_kurs', { course: c.course }) : null, c.group ? tr('card_full.gruppa_group', { group: c.group }) : null].filter(Boolean).join(' · ');
 
   function qrImage(className, size) {
     const img = el('img', className);
     img.src = QR_URL;
-    img.alt = 'QR-код для проверки билета';
+    img.alt = tr('card_full.qr_kod_dlya_proverki');
     img.width = size;
     img.height = size;
     return img;
@@ -35,10 +35,10 @@ window.DekanatCardFull = (function () {
 
   function build() {
     full = el('dialog', 'stc-full');
-    full.setAttribute('aria-label', 'Студенческий билет на весь экран');
+    full.setAttribute('aria-label', tr('card_full.studencheskiy_bilet_na_ves'));
     const close = el('button', 'sheet__close stc-full__close');
     close.type = 'button';
-    close.setAttribute('aria-label', 'Закрыть');
+    close.setAttribute('aria-label', tr('card_full.zakryt'));
     // Наша постоянная иконка, не данные пользователя.
     close.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     close.addEventListener('click', () => full.close());
@@ -66,7 +66,7 @@ window.DekanatCardFull = (function () {
   function fill(c, savedAt) {
     const line = [c.number, studyLine(c)].filter(Boolean).join(' · ');
     body.replaceChildren(
-      el('p', 'stc-full__brand', 'Цифровой деканат · студенческий билет'),
+      el('p', 'stc-full__brand', tr('card_full.tsifrovoy_dekanat_studencheskiy_bilet')),
       qrImage('stc-full__qr', 320),
       el('p', 'stc-full__name', c.fullName),
       el('p', 'stc-full__line', line),
@@ -78,7 +78,7 @@ window.DekanatCardFull = (function () {
   async function open() {
     if (!full) build();
     if (full.open) return;
-    body.replaceChildren(el('p', 'stc-full__line', 'Загружаем билет…'));
+    body.replaceChildren(el('p', 'stc-full__line', tr('card_full.zagruzhaem_bilet')));
     // Показываем сразу, пока идёт нажатие: так браузер разрешит настоящий полный экран.
     full.showModal();
     keepAwake();
@@ -88,11 +88,11 @@ window.DekanatCardFull = (function () {
     try {
       data = await D.fetchJSON('/api/student-card');
     } catch (err) {
-      body.replaceChildren(el('p', 'stc-full__line', err.offline ? 'Нет подключения. Сохранённого билета на этом устройстве нет.' : err.message));
+      body.replaceChildren(el('p', 'stc-full__line', err.offline ? tr('card_full.net_podklyucheniya_sokhranennogo_bileta') : err.message));
       return;
     }
     if (data.card) fill(data.card, data.offlineSavedAt);
-    else body.replaceChildren(el('p', 'stc-full__line', 'Билет есть только у студентов.'));
+    else body.replaceChildren(el('p', 'stc-full__line', tr('card_full.bilet_est_tolko_u')));
   }
 
   const headerLink = document.getElementById('header-card');

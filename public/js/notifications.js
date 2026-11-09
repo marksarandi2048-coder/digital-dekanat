@@ -18,9 +18,9 @@
 
   function renderDeadlines(list) {
     const section = el('section', 'card deadlines');
-    section.append(el('h2', 'section-title', 'Ближайшие дедлайны'));
+    section.append(el('h2', 'section-title', tr('notifications.blizhayshie_dedlayny')));
     if (!list.length) {
-      section.append(el('p', 'muted', 'Сроков в ближайшее время нет.'));
+      section.append(el('p', 'muted', tr('notifications.srokov_v_blizhayshee_vremya')));
       return section;
     }
     const ul = el('ul', 'deadline-list');
@@ -54,10 +54,10 @@
     const top = el('div', 'notif__top');
     if (!item.read) top.append(el('span', 'notif__dot', ''));
     top.append(el('span', 'notif__kind', item.kindLabel));
-    if (item.important) top.append(el('span', 'badge badge--cancelled', 'Важное'));
+    if (item.important) top.append(el('span', 'badge badge--cancelled', tr('notifications.vazhnoe')));
     top.append(el('span', 'notif__time', D.dateTime(item.at)));
     a.append(top, el('p', 'notif__title', item.title), el('p', 'notif__body', item.body));
-    if (!item.read) a.setAttribute('aria-label', `Не прочитано. ${item.kindLabel}. ${item.title}`);
+    if (!item.read) a.setAttribute('aria-label', tr('notifications.ne_prochitano_kindlabel_title', { kindLabel: item.kindLabel, title: item.title }));
     return a;
   }
 
@@ -73,25 +73,25 @@
     }
     // На компьютере: слева дедлайны (остаются на месте при прокрутке), справа лента.
     const side = el('aside', 'split__side split__side--sticky');
-    side.setAttribute('aria-label', 'Ближайшие дедлайны');
+    side.setAttribute('aria-label', tr('notifications.blizhayshie_dedlayny'));
     side.append(renderDeadlines(data.deadlines));
 
     const feed = el('section', 'feed');
-    const head = el('h2', 'section-title', data.unread ? `Лента · ${data.unread} ${D.plural(data.unread, 'новое', 'новых', 'новых')}` : 'Лента');
+    const head = el('h2', 'section-title', data.unread ? tr('notifications.lenta_unread_p1', { unread: data.unread, p1: D.plural(data.unread, tr('notifications.novoe'), tr('notifications.novykh'), tr('notifications.novykh')) }) : tr('notifications.lenta'));
     feed.append(head);
     if (!data.items.length) {
       feed.append(D.emptyState({
         illu: 'read',
-        title: 'Уведомлений пока нет',
-        text: 'Здесь появятся объявления деканата, изменения в расписании и статусы ваших заявок.',
+        title: tr('notifications.uvedomleniy_poka_net'),
+        text: tr('notifications.zdes_poyavyatsya_obyavleniya_dekanata'),
       }));
     } else {
       if (!data.unread) {
         feed.append(D.emptyState({
           illu: 'read',
           inline: true,
-          title: 'Все уведомления прочитаны',
-          text: 'Новое появится здесь — объявления, изменения в расписании и статусы заявок.',
+          title: tr('notifications.vse_uvedomleniya_prochitany'),
+          text: tr('notifications.novoe_poyavitsya_zdes_obyavleniya'),
         }));
       }
       const list = el('div', 'notif-list');
@@ -113,7 +113,7 @@
     const { ok, data } = await D.postJSON('/api/notifications/read', { all: true });
     readAll.disabled = false;
     if (!ok) {
-      errorBox.textContent = data.error || 'Не удалось отметить уведомления';
+      errorBox.textContent = data.error || tr('notifications.ne_udalos_otmetit_uvedomleniya');
       errorBox.hidden = false;
       return;
     }

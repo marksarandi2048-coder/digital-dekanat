@@ -79,9 +79,9 @@
     submit.hidden = false;
 
     if (def.kind === 'appeal') {
-      const b = block('Обращение');
-      const subject = input('subject', 'Тема', { value: (params.get('topic') || '').slice(0, 200), placeholder: 'Коротко, о чём вопрос' });
-      const text = input('comment', 'Сообщение', { textarea: true, maxLength: 2000, placeholder: 'Опишите вопрос — сотрудник ответит здесь же' });
+      const b = block(tr('request_new.obraschenie'));
+      const subject = input('subject', tr('request_new.tema'), { value: (params.get('topic') || '').slice(0, 200), placeholder: tr('request_new.korotko_o_chem_vopros') });
+      const text = input('comment', tr('request_new.soobschenie'), { textarea: true, maxLength: 2000, placeholder: tr('request_new.opishite_vopros_sotrudnik_otvetit') });
       b.append(subject.wrap, text.wrap);
       fields.append(b);
       return;
@@ -89,14 +89,14 @@
 
     if (def.electronic) {
       const b = el('fieldset', 'form-block');
-      b.append(el('legend', 'form-block__title', 'Формат'));
+      b.append(el('legend', 'form-block__title', tr('request_new.format')));
       const list = el('div', 'choice-list');
       list.append(
-        choice('format', 'electronic', 'Электронная', 'С QR-кодом для проверки. Готова прямо в кабинете — ехать в деканат не нужно', state.format === 'electronic', (v) => {
+        choice('format', 'electronic', tr('request_new.elektronnaya'), tr('request_new.s_qr_kodom_dlya'), state.format === 'electronic', (v) => {
           state.format = v;
           renderFields();
         }),
-        choice('format', 'paper', 'Бумажная', 'С печатью, забрать в деканате', state.format === 'paper', (v) => {
+        choice('format', 'paper', tr('request_new.bumazhnaya'), tr('request_new.s_pechatyu_zabrat_v'), state.format === 'paper', (v) => {
           state.format = v;
           renderFields();
         }),
@@ -106,29 +106,29 @@
     }
 
     if (def.needsOrder) {
-      const b = block('Из какого приказа');
-      const order = input('orderRef', 'Приказ', { placeholder: 'Например: о зачислении' });
+      const b = block(tr('request_new.iz_kakogo_prikaza'));
+      const order = input('orderRef', tr('request_new.prikaz'), { placeholder: tr('request_new.naprimer_o_zachislenii') });
       b.append(order.wrap, chips(meta.orderHints, order.input));
       fields.append(b);
     }
 
-    const p = block('Для чего / куда нужна');
-    const purpose = input('purpose', 'Куда предоставить', { placeholder: 'Например: по месту требования' });
+    const p = block(tr('request_new.dlya_chego_kuda_nuzhna'));
+    const purpose = input('purpose', tr('request_new.kuda_predostavit'), { placeholder: tr('request_new.naprimer_po_mestu_trebovaniya') });
     p.append(purpose.wrap, chips(meta.purposeHints, purpose.input));
     fields.append(p);
 
     const paper = !(def.electronic && state.format === 'electronic');
     if (paper) {
-      const c = block('Количество экземпляров');
+      const c = block(tr('request_new.kolichestvo_ekzemplyarov'));
       const stepper = el('div', 'stepper');
       const minus = el('button', 'stepper__btn', '−');
       minus.type = 'button';
-      minus.setAttribute('aria-label', 'Меньше');
+      minus.setAttribute('aria-label', tr('request_new.menshe'));
       const value = el('output', 'stepper__value', String(state.copies));
       value.setAttribute('aria-live', 'polite');
       const plus = el('button', 'stepper__btn', '+');
       plus.type = 'button';
-      plus.setAttribute('aria-label', 'Больше');
+      plus.setAttribute('aria-label', tr('request_new.bolshe'));
       const update = (d) => {
         state.copies = Math.min(meta.maxCopies, Math.max(1, state.copies + d));
         value.textContent = String(state.copies);
@@ -143,8 +143,8 @@
       fields.append(c);
     }
 
-    const k = block('Комментарий');
-    k.append(input('comment', 'Необязательно', { textarea: true, maxLength: 1000, placeholder: 'Например: нужна с печатью' }).wrap);
+    const k = block(tr('request_new.kommentariy'));
+    k.append(input('comment', tr('request_new.neobyazatelno'), { textarea: true, maxLength: 1000, placeholder: tr('request_new.naprimer_nuzhna_s_pechatyu') }).wrap);
     fields.append(k);
   }
 
@@ -164,7 +164,7 @@
     event.preventDefault();
     errorBox.hidden = true;
     if (!state.type) {
-      errorBox.textContent = 'Выберите, что нужно';
+      errorBox.textContent = tr('request_new.vyberite_chto_nuzhno');
       errorBox.hidden = false;
       return;
     }
@@ -179,16 +179,16 @@
       comment: val('comment'),
     };
     submit.disabled = true;
-    submit.textContent = 'Отправляем…';
+    submit.textContent = tr('request_new.otpravlyaem');
     const { ok, data } = await D.postJSON('/api/requests', body);
     if (ok) {
       window.location.href = `/requests/${data.id}?created=1`;
       return;
     }
-    errorBox.textContent = data.error || 'Не удалось отправить заявку';
+    errorBox.textContent = data.error || tr('request_new.ne_udalos_otpravit_zayavku');
     errorBox.hidden = false;
     submit.disabled = false;
-    submit.textContent = 'Отправить заявку';
+    submit.textContent = tr('request_new.otpravit_zayavku');
   });
 
   async function load() {

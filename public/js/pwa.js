@@ -175,19 +175,19 @@ window.DekanatPwa = (function () {
   }
 
   const benefit = (role) => (role === 'student'
-    ? 'Расписание и билет будут под рукой даже без интернета'
-    : 'Кабинет будет открываться отдельно, как обычная программа');
+    ? tr('pwa.raspisanie_i_bilet_budut')
+    : tr('pwa.kabinet_budet_otkryvatsya_otdelno'));
 
   function instruction(way) {
     const box = make('p', 'install-hint__text');
     if (way === 'ios') {
       const share = make('span', 'install-hint__share');
       share.innerHTML = SHARE_ICON; // наша постоянная иконка, не данные пользователя
-      box.append('Нажмите ', share, ' «Поделиться» → «На экран Домой»');
+      box.append(tr('pwa.nazhmite'), share, tr('pwa.podelitsya_na_ekran_domoy'));
     } else if (way === 'mac-safari') {
-      box.textContent = 'В меню Safari: «Файл» → «Добавить в Dock»';
+      box.textContent = tr('pwa.v_menyu_safari_fayl');
     } else if (way === 'browser-menu') {
-      box.textContent = 'Нажмите значок установки в адресной строке или выберите установку в меню браузера';
+      box.textContent = tr('pwa.nazhmite_znachok_ustanovki_v');
     }
     return box;
   }
@@ -201,7 +201,7 @@ window.DekanatPwa = (function () {
   }
 
   function installButton() {
-    const button = make('button', 'button button--secondary button--small install-hint__button', 'Установить');
+    const button = make('button', 'button button--secondary button--small install-hint__button', tr('pwa.ustanovit'));
     button.type = 'button';
     button.addEventListener('click', install);
     return button;
@@ -217,17 +217,17 @@ window.DekanatPwa = (function () {
     if (!canShow) return;
 
     const hint = make('section', 'install-hint');
-    hint.setAttribute('aria-label', 'Установка приложения');
+    hint.setAttribute('aria-label', tr('pwa.ustanovka_prilozheniya'));
     const icon = make('img', 'install-hint__icon');
     icon.src = '/img/logo.svg';
     icon.alt = '';
     const body = make('div', 'install-hint__body');
     const description = way === 'prompt' ? make('p', 'install-hint__text', benefit(role)) : instruction(way);
-    body.append(make('p', 'install-hint__title', 'Установите кабинет как приложение'), description);
+    body.append(make('p', 'install-hint__title', tr('pwa.ustanovite_kabinet_kak_prilozhenie')), description);
     if (way === 'prompt') body.append(installButton());
     const close = make('button', 'install-hint__close');
     close.type = 'button';
-    close.setAttribute('aria-label', 'Скрыть подсказку');
+    close.setAttribute('aria-label', tr('pwa.skryt_podskazku'));
     close.innerHTML = CLOSE_ICON; // наша постоянная иконка, не данные пользователя
     close.addEventListener('click', () => {
       store('set', HINT_HIDDEN_KEY, '1');
@@ -243,16 +243,16 @@ window.DekanatPwa = (function () {
     const way = installWay();
     const lines = [];
     if (way === 'installed') {
-      lines.push(make('p', 'app-block__text', 'Кабинет установлен. Открывайте его значком приложения.'));
+      lines.push(make('p', 'app-block__text', tr('pwa.kabinet_ustanovlen_otkryvayte_ego')));
     } else {
       lines.push(make('p', 'app-block__text', benefit(appBlock.role)));
       if (way === 'prompt') lines.push(installButton());
       if (way === 'ios' || way === 'mac-safari' || way === 'browser-menu') lines.push(instruction(way));
       if (way === 'browser-menu') {
-        lines.push(make('p', 'install-hint__text', 'Если кабинет уже установлен, он есть среди ваших программ.'));
+        lines.push(make('p', 'install-hint__text', tr('pwa.esli_kabinet_uzhe_ustanovlen')));
       }
       if (way === 'unsupported') {
-        lines.push(make('p', 'install-hint__text', 'Чтобы установить кабинет, откройте его в Chrome, Edge или Safari.'));
+        lines.push(make('p', 'install-hint__text', tr('pwa.chtoby_ustanovit_kabinet_otkroyte')));
       }
     }
     appBlock.body.replaceChildren(...lines);

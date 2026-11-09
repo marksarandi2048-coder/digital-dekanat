@@ -15,7 +15,7 @@
     if (!item) return;
     const a = el('a', 'today-important today-important--block');
     a.href = item.link;
-    a.append(el('span', 'badge badge--cancelled', 'Важное'), el('span', 'today-important__title', item.title));
+    a.append(el('span', 'badge badge--cancelled', tr('today_notices.vazhnoe')), el('span', 'today-important__title', item.title));
     if (item.body) a.append(el('span', 'today-important__body', item.body));
     importantBox.replaceChildren(a);
     importantBox.hidden = false;
@@ -25,13 +25,13 @@
     const soon = deadlines.filter((d) => d.own).slice(0, 3);
     const card = el('section', 'today-deadlines');
     const head = el('div', 'today-deadlines__head');
-    head.append(el('h2', 'today-deadlines__title', 'Ближайшие дедлайны'));
-    const all = el('a', null, 'Все');
+    head.append(el('h2', 'today-deadlines__title', tr('today_notices.blizhayshie_dedlayny')));
+    const all = el('a', null, tr('today_notices.vse'));
     all.href = '/notifications';
-    all.setAttribute('aria-label', 'Все дедлайны');
+    all.setAttribute('aria-label', tr('today_notices.vse_dedlayny'));
     head.append(all);
     card.append(head);
-    if (!soon.length) card.append(el('p', 'today-bring__none', 'Ближайших дедлайнов нет.'));
+    if (!soon.length) card.append(el('p', 'today-bring__none', tr('today_notices.blizhayshikh_dedlaynov_net')));
     for (const d of soon) {
       const a = el('a', `today-deadline${d.daysLeft <= 3 ? ' today-deadline--soon' : ''}`);
       a.href = d.link;

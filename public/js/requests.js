@@ -10,20 +10,20 @@
 
   // Быстрый заказ в одно касание.
   const QUICK = [
-    ['study_certificate', 'Справка об обучении', 'можно электронную'],
-    ['enrollment_certificate', 'Справка о зачислении', ''],
-    ['order_extract', 'Выписка из приказа', ''],
-    ['appeal', 'Написать в деканат', 'вопрос или проблема'],
+    ['study_certificate', tr('requests.spravka_ob_obuchenii'), tr('requests.mozhno_elektronnuyu')],
+    ['enrollment_certificate', tr('requests.spravka_o_zachislenii'), ''],
+    ['order_extract', tr('requests.vypiska_iz_prikaza'), ''],
+    ['appeal', tr('requests.napisat_v_dekanat'), tr('requests.vopros_ili_problema')],
   ];
 
   const FILTERS = [
-    ['', 'Все'],
-    ['accepted', 'Приняты'],
-    ['in_progress', 'В работе'],
-    ['ready', 'Готовы'],
-    ['issued', 'Выданы'],
-    ['answered', 'Ответ дан'],
-    ['rejected', 'Отклонены'],
+    ['', tr('requests.vse')],
+    ['accepted', tr('requests.prinyaty')],
+    ['in_progress', tr('requests.v_rabote')],
+    ['ready', tr('requests.gotovy')],
+    ['issued', tr('requests.vydany')],
+    ['answered', tr('requests.otvet_dan')],
+    ['rejected', tr('requests.otkloneny')],
   ];
 
   function statusBadge(r) {
@@ -44,20 +44,20 @@
     a.append(head);
     if (isStaff) a.append(el('p', 'req-card__who', [r.student.fullName, r.student.group].filter(Boolean).join(', ')));
     const meta = [];
-    if (r.type === 'appeal') meta.push('Обращение');
+    if (r.type === 'appeal') meta.push(tr('requests.obraschenie'));
     else {
-      if (r.format === 'electronic') meta.push('Электронная');
+      if (r.format === 'electronic') meta.push(tr('requests.elektronnaya'));
       if (r.purpose) meta.push(r.purpose);
     }
     if (meta.length) a.append(el('p', 'req-card__meta', meta.join(' · ')));
-    a.append(el('p', 'req-card__date', `№ ${r.id} · подана ${D.dateTime(r.createdAt)}`));
+    a.append(el('p', 'req-card__date', tr('requests.id_podana_p1', { id: r.id, p1: D.dateTime(r.createdAt) })));
     return a;
   }
 
   function renderStudent(data) {
-    document.getElementById('page-title').textContent = 'Заявки и справки';
+    document.getElementById('page-title').textContent = tr('requests.zayavki_i_spravki');
     const quick = el('section', 'quick');
-    quick.append(el('h2', 'section-title', 'Заказать'));
+    quick.append(el('h2', 'section-title', tr('requests.zakazat')));
     const grid = el('div', 'quick__grid');
     for (const [type, label, hint] of QUICK) {
       const a = el('a', 'quick__item');
@@ -68,22 +68,22 @@
     }
     const appointment = el('a', 'quick__item quick__item--appointment');
     appointment.href = '/appointments';
-    appointment.append(el('span', 'quick__label', 'Записаться на приём'), el('span', 'quick__hint', 'без очереди'));
+    appointment.append(el('span', 'quick__label', tr('requests.zapisatsya_na_priem')), el('span', 'quick__hint', tr('requests.bez_ocheredi')));
     grid.append(appointment);
     quick.append(grid);
     const ask = el('section', 'help-ask');
-    ask.setAttribute('aria-label', 'Спроси деканат');
+    ask.setAttribute('aria-label', tr('requests.sprosi_dekanat'));
     window.DekanatHelp.mount(ask, { compact: true, limit: 3, chips: 4 });
     top.replaceChildren(ask, quick);
 
     const list = el('section', 'req-section');
-    list.append(el('h2', 'section-title', 'Мои заявки'));
+    list.append(el('h2', 'section-title', tr('requests.moi_zayavki')));
     if (!data.requests.length) {
       list.append(D.emptyState({
         illu: 'request',
-        title: 'Заявок пока нет — закажите первую справку',
-        text: 'Это займёт меньше минуты, а статус будет виден здесь.',
-        action: { href: '/requests/new?type=study_certificate', label: 'Заказать справку' },
+        title: tr('requests.zayavok_poka_net_zakazhite'),
+        text: tr('requests.eto_zaymet_menshe_minuty'),
+        action: { href: '/requests/new?type=study_certificate', label: tr('requests.zakazat_spravku') },
       }));
       content.className = '';
       content.replaceChildren(list);
@@ -99,10 +99,10 @@
   }
 
   function renderStaff(data) {
-    document.getElementById('page-title').textContent = 'Заявки студентов';
+    document.getElementById('page-title').textContent = tr('requests.zayavki_studentov');
     const total = Object.values(data.counts).reduce((s, n) => s + n, 0);
     const filters = el('nav', 'filters');
-    filters.setAttribute('aria-label', 'Фильтр по статусу');
+    filters.setAttribute('aria-label', tr('requests.filtr_po_statusu'));
     for (const [status, label] of FILTERS) {
       const n = status ? data.counts[status] || 0 : total;
       const a = el('a', 'filter', `${label} · ${n}`);
@@ -114,11 +114,11 @@
 
     if (!data.requests.length) {
       content.className = '';
-      content.replaceChildren(D.emptyState({ illu: 'read', title: 'Заявок с таким статусом нет', text: 'Выберите другой фильтр выше.' }));
+      content.replaceChildren(D.emptyState({ illu: 'read', title: tr('requests.zayavok_s_takim_statusom'), text: tr('requests.vyberite_drugoy_filtr_vyshe') }));
       return;
     }
     const list = el('section', 'req-section');
-    list.setAttribute('aria-label', 'Список заявок');
+    list.setAttribute('aria-label', tr('requests.spisok_zayavok'));
     const wrap = el('div', 'req-list');
     for (const r of data.requests) wrap.append(card(r, true));
     list.append(wrap);
@@ -138,7 +138,7 @@
     side.append(listSection);
     detail = el('section', 'split__main split__side--sticky req-detail');
     detail.setAttribute('aria-live', 'polite');
-    detail.setAttribute('aria-label', 'Выбранная заявка');
+    detail.setAttribute('aria-label', tr('requests.vybrannaya_zayavka'));
     content.className = 'split split--mail';
     content.replaceChildren(side, detail);
     // По умолчанию — первая активная заявка (список уже отсортирован).
@@ -159,7 +159,7 @@
       params.delete('created');
       history.pushState({ id }, '', `/requests?${params}`);
     }
-    detail.replaceChildren(el('p', 'state', 'Загружаем заявку…'));
+    detail.replaceChildren(el('p', 'state', tr('requests.zagruzhaem_zayavku')));
     await window.RequestView.load({
       container: detail,
       id,

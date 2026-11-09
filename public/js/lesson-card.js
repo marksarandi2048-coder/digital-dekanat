@@ -16,11 +16,11 @@ window.DekanatLesson = (function () {
     room_changed: '<path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
   };
   const LABEL = {
-    moved: 'Перенесено',
-    moved_away: 'Перенесено отсюда',
-    cancelled: 'Отменено',
-    teacher_changed: 'Замена преподавателя',
-    room_changed: 'Другая аудитория',
+    moved: tr('lesson_card.pereneseno'),
+    moved_away: tr('lesson_card.pereneseno_otsyuda'),
+    cancelled: tr('lesson_card.otmeneno'),
+    teacher_changed: tr('lesson_card.zamena_prepodavatelya'),
+    room_changed: tr('lesson_card.drugaya_auditoriya'),
   };
 
   function statusIcon(kind) {
@@ -34,10 +34,10 @@ window.DekanatLesson = (function () {
   }
 
   // На карточке коротко, чтобы строка помещалась на телефоне; полное название — в панели.
-  const KIND_SHORT = { lecture: 'Лекция', seminar: 'Семинар', practice: 'Практика' };
+  const KIND_SHORT = { lecture: tr('lesson_card.lektsiya'), seminar: tr('lesson_card.seminar'), practice: tr('lesson_card.praktika') };
 
-  const roomText = (room) => (/^\d+[а-яА-Яa-zA-Z]?$/.test(room) ? `ауд. ${room}` : room);
-  const slotText = (date, pair, time) => `${D.capitalize(D.weekdayShort(date))}, ${D.dayMonth(date)}, ${pair} пара${time ? ` (${time.start}–${time.end})` : ''}`;
+  const roomText = (room) => (/^\d+[а-яА-Яa-zA-Z]?$/.test(room) ? tr('lesson_card.aud_room', { room }) : room);
+  const slotText = (date, pair, time) => tr('lesson_card.p0_p1_pair_para', { p0: D.capitalize(D.weekdayShort(date)), p1: D.dayMonth(date), pair, p3: time ? ` (${time.start}–${time.end})` : '' });
 
   // ---------- Карточка пары: полоска цвета, время, короткое название, аудитория ----------
   // showEnd — показать время целиком («09:00–10:20»), а не только начало.
@@ -50,7 +50,7 @@ window.DekanatLesson = (function () {
     const time = ghost ? lesson.change.oldTime : lesson.time;
 
     const top = el('span', 'wk-card__top');
-    const shown = time ? (showEnd ? `${time.start}–${time.end}` : time.start) : `${pair} пара`;
+    const shown = time ? (showEnd ? `${time.start}–${time.end}` : time.start) : tr('lesson_card.pair_para', { pair });
     top.append(el('span', 'wk-card__time', shown));
     if (kind !== 'normal') top.append(statusIcon(kind));
     btn.append(top, el('span', 'wk-card__name', detailed ? lesson.discipline : lesson.shortName || lesson.discipline));
@@ -66,11 +66,11 @@ window.DekanatLesson = (function () {
     }
 
     // Полное описание для программ экранного доступа.
-    const parts = [lesson.discipline, time ? `${time.start}–${time.end}` : `${pair} пара`];
+    const parts = [lesson.discipline, time ? `${time.start}–${time.end}` : tr('lesson_card.pair_para', { pair })];
     if (!ghost) parts.push(D.place(lesson.building, lesson.room));
     if (detailed) parts.push(D.KIND[lesson.kind], lesson.teacher);
     if (kind !== 'normal') parts.push(LABEL[kind]);
-    btn.setAttribute('aria-label', `${parts.join(', ')}. Подробнее`);
+    btn.setAttribute('aria-label', tr('lesson_card.p0_podrobnee', { p0: parts.join(', ') }));
     btn.addEventListener('click', () => openSheet(lesson, ghost));
     return btn;
   }
@@ -95,31 +95,31 @@ window.DekanatLesson = (function () {
 
     const dl = el('dl', 'sheet__facts');
     if (ghost) {
-      row(dl, 'Было', slotText(lesson.change.oldDate, lesson.change.oldPair, lesson.change.oldTime));
-      row(dl, 'Теперь', slotText(lesson.date, lesson.pair, lesson.time), true);
-      row(dl, 'Где', D.place(lesson.building, lesson.room));
+      row(dl, tr('lesson_card.bylo'), slotText(lesson.change.oldDate, lesson.change.oldPair, lesson.change.oldTime));
+      row(dl, tr('lesson_card.teper'), slotText(lesson.date, lesson.pair, lesson.time), true);
+      row(dl, tr('lesson_card.gde'), D.place(lesson.building, lesson.room));
     } else {
-      row(dl, 'Когда', slotText(lesson.date, lesson.pair, lesson.time), lesson.status === 'moved');
-      row(dl, 'Где', D.place(lesson.building, lesson.room), lesson.status === 'room_changed');
+      row(dl, tr('lesson_card.kogda'), slotText(lesson.date, lesson.pair, lesson.time), lesson.status === 'moved');
+      row(dl, tr('lesson_card.gde'), D.place(lesson.building, lesson.room), lesson.status === 'room_changed');
     }
-    row(dl, 'Преподаватель', `${lesson.teacher}${lesson.teacherTitle ? `, ${lesson.teacherTitle}` : ''}`, lesson.status === 'teacher_changed');
-    row(dl, 'Занятие', D.KIND[lesson.kind]);
+    row(dl, tr('lesson_card.prepodavatel'), `${lesson.teacher}${lesson.teacherTitle ? `, ${lesson.teacherTitle}` : ''}`, lesson.status === 'teacher_changed');
+    row(dl, tr('lesson_card.zanyatie'), D.KIND[lesson.kind]);
     body.push(dl);
 
     // Что изменилось и почему.
     const c = lesson.change;
     if (c) {
       const box = el('section', 'sheet__change');
-      box.append(el('h3', 'sheet__subtitle', 'Что изменилось'));
+      box.append(el('h3', 'sheet__subtitle', tr('lesson_card.chto_izmenilos')));
       const lines = [];
-      if (lesson.status === 'cancelled') lines.push('Пара отменена.');
-      if (lesson.status === 'moved' && !ghost) lines.push(`Перенесена с: ${slotText(c.oldDate, c.oldPair, c.oldTime)}.`);
-      if (ghost) lines.push(`Пара перенесена на ${slotText(lesson.date, lesson.pair, lesson.time)}.`);
-      if (lesson.status === 'teacher_changed') lines.push(`Вместо: ${c.oldTeacher}.`);
-      if (lesson.status === 'room_changed') lines.push(`Было: ${D.place(c.oldBuilding, c.oldRoom)}.`);
+      if (lesson.status === 'cancelled') lines.push(tr('lesson_card.para_otmenena'));
+      if (lesson.status === 'moved' && !ghost) lines.push(tr('lesson_card.perenesena_s_p0', { p0: slotText(c.oldDate, c.oldPair, c.oldTime) }));
+      if (ghost) lines.push(tr('lesson_card.para_perenesena_na_p0', { p0: slotText(lesson.date, lesson.pair, lesson.time) }));
+      if (lesson.status === 'teacher_changed') lines.push(tr('lesson_card.vmesto_oldteacher', { oldTeacher: c.oldTeacher }));
+      if (lesson.status === 'room_changed') lines.push(tr('lesson_card.bylo_p0', { p0: D.place(c.oldBuilding, c.oldRoom) }));
       for (const line of lines) box.append(el('p', null, line));
-      if (c.note) box.append(el('p', 'sheet__reason', `Причина: ${c.note}`));
-      if (c.changedAt) box.append(el('p', 'muted sheet__when', `Сообщено ${D.dateTime(c.changedAt)}`));
+      if (c.note) box.append(el('p', 'sheet__reason', tr('lesson_card.prichina_note', { note: c.note })));
+      if (c.changedAt) box.append(el('p', 'muted sheet__when', tr('lesson_card.soobscheno_p0', { p0: D.dateTime(c.changedAt) })));
       body.push(box);
     }
 

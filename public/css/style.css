@@ -2593,12 +2593,6 @@ a.req-card__title {
   color: var(--color-moved);
 }
 
-.day--focus .day__title::after {
-  content: "← из уведомления";
-  font-size: 12px;
-  font-weight: 400;
-}
-
 /* Приписка под полоской: процент и максимум за семестр */
 .meter__note {
   margin: var(--space-1) 0 0;

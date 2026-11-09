@@ -76,9 +76,9 @@
       const length = to - from;
       const hasLunch = lunch && toMin(lunch.start) >= from && toMin(lunch.end) <= to;
       const onlyLunch = hasLunch && length === toMin(lunch.end) - toMin(lunch.start);
-      let text = `Окно ${D.duration(length)}`;
-      if (onlyLunch) text = `Обед · ${D.duration(length)}`;
-      else if (hasLunch) text = `${text} · обед ${lunch.start}–${lunch.end}`;
+      let text = tr('today.okno_p0', { p0: D.duration(length) });
+      if (onlyLunch) text = tr('today.obed_p0', { p0: D.duration(length) });
+      else if (hasLunch) text = tr('today.text_obed_start_end', { text, start: lunch.start, end: lunch.end });
       gaps.push({ start, end, from, to, text, lunch: onlyLunch });
     }
     return gaps;
@@ -96,7 +96,7 @@
     const box = el('span', 'tl-live');
     box.hidden = true;
     const elapsed = el('span', 'tl-live__elapsed');
-    box.append(el('span', 'tl-live__label', 'Идёт сейчас'), elapsed);
+    box.append(el('span', 'tl-live__label', tr('today.idet_seychas')), elapsed);
     btn.append(box);
     return { btn, box, elapsed, label: btn.getAttribute('aria-label') };
   }
@@ -115,10 +115,10 @@
     const length = slot.end - slot.start;
     // Заливка фона идёт слева направо: её край не выглядит как зачёркивание текста.
     btn.style.setProperty('--progress', `${(((t - slot.start) / length) * 100).toFixed(2)}%`);
-    const text = `Прошло ${Math.floor(t - slot.start)} из ${length} ${D.plural(length, 'минуты', 'минут', 'минут')}`;
+    const text = tr('today.proshlo_p0_iz_length', { p0: Math.floor(t - slot.start), length, p2: D.plural(length, tr('today.minuty'), tr('today.minut'), tr('today.minut')) });
     if (elapsed.textContent !== text) {
       elapsed.textContent = text;
-      btn.setAttribute('aria-label', `${label}. Идёт сейчас. ${text}`);
+      btn.setAttribute('aria-label', tr('today.label_idet_seychas_text', { label, text }));
     }
   }
 
@@ -159,7 +159,7 @@
       const tight = g.end - g.start < 30;
       const li = positioned(el('li', `tl-gap${g.lunch ? ' tl-gap--lunch' : ''}${tight ? ' tl-gap--tight' : ''}`), rangeStart, g.start, g.end);
       const chip = el('span', 'tl-gap__chip', g.text);
-      chip.title = `С ${clockText(g.from)} до ${clockText(g.to)}`;
+      chip.title = tr('today.s_p0_do_p1', { p0: clockText(g.from), p1: clockText(g.to) });
       li.append(chip);
       rows.push({ at: g.start, node: li });
     }
@@ -187,14 +187,14 @@
     if (real.length) {
       const first = noZero(real[0].lesson.time.start);
       const last = noZero(real[real.length - 1].lesson.time.end);
-      chips.push(el('li', 'day-chip', `${real.length} ${D.plural(real.length, 'пара', 'пары', 'пар')}`));
+      chips.push(el('li', 'day-chip', `${real.length} ${D.plural(real.length, tr('today.para'), tr('today.pary'), tr('today.par'))}`));
       chips.push(el('li', 'day-chip', `${first}–${last}`));
-      chips.push(el('li', 'day-chip', `После ${last} свободно`));
+      chips.push(el('li', 'day-chip', tr('today.posle_last_svobodno', { last })));
     } else {
-      chips.push(el('li', 'day-chip', 'Пар нет'));
+      chips.push(el('li', 'day-chip', tr('today.par_net')));
     }
     const changes = data.lessons.filter((l) => l.status !== 'normal').length + data.movedAway.length;
-    if (changes) chips.push(el('li', 'day-chip day-chip--changes', `${changes} ${D.plural(changes, 'изменение', 'изменения', 'изменений')}`));
+    if (changes) chips.push(el('li', 'day-chip day-chip--changes', `${changes} ${D.plural(changes, tr('today.izmenenie'), tr('today.izmeneniya'), tr('today.izmeneniy'))}`));
     chipsBox.replaceChildren(...chips);
     chipsBox.hidden = false;
   }
@@ -202,7 +202,7 @@
   function render(data, query) {
     const isToday = data.date === data.today;
     const weekday = D.capitalize(D.weekdayLong(data.date));
-    titleBox.textContent = isToday ? 'Сегодня' : weekday;
+    titleBox.textContent = isToday ? tr('today.segodnya') : weekday;
     document.getElementById('date-label').textContent = isToday ? `${weekday}, ${D.dayMonth(data.date)}` : D.dayMonth(data.date);
 
     const real = data.lessons
@@ -218,9 +218,9 @@
       bringBox.hidden = true;
       content.replaceChildren(D.emptyState({
         illu: 'rest',
-        title: isToday ? 'Пар сегодня нет — можно выдохнуть' : 'В этот день пар нет',
-        text: 'Расписание на ближайшие дни — на «Неделе».',
-        action: { href: `/week${query}`, label: 'Посмотреть неделю', secondary: true },
+        title: isToday ? tr('today.par_segodnya_net_mozhno') : tr('today.v_etot_den_par'),
+        text: tr('today.raspisanie_na_blizhayshie_dni'),
+        action: { href: `/week${query}`, label: tr('today.posmotret_nedelyu'), secondary: true },
       }));
       return;
     }
@@ -232,15 +232,15 @@
       parts.push(D.emptyState({
         illu: 'rest',
         inline: true,
-        title: isToday ? 'Сегодня занятий не будет' : 'В этот день занятий нет',
-        text: 'Пары отменены или перенесены — подробности по нажатию на пару.',
+        title: isToday ? tr('today.segodnya_zanyatiy_ne_budet') : tr('today.v_etot_den_zanyatiy'),
+        text: tr('today.pary_otmeneny_ili_pereneseny'),
       }));
     }
     const done = D.emptyState({
       illu: 'done',
-      title: 'Пары на сегодня закончились',
-      text: 'Расписание на ближайшие дни — на «Неделе».',
-      action: { href: `/week${query}`, label: 'Посмотреть неделю', secondary: true },
+      title: tr('today.pary_na_segodnya_zakonchilis'),
+      text: tr('today.raspisanie_na_blizhayshie_dni'),
+      action: { href: `/week${query}`, label: tr('today.posmotret_nedelyu'), secondary: true },
     });
     done.classList.add('tl-done');
     done.hidden = true;
@@ -272,8 +272,8 @@
     const next = real.find((r) => r.start > t);
     let text = '';
     if (!isToday) text = '';
-    else if (current) text = `Сейчас: ${current.lesson.shortName} · ещё ${inMinutes(current.end - t)}`;
-    else if (next) text = `${next === real[0] ? 'Первая пара' : 'Следующая'}: ${next.lesson.shortName}, ${roomText(next.lesson.room)} · через ${inMinutes(next.start - t)}`;
+    else if (current) text = tr('today.seychas_shortname_esche_p1', { shortName: current.lesson.shortName, p1: inMinutes(current.end - t) });
+    else if (next) text = tr('today.p0_shortname_p2_cherez', { p0: next === real[0] ? tr('today.pervaya_para') : tr('today.sleduyuschaya'), shortName: next.lesson.shortName, p2: roomText(next.lesson.room), p3: inMinutes(next.start - t) });
     if (view.status.textContent !== text) view.status.textContent = text;
     view.status.hidden = !text;
 
@@ -300,7 +300,7 @@
     if (key === bringKey) return;
     bringKey = key;
     if (!ahead.length) {
-      bringList.replaceChildren(el('p', 'today-bring__none', 'Ничего особенного — тетрадь и ручка.'));
+      bringList.replaceChildren(el('p', 'today-bring__none', tr('today.nichego_osobennogo_tetrad_i')));
       return;
     }
     const list = el('ul', 'today-bring__list');
@@ -386,9 +386,9 @@
       loading.hidden = true;
       errorBox.textContent = err.message;
       if (err.offline) {
-        const week = el('a', null, 'Открыть расписание на неделю');
+        const week = el('a', null, tr('today.otkryt_raspisanie_na_nedelyu'));
         week.href = '/week';
-        errorBox.textContent = 'Нет подключения. ';
+        errorBox.textContent = tr('today.net_podklyucheniya');
         errorBox.append(week);
       }
       errorBox.hidden = false;
