@@ -38,10 +38,18 @@ function mondayOf(str) {
   return addDays(str, day === 0 ? -6 : 1 - day);
 }
 
+// Дни для переключателя на «Сегодня»: пн–сб текущей недели.
+// В воскресенье неделя уже закончилась, поэтому показываем следующую.
+function switcherWeek(today) {
+  const monday = mondayOf(today);
+  const start = today === addDays(monday, 6) ? addDays(monday, 7) : monday;
+  return [0, 1, 2, 3, 4, 5].map((i) => addDays(start, i));
+}
+
 // Текущее время в Москве строкой «ГГГГ-ММ-ДД ЧЧ:ММ».
 function nowStamp() {
   const n = nowInMoscow();
   return `${n.date} ${n.time}`;
 }
 
-module.exports = { nowInMoscow, nowStamp, isValidDate, addDays, mondayOf };
+module.exports = { nowInMoscow, nowStamp, isValidDate, addDays, mondayOf, switcherWeek };

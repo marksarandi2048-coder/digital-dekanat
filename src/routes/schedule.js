@@ -4,7 +4,7 @@ const express = require('express');
 const { requireAuth } = require('../access');
 const { getSchedule, lunchForGroup, listGroups } = require('../schedule');
 const { bringFor } = require('../bringRules');
-const { nowInMoscow, isValidDate, addDays, mondayOf } = require('../dates');
+const { nowInMoscow, isValidDate, addDays, mondayOf, switcherWeek } = require('../dates');
 const { listSemesters } = require('../grades');
 const { buildCalendar } = require('../ics');
 
@@ -24,11 +24,13 @@ function resolveGroup(req) {
 router.get('/schedule/today', (req, res) => {
   const { group, groups } = resolveGroup(req);
   const now = nowInMoscow();
-  const data = group ? getSchedule(group, now.date, now.date) : { pairs: null, lessons: [], movedAway: [] };
+  // ?date= — другой день в переключателе. Группа всё равно определяется выше, по сессии.
+  const date = isValidDate(req.query.date) ? req.query.date : now.date;
+  const data = group ? getSchedule(group, date, date) : { pairs: null, lessons: [], movedAway: [] };
   const lunch = group ? lunchForGroup(group) : null;
   // «Что взять с собой» — подсказка студенту; сотруднику на занятия идти не нужно.
   const bring = req.user.role === 'student' ? bringFor(data.lessons) : [];
-  res.json({ group, groups, now, date: now.date, lunch, bring, ...data });
+  res.json({ group, groups, now, date, today: now.date, week: switcherWeek(now.date), lunch, bring, ...data });
 });
 
 router.get('/schedule/week', (req, res) => {

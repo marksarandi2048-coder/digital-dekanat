@@ -54,10 +54,14 @@ window.DekanatLesson = (function () {
     top.append(el('span', 'wk-card__time', shown));
     if (kind !== 'normal') top.append(statusIcon(kind));
     btn.append(top, el('span', 'wk-card__name', detailed ? lesson.discipline : lesson.shortName || lesson.discipline));
-    if (!ghost) btn.append(el('span', 'wk-card__room', roomText(lesson.room)));
+    // В подробной карточке аудитория стоит в строке под названием.
+    if (!ghost && !detailed) btn.append(el('span', 'wk-card__room', roomText(lesson.room)));
     if (detailed) {
       const meta = el('span', 'wk-card__meta', `${KIND_SHORT[lesson.kind] || ''} · `);
       meta.append(el('span', !ghost && lesson.status === 'teacher_changed' ? 'is-changed' : null, D.shortName(lesson.teacher)));
+      if (!ghost) {
+        meta.append(document.createTextNode(' · '), el('span', lesson.status === 'room_changed' ? 'is-changed' : null, roomText(lesson.room)));
+      }
       btn.append(meta);
     }
 

@@ -9,7 +9,11 @@
   const loading = document.getElementById('state-loading');
   const errorBox = document.getElementById('state-error');
   const content = document.getElementById('content');
-  const banner = document.getElementById('changes-banner');
+  const titleBox = document.getElementById('day-title');
+  const chipsBox = document.getElementById('day-chips');
+  const dayNav = document.getElementById('day-nav');
+  const dayNavDays = document.getElementById('day-nav-days');
+  const todayButton = document.getElementById('day-nav-today');
   const bringBox = document.getElementById('today-bring');
   const bringList = document.getElementById('today-bring-list');
 
@@ -176,14 +180,36 @@
   let signature = '';
   let bringKey = null;
 
-  function render(data, query) {
-    document.getElementById('date-label').textContent = `${D.capitalize(D.weekdayLong(data.date))}, ${D.dayMonth(data.date)}`;
-
+  // Сводка дня чипами: «3 пары», «9:00–13:30», «Свободна с 13:30», «1 изменение».
+  function renderChips(data, real) {
+    const noZero = (time) => time.replace(/^0/, '');
+    const chips = [];
+    if (real.length) {
+      const first = noZero(real[0].lesson.time.start);
+      const last = noZero(real[real.length - 1].lesson.time.end);
+      chips.push(el('li', 'day-chip', `${real.length} ${D.plural(real.length, 'пара', 'пары', 'пар')}`));
+      chips.push(el('li', 'day-chip', `${first}–${last}`));
+      chips.push(el('li', 'day-chip', `Свободна с ${last}`));
+    } else {
+      chips.push(el('li', 'day-chip', 'Пар нет'));
+    }
     const changes = data.lessons.filter((l) => l.status !== 'normal').length + data.movedAway.length;
-    banner.textContent = changes
-      ? `Сегодня ${changes} ${D.plural(changes, 'изменение', 'изменения', 'изменений')} в расписании — нажмите на пару, чтобы узнать подробности.`
-      : '';
-    banner.hidden = !changes;
+    if (changes) chips.push(el('li', 'day-chip day-chip--changes', `${changes} ${D.plural(changes, 'изменение', 'изменения', 'изменений')}`));
+    chipsBox.replaceChildren(...chips);
+    chipsBox.hidden = false;
+  }
+
+  function render(data, query) {
+    const isToday = data.date === data.today;
+    const weekday = D.capitalize(D.weekdayLong(data.date));
+    titleBox.textContent = isToday ? 'Сегодня' : weekday;
+    document.getElementById('date-label').textContent = isToday ? `${weekday}, ${D.dayMonth(data.date)}` : D.dayMonth(data.date);
+
+    const real = data.lessons
+      .filter((l) => l.status !== 'cancelled' && l.time)
+      .map((l) => ({ lesson: l, start: toMin(l.time.start), end: toMin(l.time.end) }))
+      .sort((a, b) => a.start - b.start);
+    renderChips(data, real);
 
     const slots = buildSlots(data);
     bringKey = null;
@@ -192,17 +218,12 @@
       bringBox.hidden = true;
       content.replaceChildren(D.emptyState({
         illu: 'rest',
-        title: 'Пар сегодня нет — можно выдохнуть',
+        title: isToday ? 'Пар сегодня нет — можно выдохнуть' : 'В этот день пар нет',
         text: 'Расписание на ближайшие дни — на «Неделе».',
         action: { href: `/week${query}`, label: 'Посмотреть неделю', secondary: true },
       }));
       return;
     }
-
-    const real = data.lessons
-      .filter((l) => l.status !== 'cancelled' && l.time)
-      .map((l) => ({ lesson: l, start: toMin(l.time.start), end: toMin(l.time.end) }))
-      .sort((a, b) => a.start - b.start);
 
     const { scale, line, lineTime, ticks, rangeStart, total } = renderScale(slots, buildGaps(real, slots, data.lunch));
     const status = el('p', 'tl-status');
@@ -211,7 +232,7 @@
       parts.push(D.emptyState({
         illu: 'rest',
         inline: true,
-        title: 'Сегодня занятий не будет',
+        title: isToday ? 'Сегодня занятий не будет' : 'В этот день занятий нет',
         text: 'Пары отменены или перенесены — подробности по нажатию на пару.',
       }));
     }
@@ -226,14 +247,17 @@
     parts.push(done, status, scale);
     content.replaceChildren(...parts);
 
-    view = { slots, real, done, status, line, lineTime, ticks, rangeStart, total, bring: data.bring || [], isStaff: Boolean(data.groups) };
+    const mode = isToday ? 'today' : data.date < data.today ? 'past' : 'future';
+    view = { mode, slots, real, done, status, line, lineTime, ticks, rangeStart, total, bring: data.bring || [], isStaff: Boolean(data.groups) };
   }
 
   // То, что зависит от времени, обновляется само, без перерисовки карточек:
   // открытая панель и фокус клавиатуры при этом не сбрасываются.
   function tick() {
     if (!view) return;
-    const t = minutesNow();
+    // Прошедший день — всё позади, будущий — всё впереди; линия и отсчёт есть только сегодня.
+    const isToday = view.mode === 'today';
+    const t = { today: minutesNow(), past: Infinity, future: -Infinity }[view.mode];
     const { real } = view;
 
     for (const s of view.slots) {
@@ -241,24 +265,25 @@
       if (s.live) updateLive(s, t);
     }
 
-    const finished = real.length > 0 && t >= real[real.length - 1].end;
+    const finished = isToday && real.length > 0 && t >= real[real.length - 1].end;
     view.done.hidden = !finished;
 
     const current = real.find((r) => t >= r.start && t < r.end);
     const next = real.find((r) => r.start > t);
     let text = '';
-    if (current) text = `Сейчас: ${current.lesson.shortName} · ещё ${inMinutes(current.end - t)}`;
+    if (!isToday) text = '';
+    else if (current) text = `Сейчас: ${current.lesson.shortName} · ещё ${inMinutes(current.end - t)}`;
     else if (next) text = `${next === real[0] ? 'Первая пара' : 'Следующая'}: ${next.lesson.shortName}, ${roomText(next.lesson.room)} · через ${inMinutes(next.start - t)}`;
     if (view.status.textContent !== text) view.status.textContent = text;
     view.status.hidden = !text;
 
-    view.line.hidden = !real.length || finished;
+    view.line.hidden = !isToday || !real.length || finished;
     const position = Math.min(view.total, Math.max(0, t - view.rangeStart));
     view.line.style.setProperty('--now', position.toFixed(2));
     for (const mark of view.ticks) {
       mark.node.classList.toggle('tl-tick--covered', !view.line.hidden && Math.abs(position - mark.at) < COVERED_MIN);
     }
-    view.lineTime.textContent = clockText(t);
+    if (isToday) view.lineTime.textContent = clockText(t);
 
     renderBring(t, Boolean(current || next));
   }
@@ -287,24 +312,92 @@
     bringList.replaceChildren(list);
   }
 
+  // ---------- Переключатель дней: другой день без перезагрузки страницы ----------
+  let selected = null; // null — сегодня
+  let todayDate = null;
+  let shownDate = null;
+  let weekKey = '';
+  let requestId = 0;
+
+  function markDay() {
+    for (const btn of dayNavDays.children) {
+      const isShown = btn.dataset.date === shownDate;
+      btn.classList.toggle('day-nav__day--selected', isShown);
+      btn.setAttribute('aria-pressed', String(isShown));
+      btn.classList.toggle('day-nav__day--today', btn.dataset.date === todayDate);
+      if (btn.dataset.date === todayDate) btn.setAttribute('aria-current', 'date');
+      else btn.removeAttribute('aria-current');
+    }
+    todayButton.hidden = shownDate === todayDate;
+  }
+
+  function renderDayNav(week) {
+    const key = week.join();
+    if (key === weekKey) return;
+    weekKey = key;
+    dayNavDays.replaceChildren(...week.map((date) => {
+      const btn = el('button', 'day-nav__day');
+      btn.type = 'button';
+      btn.dataset.date = date;
+      btn.setAttribute('aria-label', `${D.capitalize(D.weekdayLong(date))}, ${D.dayMonth(date)}`);
+      btn.append(el('span', 'day-nav__name', D.capitalize(D.weekdayShort(date))), el('span', 'day-nav__num', Number(date.slice(8))));
+      btn.addEventListener('click', () => selectDay(date));
+      return btn;
+    }));
+    dayNav.hidden = false;
+  }
+
+  async function selectDay(date) {
+    const previous = selected;
+    const previousShown = shownDate;
+    selected = date === todayDate ? null : date;
+    shownDate = date;
+    markDay();
+    content.setAttribute('aria-busy', 'true');
+    const error = await load();
+    content.removeAttribute('aria-busy');
+    if (error) {
+      selected = previous;
+      shownDate = previousShown;
+      markDay();
+      errorBox.textContent = error;
+      errorBox.hidden = false;
+    }
+  }
+
+  todayButton.addEventListener('click', () => selectDay(todayDate));
+
+  // Возвращает текст ошибки, если день загрузить не удалось.
   async function load() {
+    const id = (requestId += 1);
     const params = new URLSearchParams(window.location.search);
     const query = params.get('group') ? `?group=${encodeURIComponent(params.get('group'))}` : '';
+    const api = new URLSearchParams();
+    if (params.get('group')) api.set('group', params.get('group'));
+    if (selected) api.set('date', selected);
 
     let data;
     try {
-      data = await D.fetchJSON(`/api/schedule/today${query}`);
+      data = await D.fetchJSON(`/api/schedule/today?${api}`);
     } catch (err) {
+      if (id !== requestId) return null;
       // Связь пропала при обновлении — оставляем на экране то, что уже показано.
-      if (signature) return;
+      if (signature) return err.message;
       loading.hidden = true;
       errorBox.textContent = err.message;
       errorBox.hidden = false;
-      return;
+      return err.message;
     }
+    // Пока шёл ответ, студент нажал другой день — этот ответ уже не нужен.
+    if (id !== requestId) return null;
 
     syncClock(data.now);
-    const next = JSON.stringify([data.date, data.group, data.lessons, data.movedAway, data.lunch, data.bring]);
+    todayDate = data.today;
+    shownDate = data.date;
+    renderDayNav(data.week);
+    markDay();
+
+    const next = JSON.stringify([data.date, data.today, data.group, data.lessons, data.movedAway, data.lunch, data.bring]);
     if (next !== signature) {
       signature = next;
       D.setupGroup(data);
@@ -314,6 +407,7 @@
     errorBox.hidden = true;
     loading.hidden = true;
     content.hidden = false;
+    return null;
   }
 
   // Первая загрузка — с анимацией появления, дальше обновления без неё.

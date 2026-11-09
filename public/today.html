@@ -58,18 +58,22 @@
   </header>
 
   <main class="app-main app-main--wide" id="main" tabindex="-1">
-    <h1 class="page-title">Сегодня</h1>
+    <h1 class="page-title" id="day-title">Сегодня</h1>
     <p class="page-subtitle" id="date-label"></p>
     <p class="page-subtitle" id="group-info" hidden></p>
     <div class="group-picker" id="group-picker" hidden>
       <label for="group-select">Группа</label>
       <select id="group-select"></select>
     </div>
-    <p class="notice" id="changes-banner" role="status" hidden></p>
+    <ul class="day-chips" id="day-chips" aria-label="Сводка дня" hidden></ul>
     <!-- На телефоне блоки идут в этом порядке, на компьютере (от 1100 px) справа — колонка -->
     <div class="today-layout">
       <div class="today-side today-side--important" id="today-important" hidden></div>
       <div class="today-main">
+        <nav class="day-nav" id="day-nav" aria-label="Дни недели" hidden>
+          <div class="day-nav__days" id="day-nav-days"></div>
+          <button class="button button--secondary button--small day-nav__today" type="button" id="day-nav-today" hidden>Сегодня</button>
+        </nav>
         <div class="state skeleton" id="state-loading" role="status" data-skeleton="lessons"><span class="visually-hidden">Загружаем расписание…</span></div>
         <p class="state state--error" id="state-error" role="alert" hidden></p>
         <div id="content" hidden></div>

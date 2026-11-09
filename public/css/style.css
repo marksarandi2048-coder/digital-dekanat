@@ -4677,6 +4677,105 @@ main[tabindex="-1"]:focus {
   margin-bottom: 0;
 }
 
+/* Сводка дня чипами */
+.day-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.day-chip {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-small);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.day-chip--changes {
+  border-color: transparent;
+  background: var(--color-moved-bg);
+  color: var(--color-moved);
+}
+
+/* Переключатель дней над шкалой */
+.day-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.day-nav__days {
+  flex: 1 1 280px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.day-nav__day {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-height: 52px;
+  padding: var(--space-1) 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+}
+
+.day-nav__name {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.day-nav__num {
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 700;
+}
+
+.day-nav__day--today {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.day-nav__day--today .day-nav__name {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.day-nav__day--selected,
+.day-nav__day--selected .day-nav__name {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.day-nav__today {
+  flex: 0 0 auto;
+  width: auto;
+  margin-left: auto;
+}
+
+@media (hover: hover) {
+  .day-nav__day:not(.day-nav__day--selected):hover {
+    border-color: var(--color-border-strong);
+  }
+}
+
 /* Шкала: высота пропорциональна времени. --tl-px — сколько пикселей в одной минуте */
 .tl {
   --tl-px: 1.85px;
@@ -4754,8 +4853,8 @@ main[tabindex="-1"]:focus {
 /* Карточка на шкале: сверху время и аудитория, ниже название */
 .tl-slot .wk-card {
   flex: 1 1 0;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas: "top room" "name name" "meta meta" "live live";
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "top" "name" "meta" "live";
   align-content: center;
   align-items: center;
   min-width: 0;
@@ -4778,14 +4877,6 @@ main[tabindex="-1"]:focus {
   white-space: normal;
 }
 
-.tl-slot .wk-card__room {
-  max-width: none;
-  font-size: var(--font-size-small);
-  line-height: 1.25;
-  text-align: right;
-  white-space: normal;
-}
-
 /* Две карточки в одно время (пара и «след» перенесённой) — столбиком внутри каждой */
 .tl-slot--split .wk-card {
   grid-template-columns: minmax(0, 1fr);
@@ -4800,7 +4891,9 @@ main[tabindex="-1"]:focus {
 .tl-slot--split .wk-card__room {
   max-width: none;
   font-size: 13px;
+  line-height: 1.25;
   text-align: left;
+  white-space: normal;
 }
 
 /* Вид занятия и преподаватель */
@@ -4869,6 +4962,22 @@ main[tabindex="-1"]:focus {
 @media (min-width: 641px) {
   .tl {
     --tl-px: 1.35px;
+  }
+}
+
+/* Телефон: «Идёт сейчас» и минуты должны уместиться в одну строку */
+@media (max-width: 640px) {
+  .tl-slot:not(.tl-slot--split) .wk-card {
+    padding-inline: var(--space-2);
+  }
+
+  .tl-live {
+    column-gap: var(--space-1);
+    font-size: 12px;
+  }
+
+  .tl-live__label {
+    padding-inline: 6px;
   }
 }
 
@@ -5007,7 +5116,7 @@ main[tabindex="-1"]:focus {
 /* Компьютер: шкала слева, справа колонка */
 @media (min-width: 1100px) {
   .today-layout {
-    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-columns: minmax(0, 650px) minmax(300px, 1fr);
     grid-template-rows: auto auto 1fr;
     gap: 0 var(--space-5);
   }
@@ -5029,6 +5138,6 @@ main[tabindex="-1"]:focus {
 
   /* Колонке нечего показать (например, у сотрудника) — шкала на всю ширину */
   .today-layout:not(:has(> .today-side:not([hidden]))) {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 650px);
   }
 }
