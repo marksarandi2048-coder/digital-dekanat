@@ -57,7 +57,7 @@
     return tr('home.dobroy_nochi');
   }
 
-  const num = (n) => String(n).replace('.', ',');
+  const num = D.decimal;
 
   // ---------- Студент ----------
   // Главный блок: текущая или следующая пара — крупно.

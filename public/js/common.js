@@ -132,6 +132,9 @@ window.Dekanat = (function () {
     return { ok: res.ok, data };
   }
 
+  // Дробное число: 24,1 по-русски и 24.1 по-английски.
+  const decimal = (n) => (window.DekanatI18n.lang === 'en' ? String(n) : String(n).replace('.', ','));
+
   function plural(n, one, few, many) {
     if (window.DekanatI18n.lang === 'en') return n === 1 ? one : many;
     const m10 = n % 10;
@@ -421,5 +424,5 @@ window.Dekanat = (function () {
     });
   }
 
-  return { offlineBar, reloadWhenOnline, savedLabel, todayInMoscow, disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, setupGroup, changeLines, shortName, place, toMinutes, minutesBetween, KIND, BADGE, illustration, emptyState };
+  return { decimal, offlineBar, reloadWhenOnline, savedLabel, todayInMoscow, disciplineTitle, el, fetchJSON, postJSON, dayMonth, fullDate, dateTime, weekdayLong, weekdayShort, capitalize, plural, countdown, duration, updateBell, setupGroup, changeLines, shortName, place, toMinutes, minutesBetween, KIND, BADGE, illustration, emptyState };
 })();

@@ -4,7 +4,7 @@
 window.DekanatForecast = (function () {
   const D = window.Dekanat;
   const el = D.el;
-  const num = (n) => String(n).replace('.', ',');
+  const num = D.decimal;
   const TARGET_MAX = 110;
   const DEBOUNCE_MS = 250;
 

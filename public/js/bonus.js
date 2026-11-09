@@ -8,7 +8,7 @@
   const errorBox = document.getElementById('state-error');
   const statusBox = document.getElementById('bonus-status');
   const content = document.getElementById('content');
-  const num = (n) => String(n).replace('.', ',');
+  const num = D.decimal;
 
   const CATEGORY = { volunteering: tr('bonus.volonterstvo'), sport: tr('bonus.sportivnaya_sektsiya'), research: tr('bonus.nauchnaya_rabota') };
   const STATUS = {

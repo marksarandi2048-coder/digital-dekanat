@@ -39,7 +39,7 @@ const SYNONYMS_EN = [
   'academic leave sabbatical gap',
   'dorm dormitory hostel housing accommodation',
   'scholarship stipend grant',
-  'retake resit debt failed fail',
+  'retake resit outstanding debt failed fail',
   'military army draft conscription deferral deferment',
   'id card pass',
   'transfer switch change',
