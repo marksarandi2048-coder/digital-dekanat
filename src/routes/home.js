@@ -57,6 +57,7 @@ function ratingTile(user, today) {
     total: rating.total,
     max: rating.max,
     bonus: rating.bonus,
+    bonusMax: rating.bonusMax,
     isFinal: summary.isFinal,
     debts: summary.debts.length,
     overdue: summary.overdue,

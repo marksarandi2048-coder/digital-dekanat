@@ -16,6 +16,7 @@
     bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
     bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
     card: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M5.5 16c.6-1.6 2-2.4 3.5-2.4s2.9.8 3.5 2.4M15 10h3M15 14h3"/>',
+    star: '<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/>',
     megaphone: '<path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M17 8a5 5 0 0 1 0 8"/>',
   };
 
@@ -260,6 +261,17 @@
     return t.node;
   }
 
+  function bonusTile(r) {
+    const t = tile({ kind: 'bonus', title: 'Надбавка', iconName: 'star', href: '/grades/bonus' });
+    if (r) {
+      const big = el('p', 'tile__big');
+      big.append(document.createTextNode(`+${num(r.bonus)}`), el('span', 'tile__of', ` из ${r.bonusMax}`));
+      t.body.append(big);
+    }
+    t.body.append(el('p', 'tile__where', 'где заработать →'));
+    return t.node;
+  }
+
   function quickTile() {
     const t = tile({ kind: 'quick', title: 'Быстрые действия', iconName: 'bolt' });
     t.node.classList.add('tile--full');
@@ -282,6 +294,7 @@
       requestTile(data.request, data.activeRequests),
       notificationsTile(data.notifications),
       cardTile(data.card),
+      bonusTile(data.rating),
       quickTile(),
     );
   }

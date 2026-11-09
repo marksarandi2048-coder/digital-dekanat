@@ -633,8 +633,8 @@ body {
     font-size: 12px;
   }
 
-  /* «Сегодня» и «Уведомления» — только в боковом меню: на телефоне их заменяют
-     плитка на «Главной» и колокольчик в шапке. */
+  /* Эти пункты есть только в боковом меню. На телефоне их заменяют колокольчик и иконка
+     билета в шапке, плитки на «Главной» и вкладка «Надбавка» в «Оценках». */
   .nav__item--wide {
     display: none;
   }
@@ -5519,20 +5519,10 @@ main[tabindex="-1"]:focus {
   font-size: 12px;
 }
 
-/* Плитка на «Главной»: пятая плитка не должна оставаться одна в ряду */
-@media (min-width: 641px) {
-  .tile--card {
-    grid-column: 1 / -1;
-  }
-}
-
+/* Плитка на «Главной»: билет и надбавка стоят рядом, быстрые действия занимают остаток ряда */
 @media (min-width: 1180px) {
-  .tile--card {
-    grid-column: auto;
-  }
-
   .tiles--student .tile--quick {
-    grid-column: span 3;
+    grid-column: span 2;
   }
 }
 
@@ -5958,5 +5948,54 @@ button.filter {
   .bonus-feed {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* =================== Меню с группами =================== */
+.nav__group {
+  display: none;
+}
+
+/* Надбавки нет в нижнем меню телефона: на её странице подсвечен родительский раздел «Оценки» */
+@media (max-width: 899px) {
+  /* Плавная смена страниц делает шапку отдельным слоем, а нижнее меню лежит внутри неё.
+     Без этого шкала, карточки и другие блоки страницы оказывались поверх меню и забирали нажатия. */
+  .has-bottom-nav .app-header {
+    position: relative;
+    z-index: 20;
+  }
+
+  .nav__item[data-phone-current] {
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+}
+
+@media (min-width: 900px) {
+  .has-bottom-nav .nav {
+    flex: 1 0 auto;
+  }
+
+  .nav__group {
+    display: block;
+    margin-top: var(--space-2);
+    padding: var(--space-2) var(--space-3) 0;
+    color: var(--header-text);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: var(--label-spacing);
+    opacity: 0.7;
+    text-transform: var(--label-transform);
+  }
+
+  /* «Профиль» — внизу меню */
+  .nav__item--bottom {
+    margin-top: auto;
+  }
+}
+
+.tile__where {
+  margin: 0;
+  color: var(--color-primary);
+  font-weight: 600;
 }
 

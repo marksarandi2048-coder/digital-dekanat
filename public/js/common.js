@@ -324,6 +324,14 @@ window.Dekanat = (function () {
   }
   updateBell();
 
+  // ---------- Вкладки «День / Неделя»: выбранная сотрудником группа не теряется ----------
+  const keptGroup = new URLSearchParams(window.location.search).get('group');
+  if (keptGroup) {
+    for (const tab of document.querySelectorAll('.tab[data-keep-group]')) {
+      tab.href = `${tab.getAttribute('href')}?group=${encodeURIComponent(keptGroup)}`;
+    }
+  }
+
   // ---------- Выход ----------
   const logout = document.getElementById('logout-button');
   if (logout) {
