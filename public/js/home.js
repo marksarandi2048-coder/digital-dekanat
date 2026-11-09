@@ -101,18 +101,22 @@
     arrow.setAttribute('aria-hidden', 'true');
     go.append(arrow);
     top.append(go);
+    const head = el('div', 'hero__head');
     const main = el('div', 'hero__main');
     const info = el('div', 'hero__info');
     const side = el('div', 'hero__side');
-    main.append(info, side);
-    node.append(top, main);
-    return { node, info, side };
+    main.append(side, info);
+    node.append(top, head, main);
+    return { node, head, info, side };
   }
 
-  // Дисциплина, время, аудитория, преподаватель и что изменилось.
-  function heroLesson(info, l) {
-    if (l.status !== 'normal') info.append(el('span', `badge badge--${l.status} hero__badge`, D.BADGE[l.status]));
-    info.append(D.disciplineTitle('p', 'hero__title', l.discipline, l.color));
+  // Сверху на всю ширину — дисциплина; под ней рядом с крупным временем — когда, где и что изменилось.
+  function heroLesson(h, l) {
+    const { info } = h;
+    if (l.status !== 'normal') h.head.append(el('span', `badge badge--${l.status} hero__badge`, D.BADGE[l.status]));
+    const title = D.disciplineTitle('p', 'hero__title', l.discipline, l.color);
+    title.title = l.discipline; // заголовок ограничен двумя строками, полное название — в подсказке
+    h.head.append(title);
     const when = el('p', 'hero__when');
     when.append(el('span', 'hero__time', `${l.time.start}–${l.time.end}`), document.createTextNode(tr('home.pair_para_p1', { pair: l.pair, p1: D.KIND[l.kind] || '' })));
     info.append(when);
@@ -157,18 +161,19 @@
   function lessonTile(s, today) {
     if (!s) {
       const h = heroShell('/today', tr('home.pary'), tr('home.raspisanie'));
-      h.info.append(el('p', 'hero__title', tr('home.gruppa_ne_ukazana_v')), el('p', 'hero__where', tr('home.obratites_v_dekanat')));
+      h.head.append(el('p', 'hero__title', tr('home.gruppa_ne_ukazana_v')));
+      h.info.append(el('p', 'hero__where', tr('home.obratites_v_dekanat')));
       return h.node;
     }
 
     if (s.current || s.next) {
       const h = heroShell('/today', s.current ? tr('home.seychas_idet') : tr('home.sleduyuschaya_para'), tr('home.raspisanie_na_segodnya'));
       if (s.current) {
-        heroLesson(h.info, s.current.lesson);
+        heroLesson(h, s.current.lesson);
         progress(h.side, s.current.lesson, s.current.left);
         if (s.next) h.info.append(el('p', 'hero__after', tr('home.dalshe_v_start_discipline', { start: s.next.lesson.time.start, discipline: s.next.lesson.discipline })));
       } else {
-        heroLesson(h.info, s.next.lesson);
+        heroLesson(h, s.next.lesson);
         countdown(h.side, s.next.in);
       }
       if (s.changes) {
@@ -183,13 +188,13 @@
     const h = heroShell(href, s.todayCount ? tr('home.pary_na_segodnya_zakonchilis') : tr('home.par_segodnya_net_mozhno'), tr('home.raspisanie_na_nedelyu'));
     if (up) {
       const when = up.date === addDays(today, 1) ? tr('home.zavtra') : D.capitalize(`${D.weekdayLong(up.date)}, ${D.dayMonth(up.date)}`);
-      h.info.append(el('p', 'hero__day', tr('home.when_count_p2_pervaya', { when, count: up.count, p2: D.plural(up.count, tr('home.para'), tr('home.pary_2'), tr('home.par')) })));
-      heroLesson(h.info, up.lesson);
+      h.head.append(el('p', 'hero__day', tr('home.when_count_p2_pervaya', { when, count: up.count, p2: D.plural(up.count, tr('home.para'), tr('home.pary_2'), tr('home.par')) })));
+      heroLesson(h, up.lesson);
       const box = el('div', 'hero__countdown');
       box.append(el('p', 'hero__note', when), el('p', 'hero__big', tr('home.v_start', { start: up.lesson.time.start })));
       h.side.append(box);
     } else {
-      h.info.append(el('p', 'hero__title', tr('home.zanyatiy_v_blizhayshie_dve')));
+      h.head.append(el('p', 'hero__title', tr('home.zanyatiy_v_blizhayshie_dve')));
     }
     return h.node;
   }
