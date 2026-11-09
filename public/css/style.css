@@ -6781,3 +6781,7 @@ button.appt-arrow {
     border-left: 0;
   }
 }
+
+#forecast {
+  scroll-margin-top: var(--space-4);
+}

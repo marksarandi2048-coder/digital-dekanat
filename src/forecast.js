@@ -73,6 +73,11 @@ function solveTarget(target, open, totalWith) {
   };
 }
 
+// «Что будет, если все оставшиеся экзамены на одну оценку, а зачёты сданы».
+function everyExamChoices(open, grade) {
+  return Object.fromEntries(open.map((d) => [d.id, d.control === 'exam' ? grade : 'passed']));
+}
+
 function forecast(student, today, input = {}) {
   const semester = listSemesters(today).find((s) => s.isCurrent);
   if (!semester) return null;
@@ -89,6 +94,7 @@ function forecast(student, today, input = {}) {
   const base = totalWith({});
   const total = totalWith(cleanChoices(open, input.choices));
   const target = parseTarget(input.target);
+  const allExams = ALLOWED.exam.includes(input.allExams) ? input.allExams : null;
   return {
     max: data.rating.max,
     base,
@@ -96,6 +102,8 @@ function forecast(student, today, input = {}) {
     delta: round1(total - base),
     assumed,
     target: target === null ? null : solveTarget(target, open, totalWith),
+    open: { exams: open.filter((d) => d.control === 'exam').length, credits: open.filter((d) => d.control === 'credit').length },
+    scenario: allExams ? { grade: allExams, total: totalWith(everyExamChoices(open, allExams)) } : null,
   };
 }
 

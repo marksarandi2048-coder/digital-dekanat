@@ -16,6 +16,7 @@ const { statusHint } = require('./requestTypes');
 const bonus = require('./bonus');
 const appointments = require('./appointments');
 const { search } = require('./faqSearch');
+const { forecast } = require('./forecast');
 const { nowInMoscow, isValidDate, addDays, mondayOf } = require('./dates');
 
 const MAX_LESSONS = 40;
@@ -35,6 +36,7 @@ const ACTIONS = {
   open_week: { label: 'assistant.action.open_week', href: '/week' },
   open_today: { label: 'assistant.action.open_today', href: '/today' },
   open_grades: { label: 'assistant.action.open_grades', href: '/grades' },
+  open_calculator: { label: 'assistant.action.open_calculator', href: '/grades#forecast' },
   open_requests: { label: 'assistant.action.open_requests', href: '/requests' },
   open_bonus: { label: 'assistant.action.open_bonus', href: '/grades/bonus' },
   open_student_card: { label: 'assistant.action.open_student_card', href: '/student-card' },
@@ -43,6 +45,7 @@ const ACTION_BY_HREF = Object.fromEntries(Object.entries(ACTIONS).map(([id, a]) 
 const ACTIONS_FOR_TOOL = {
   get_schedule: ['open_week'],
   get_grades: ['open_grades'],
+  get_forecast: ['open_calculator'],
   get_requests: ['order_certificate', 'open_requests'],
   get_bonus: ['open_bonus'],
   get_appointments: ['book_appointment'],
@@ -77,6 +80,23 @@ const TOOLS = [
     },
   },
   {
+    name: 'get_forecast',
+    description: 'Калькулятор рейтинга: какие оценки нужны на оставшихся экзаменах, чтобы выйти на нужный рейтинг, и какой рейтинг получится при таких-то оценках. Вызывай на любые вопросы вида «что нужно для 85», «какой будет рейтинг, если получу все пятёрки», «хватит ли троек», «are threes enough». Обязательно передай результат студенту, правила здесь искать не нужно.',
+    parameters: {
+      type: 'object',
+      properties: {
+        mode: {
+          type: 'string',
+          enum: ['need_for_target', 'all_exams_grade'],
+          description: 'need_for_target — какие оценки нужны для рейтинга target. all_exams_grade — какой рейтинг получится, если все оставшиеся экзамены сданы на exam_grade.',
+        },
+        target: { type: 'number', description: 'Желаемый рейтинг, число от 0 до 110. Обязательно для need_for_target. Для all_exams_grade — только если студент назвал цель, в том числе раньше в разговоре.' },
+        exam_grade: { type: 'string', enum: ['5', '4', '3'], description: 'Оценка за все оставшиеся экзамены. Только для all_exams_grade: «все пятёрки» — 5, «четвёрки» — 4, «тройки» — 3.' },
+      },
+      required: ['mode'],
+    },
+  },
+  {
     name: 'get_deadlines',
     description: 'Ближайшие сроки: объявления деканата, экзамены, зачёты, сроки выставления оценок. Поле own = true значит, что действие нужно от самого студента.',
     parameters: noParams,
@@ -98,7 +118,7 @@ const TOOLS = [
   },
   {
     name: 'search_help',
-    description: 'Поиск по базе ответов деканата: правила и порядок действий (академический отпуск, общежитие, стипендия, пересдача, пароль, справки). Используй для вопросов «как», «где», «что нужно».',
+    description: 'Поиск по базе ответов деканата: правила и порядок действий (академический отпуск, общежитие, стипендия, пересдача, пароль, справки). Используй для вопросов «как оформить», «где получить». Не используй для расчёта оценок и рейтинга: для этого есть get_forecast.',
     parameters: {
       type: 'object',
       properties: { query: { type: 'string', description: 'Вопрос своими словами.' } },
@@ -208,6 +228,88 @@ function getGradesTool(user, args) {
   };
 }
 
+function plural(n, one, few, many) {
+  if (currentLang() === 'en') return n === 1 ? one : many;
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+}
+
+const decimal = (n) => (currentLang() === 'en' ? String(n) : String(n).replace('.', ','));
+
+// Те же слова, что в калькуляторе на странице «Оценки» (public/js/forecast.js).
+function countsText(plan) {
+  const parts = [
+    [plan.counts[5], tr('forecast.pyaterka'), tr('forecast.pyaterki'), tr('forecast.pyaterok')],
+    [plan.counts[4], tr('forecast.chetverka'), tr('forecast.chetverki'), tr('forecast.chetverok')],
+    [plan.counts[3], tr('forecast.troyka'), tr('forecast.troyki'), tr('forecast.troek')],
+  ].filter(([n]) => n > 0).map(([n, one, few, many]) => `${n} ${plural(n, one, few, many)}`);
+  if (plan.credits) parts.push(plan.credits === 1 ? tr('forecast.sdat_zachet') : tr('forecast.sdat_vse_zachety'));
+  return parts.join(', ');
+}
+
+// Калькулятор подставляет средний результат вместо невыставленных баллов: об этом надо сказать.
+function assumedNote(assumed) {
+  if (!assumed.count) return '';
+  if (assumed.percent === null) return ` ${tr('forecast.bally_za_semestr_esche')}`;
+  const where = `${assumed.count} ${plural(assumed.count, tr('forecast.distsipline'), tr('forecast.distsiplinam'), tr('forecast.distsiplinam'))}`;
+  return ` ${tr('forecast.bally_za_semestr_esche_2', { where, percent: assumed.percent })}`;
+}
+
+function targetSummary(plan, open) {
+  if (!plan.reachable) {
+    const what = open.exams ? tr('forecast.pri_vsekh_pyaterkakh') : tr('forecast.esli_sdat_vse_zachety');
+    return tr('forecast.nedostizhimo_dazhe_what_poluchitsya', { what, p1: decimal(plan.max) });
+  }
+  return `${tr('forecast.dostatochno')}${tr('forecast.p0_poluchitsya_p1', { p0: countsText(plan), p1: decimal(plan.total) })}`;
+}
+
+function scenarioSummary(result, target) {
+  const { scenario, open } = result;
+  const total = decimal(scenario.total);
+  let text;
+  if (open.exams) {
+    const key = open.credits ? 'assistant.forecast.exams_and_credits' : 'assistant.forecast.exams_only';
+    text = tr(key, { grades: tr(`assistant.forecast.grade_${scenario.grade}`), total });
+  } else {
+    text = tr('assistant.forecast.credits_only', { total });
+  }
+  if (target === null) return `${text} ${tr('assistant.forecast.ask_target')}`;
+  return `${text} ${tr(scenario.total >= target ? 'assistant.forecast.enough' : 'assistant.forecast.not_enough', { target: decimal(target) })}`;
+}
+
+// Цель могла прозвучать раньше: «Хочу рейтинг 85» → «а хватит ли троек?».
+const TARGET_IN_TEXT = /(?:рейтинг\D{0,15}|выйти на\s*|набрать\s*|для\s+|reach\s+|rating\s+(?:of\s+)?|target\s+(?:of\s+)?)(\d{2,3})\b/i;
+
+function targetFromConversation(texts) {
+  for (const text of texts) {
+    const found = text.match(TARGET_IN_TEXT);
+    if (found) return Number(found[1]);
+  }
+  return null;
+}
+
+function getForecastTool(user, args, conversation = []) {
+  const given = typeof args.target === 'number' || typeof args.target === 'string' ? args.target : null;
+  const target = given === null && args.mode === 'all_exams_grade' ? targetFromConversation(conversation) : given;
+  const allExams = args.mode === 'all_exams_grade' ? String(args.exam_grade) : null;
+  const result = forecast(user, nowInMoscow().date, { target, allExams });
+  if (!result) return { error: 'no_current_semester' };
+  if (!result.open.exams && !result.open.credits) {
+    return { exactAnswer: tr('assistant.forecast.all_set', { total: decimal(result.base) }) };
+  }
+  const note = assumedNote(result.assumed);
+  if (args.mode === 'need_for_target') {
+    if (!result.target) return { error: 'target_required', allowed: '0-110' };
+    return { exactAnswer: `${targetSummary(result.target, result.open)}${note}` };
+  }
+  if (!result.scenario) return { error: 'exam_grade_required', allowed: ['5', '4', '3'] };
+  const asked = result.target ? Number(target) : null;
+  return { exactAnswer: `${scenarioSummary(result, asked)}${note}` };
+}
+
 function getDeadlinesTool(user) {
   return {
     deadlines: deadlines(user, nowInMoscow().date).slice(0, MAX_LIST).map((d) => ({
@@ -285,6 +387,7 @@ function searchHelpTool(user, args) {
 const RUNNERS = {
   get_schedule: getScheduleTool,
   get_grades: getGradesTool,
+  get_forecast: getForecastTool,
   get_deadlines: getDeadlinesTool,
   get_requests: getRequestsTool,
   get_bonus: getBonusTool,
@@ -305,10 +408,11 @@ function parseArguments(raw) {
 }
 
 // Выполняет функцию от имени вошедшего студента. user приходит только из сессии.
-function runTool(name, rawArgs, user) {
+// conversation — вопросы студента в этом разговоре, от нового к старому.
+function runTool(name, rawArgs, user, conversation) {
   if (!user || user.role !== 'student') return { error: 'forbidden' };
   if (!Object.hasOwn(RUNNERS, name)) return { error: 'unknown_function' };
-  const result = RUNNERS[name](user, parseArguments(rawArgs));
+  const result = RUNNERS[name](user, parseArguments(rawArgs), conversation);
   return currentLang() === 'en' ? translated(result) : result;
 }
 

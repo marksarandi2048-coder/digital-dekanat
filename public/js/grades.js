@@ -367,6 +367,10 @@
     content.replaceChildren(side, main);
     loading.hidden = true;
     content.hidden = false;
+
+    // Ссылка из помощника ведёт сразу к калькулятору.
+    const calculator = window.location.hash === '#forecast' ? document.getElementById('forecast') : null;
+    if (calculator) calculator.scrollIntoView({ block: 'start' });
   }
 
   load();

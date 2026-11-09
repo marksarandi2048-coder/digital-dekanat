@@ -173,11 +173,11 @@ function enqueue(task) {
 }
 
 // Один запрос к модели. Возвращает { message, finishReason }.
-function chat({ messages, functions, temperature = 0.2, maxTokens = 700 }) {
+function chat({ messages, functions, forceFunction, temperature = 0.2, maxTokens = 700 }) {
   const payload = { model: MODEL, messages, temperature, max_tokens: maxTokens };
   if (functions && functions.length) {
     payload.functions = functions;
-    payload.function_call = 'auto';
+    payload.function_call = forceFunction ? { name: forceFunction } : 'auto';
   }
   return enqueue(async () => {
     const json = await callApi('/chat/completions', 'POST', payload, CHAT_TIMEOUT_MS);

@@ -21,6 +21,7 @@ window.DekanatForecast = (function () {
   function render(data) {
     const open = data.disciplines.filter((d) => !d.grade);
     const box = el('section', 'card fc');
+    box.id = 'forecast';
     box.setAttribute('aria-labelledby', 'fc-title');
     const title = el('h2', 'section-title', tr('forecast.chto_nuzhno_na_ekzamene'));
     title.id = 'fc-title';
