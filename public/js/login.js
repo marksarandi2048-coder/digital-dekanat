@@ -130,6 +130,7 @@
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
+        await window.DekanatPwa.signedIn();
         window.location.href = '/home'; // кнопка остаётся в загрузке до перехода
         return;
       }

@@ -294,6 +294,7 @@ window.Dekanat = (function () {
     } catch {
       return;
     }
+    window.DekanatPwa.sessionConfirmed();
     // Пункт «Уведомления» в боковом меню (на компьютере) — с тем же счётчиком.
     const navItem = document.getElementById('nav-notifications');
     const navCount = document.getElementById('nav-count');
@@ -337,11 +338,8 @@ window.Dekanat = (function () {
   if (logout) {
     logout.addEventListener('click', async () => {
       logout.disabled = true;
-      try {
-        await fetch('/api/logout', { method: 'POST' });
-      } finally {
-        window.location.href = '/';
-      }
+      await window.DekanatPwa.signOut();
+      window.location.href = '/';
     });
   }
 

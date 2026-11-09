@@ -21,6 +21,7 @@ const { findById } = require('./src/users');
 const { PUBLIC_URL } = require('./src/config');
 const { checkPathFor } = require('./src/studentCard');
 const { nowInMoscow } = require('./src/dates');
+const { buildServiceWorker } = require('./src/serviceWorker');
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 if (!SESSION_SECRET) {
@@ -172,6 +173,12 @@ app.get('/student-card/check', (req, res) => {
 app.get('/check/:code', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'check.html'));
 });
+// Сервис-воркер со списком файлов сайта для работы без сети.
+const serviceWorkerSource = buildServiceWorker(PUBLIC_DIR);
+app.get('/sw.js', (req, res) => {
+  res.set('Cache-Control', 'no-cache').type('text/javascript').send(serviceWorkerSource);
+});
+
 // Стили и скрипты: браузер каждый раз сверяется с сервером (по ETag),
 // чтобы после обновления сайта не показывать страницу со старыми стилями.
 // Если файл не менялся, сервер отвечает коротким «304», без повторной загрузки.
