@@ -2,8 +2,10 @@
 // Файл календаря .ics (стандарт RFC 5545) с занятиями группы.
 // Открывается календарём телефона: iPhone, Android (Google Календарь), Outlook.
 const { PUBLIC_URL } = require('./config');
+const { tr } = require('./i18n');
+const { dataText, personName } = require('./dataEn');
 
-const KIND = { lecture: 'лекция', seminar: 'семинар', practice: 'практическое занятие' };
+const kindLabel = (kind) => (['lecture', 'seminar', 'practice'].includes(kind) ? tr(`ics.kind_${kind}`) : '');
 
 // Спецсимволы в тексте экранируются по стандарту.
 const esc = (t) => String(t ?? '').replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
@@ -31,9 +33,10 @@ function fold(line) {
 
 const local = (date, time) => `${date.replace(/-/g, '')}T${time.replace(':', '')}00`;
 const utcStamp = () => new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-const place = (b, r) => `${b}, ${/^\d+[а-яА-Яa-zA-Z]?$/.test(r) ? `ауд. ${r}` : r}`;
+const place = (b, r) => `${dataText(b)}, ${/^\d+[а-яА-Яa-zA-Z]?$/.test(r) ? tr('ics.room', { room: r }) : dataText(r)}`;
 
-function buildCalendar({ group, lessons, fmtSlot }) {
+function buildCalendar({ group: groupName, lessons, fmtSlot }) {
+  const group = dataText(groupName);
   const host = new URL(PUBLIC_URL).host;
   const stamp = utcStamp();
   const lines = [
@@ -42,7 +45,7 @@ function buildCalendar({ group, lessons, fmtSlot }) {
     'PRODID:-//Tsifrovoy dekanat (kontsept MGIMOxAI Challenge)//RU',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    `X-WR-CALNAME:${esc(`Расписание ${group}`)}`,
+    `X-WR-CALNAME:${esc(tr('ics.calendar_name', { group }))}`,
     'X-WR-TIMEZONE:Europe/Moscow',
     // Москва: +03:00 круглый год, без перехода на летнее время.
     'BEGIN:VTIMEZONE',
@@ -57,17 +60,19 @@ function buildCalendar({ group, lessons, fmtSlot }) {
   ];
 
   for (const l of lessons) {
-    const kind = KIND[l.kind] || '';
+    const kind = kindLabel(l.kind);
+    const discipline = dataText(l.discipline);
     const cancelled = l.status === 'cancelled';
-    const notes = [`${l.pair} пара, ${kind}`, `Преподаватель: ${l.teacher}${l.teacherTitle ? `, ${l.teacherTitle}` : ''}`, `Группа ${group}`];
+    const teacher = `${personName(l.teacher)}${l.teacherTitle ? `, ${dataText(l.teacherTitle)}` : ''}`;
+    const notes = [tr('ics.pair_kind', { pair: l.pair, kind }), tr('ics.teacher', { teacher }), tr('ics.group', { group })];
     if (l.change) {
-      if (l.status === 'moved') notes.push(`Перенесено с: ${fmtSlot(l.change.oldDate, l.change.oldPair)}`);
-      if (l.status === 'room_changed') notes.push(`Аудитория изменена, было: ${place(l.change.oldBuilding, l.change.oldRoom)}`);
-      if (l.status === 'teacher_changed') notes.push(`Замена преподавателя, вместо: ${l.change.oldTeacher}`);
-      if (cancelled) notes.push('Занятие отменено');
-      if (l.change.note) notes.push(l.change.note);
+      if (l.status === 'moved') notes.push(tr('ics.moved_from', { slot: fmtSlot(l.change.oldDate, l.change.oldPair) }));
+      if (l.status === 'room_changed') notes.push(tr('ics.room_changed', { place: place(l.change.oldBuilding, l.change.oldRoom) }));
+      if (l.status === 'teacher_changed') notes.push(tr('ics.teacher_changed', { teacher: personName(l.change.oldTeacher) }));
+      if (cancelled) notes.push(tr('ics.cancelled'));
+      if (l.change.note) notes.push(dataText(l.change.note));
     }
-    notes.push('Концепт для конкурса MGIMO×AI Challenge, не официальный сервис МГИМО. Данные вымышлены.');
+    notes.push(tr('ics.concept'));
 
     lines.push(
       'BEGIN:VEVENT',
@@ -75,7 +80,7 @@ function buildCalendar({ group, lessons, fmtSlot }) {
       `DTSTAMP:${stamp}`,
       `DTSTART;TZID=Europe/Moscow:${local(l.date, l.time.start)}`,
       `DTEND;TZID=Europe/Moscow:${local(l.date, l.time.end)}`,
-      `SUMMARY:${esc(`${cancelled ? 'ОТМЕНЕНО: ' : ''}${l.discipline}${kind ? ` (${kind})` : ''}`)}`,
+      `SUMMARY:${esc(`${cancelled ? tr('ics.cancelled_prefix') : ''}${discipline}${kind ? ` (${kind})` : ''}`)}`,
       `LOCATION:${esc(place(l.building, l.room))}`,
       `DESCRIPTION:${esc(notes.join('\n'))}`,
       `STATUS:${cancelled ? 'CANCELLED' : 'CONFIRMED'}`,

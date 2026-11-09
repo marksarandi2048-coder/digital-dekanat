@@ -1,5 +1,6 @@
 'use strict';
-const { tr } = require('../i18n');
+const { tr, currentLocale } = require('../i18n');
+const { dataText } = require('../dataEn');
 // Расписание: сегодня и неделя.
 const express = require('express');
 const { requireAuth } = require('../access');
@@ -66,7 +67,7 @@ router.get('/schedule/calendar.ics', (req, res) => {
   const from = semester ? semester.startsOn : today;
   const to = semester ? semester.endsOn : addDays(today, 120);
   const { lessons, pairs } = getSchedule(group, from, to);
-  const fmt = (d) => new Intl.DateTimeFormat('ru-RU', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'long' }).format(new Date(`${d}T00:00:00Z`));
+  const fmt = (d) => new Intl.DateTimeFormat(currentLocale(), { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'long' }).format(new Date(`${d}T00:00:00Z`));
   const body = buildCalendar({ group, lessons, fmtSlot: (date, pair) => tr('schedule.p0_pair_para_start', { p0: fmt(date), pair, start: pairs[pair].start }) });
 
   // Запасное имя файла латиницей (для старых браузеров): МЭО-3-07 → MEO-3-07.
@@ -75,7 +76,7 @@ router.get('/schedule/calendar.ics', (req, res) => {
   const ascii = `raspisanie-${latin || 'gruppa'}.ics`;
   res.set({
     'Content-Type': 'text/calendar; charset=utf-8',
-    'Content-Disposition': `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(tr('schedule.raspisanie_group_ics', { group }))}`,
+    'Content-Disposition': `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(tr('schedule.raspisanie_group_ics', { group: dataText(group) }))}`,
   });
   res.send(body);
 });

@@ -151,6 +151,8 @@ const DATA_EN = {
   'Приказ запросили в архиве. Выписка будет готова в течение двух рабочих дней.': 'The order has been requested from the archive. The extract will be ready within two working days.',
   // Справка
   очная: 'full-time',
+  'специалист по учебно-методической работе': 'Academic Affairs Specialist',
+  'сотрудник деканата': 'Dean’s Office staff member',
 };
 
 // ФИО и номера — транслитерация по правилам загранпаспорта (ICAO).
@@ -179,8 +181,17 @@ const personName = (text) => (isEnglish() && typeof text === 'string' ? latin(te
 // Поля ответа, где лежат ФИО, инициалы и номера документов.
 const LATIN_FIELDS = new Set(['fullName', 'firstName', 'initials', 'teacher', 'oldTeacher', 'author', 'number']);
 
+// «Лаврентьева О. П., специалист…»: ФИО транслитерацией, должность — переводом.
+function signature(text) {
+  const [name, ...position] = text.split(', ');
+  return [latin(name), lookup(position.join(', '))].filter(Boolean).join(', ');
+}
+
 function translated(value, key) {
-  if (typeof value === 'string') return LATIN_FIELDS.has(key) ? latin(value) : lookup(value);
+  if (typeof value === 'string') {
+    if (key === 'signedBy') return signature(value);
+    return LATIN_FIELDS.has(key) ? latin(value) : lookup(value);
+  }
   if (Array.isArray(value)) return value.map((item) => translated(item, key));
   if (value && typeof value === 'object') {
     return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, translated(v, k)]));
