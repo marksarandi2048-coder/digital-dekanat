@@ -7365,6 +7365,33 @@ button.appt-arrow {
   font-size: 18px;
 }
 
+/* Фильтры, подсказки и метки — прямоугольные, как ярлычки */
+.journal .filter,
+.journal .chip,
+.journal .help-chip,
+.journal .status--pending,
+.journal .tl-live__label,
+.journal .tl-gap__chip,
+.journal .tl-now__time {
+  border-radius: 2px;
+}
+
+.journal .filter,
+.journal .chip,
+.journal .help-chip {
+  background: none;
+}
+
+.journal .filter[aria-current="true"] {
+  background: var(--journal-button-bg);
+  border-color: var(--journal-button-bg);
+  color: var(--journal-button-text);
+}
+
+.journal .bonus-track span {
+  border-radius: 0;
+}
+
 @keyframes journal-rise {
   from {
     opacity: 0;
