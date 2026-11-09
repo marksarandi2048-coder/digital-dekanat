@@ -7346,6 +7346,25 @@ button.appt-arrow {
   border-color: var(--journal-rule-soft);
 }
 
+/* Страница «Оценки» */
+.journal .meter__track,
+.journal .meter__fill,
+.journal .hero__fill,
+.journal .bonus-progress__track,
+.journal .bonus-progress__fill {
+  border-radius: 0;
+}
+
+.journal .status,
+.journal .tag,
+.journal .summary .verdict {
+  border-radius: 2px;
+}
+
+.journal .subject__head .section-title {
+  font-size: 18px;
+}
+
 @keyframes journal-rise {
   from {
     opacity: 0;
