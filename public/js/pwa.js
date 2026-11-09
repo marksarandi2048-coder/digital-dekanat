@@ -142,10 +142,30 @@ window.DekanatPwa = (function () {
   const SHARE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
   const CLOSE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   let installPrompt = null; // браузер разрешил показать своё окно установки
-  const hintSlots = new Map(); // блок на странице → роль пользователя
+  let installedNow = false; // установили только что, в этой вкладке
+  const hintSlots = new Map(); // подсказка на Главной: блок на странице → роль пользователя
+  let appBlock = null; // постоянный блок «Приложение» в профиле
 
   const isInstalled = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const ua = navigator.userAgent;
+  const isIos = () => /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isChromium = () => /Chrome|Chromium|Edg\//.test(ua);
+  // Safari на Mac: «Добавить в Dock» появилось в версии 17 (нужна macOS Sonoma или новее).
+  function isMacSafariWithDock() {
+    if (!/Macintosh/.test(ua) || isIos() || isChromium() || /Firefox|OPR\//.test(ua)) return false;
+    const version = ua.match(/Version\/(\d+).*Safari\//);
+    return Boolean(version) && Number(version[1]) >= 17;
+  }
+
+  // Как установить кабинет именно в этом браузере.
+  function installWay() {
+    if (installedNow || isInstalled()) return 'installed';
+    if (installPrompt) return 'prompt';
+    if (isIos()) return 'ios';
+    if (isMacSafariWithDock()) return 'mac-safari';
+    if (isChromium()) return 'browser-menu';
+    return 'unsupported';
+  }
 
   function make(tag, className, text) {
     const node = document.createElement(tag);
@@ -154,16 +174,20 @@ window.DekanatPwa = (function () {
     return node;
   }
 
-  function hintDescription(role) {
+  const benefit = (role) => (role === 'student'
+    ? 'Расписание и билет будут под рукой даже без интернета'
+    : 'Кабинет будет открываться отдельно, как обычная программа');
+
+  function instruction(way) {
     const box = make('p', 'install-hint__text');
-    if (isIos()) {
+    if (way === 'ios') {
       const share = make('span', 'install-hint__share');
       share.innerHTML = SHARE_ICON; // наша постоянная иконка, не данные пользователя
       box.append('Нажмите ', share, ' «Поделиться» → «На экран Домой»');
-    } else {
-      box.textContent = role === 'student'
-        ? 'Расписание и билет будут под рукой даже без интернета'
-        : 'Кабинет будет открываться с главного экрана';
+    } else if (way === 'mac-safari') {
+      box.textContent = 'В меню Safari: «Файл» → «Добавить в Dock»';
+    } else if (way === 'browser-menu') {
+      box.textContent = 'Нажмите значок установки в адресной строке или выберите установку в меню браузера';
     }
     return box;
   }
@@ -176,8 +200,18 @@ window.DekanatPwa = (function () {
     renderHints();
   }
 
+  function installButton() {
+    const button = make('button', 'button button--secondary button--small install-hint__button', 'Установить');
+    button.type = 'button';
+    button.addEventListener('click', install);
+    return button;
+  }
+
+  // Подсказка на Главной: только если есть что предложить, и её можно скрыть насовсем.
   function renderHint(slot, role) {
-    const canShow = !isInstalled() && !store('get', HINT_HIDDEN_KEY) && (installPrompt || isIos());
+    const way = installWay();
+    // Chrome и Edge дают кнопку не сразу, а после действий на странице: до этого — инструкция.
+    const canShow = ['prompt', 'ios', 'mac-safari', 'browser-menu'].includes(way) && !store('get', HINT_HIDDEN_KEY);
     slot.replaceChildren();
     slot.hidden = !canShow;
     if (!canShow) return;
@@ -188,13 +222,9 @@ window.DekanatPwa = (function () {
     icon.src = '/img/logo.svg';
     icon.alt = '';
     const body = make('div', 'install-hint__body');
-    body.append(make('p', 'install-hint__title', 'Установите кабинет как приложение'), hintDescription(role));
-    if (installPrompt) {
-      const button = make('button', 'button button--secondary button--small install-hint__button', 'Установить');
-      button.type = 'button';
-      button.addEventListener('click', install);
-      body.append(button);
-    }
+    const description = way === 'prompt' ? make('p', 'install-hint__text', benefit(role)) : instruction(way);
+    body.append(make('p', 'install-hint__title', 'Установите кабинет как приложение'), description);
+    if (way === 'prompt') body.append(installButton());
     const close = make('button', 'install-hint__close');
     close.type = 'button';
     close.setAttribute('aria-label', 'Скрыть подсказку');
@@ -207,14 +237,43 @@ window.DekanatPwa = (function () {
     slot.append(hint);
   }
 
+  // Блок «Приложение» в профиле: виден всегда, скрытая подсказка на него не влияет.
+  function renderAppBlock() {
+    if (!appBlock) return;
+    const way = installWay();
+    const lines = [];
+    if (way === 'installed') {
+      lines.push(make('p', 'app-block__text', 'Кабинет установлен. Открывайте его значком приложения.'));
+    } else {
+      lines.push(make('p', 'app-block__text', benefit(appBlock.role)));
+      if (way === 'prompt') lines.push(installButton());
+      if (way === 'ios' || way === 'mac-safari' || way === 'browser-menu') lines.push(instruction(way));
+      if (way === 'browser-menu') {
+        lines.push(make('p', 'install-hint__text', 'Если кабинет уже установлен, он есть среди ваших программ.'));
+      }
+      if (way === 'unsupported') {
+        lines.push(make('p', 'install-hint__text', 'Чтобы установить кабинет, откройте его в Chrome, Edge или Safari.'));
+      }
+    }
+    appBlock.body.replaceChildren(...lines);
+    appBlock.section.hidden = false;
+  }
+
   function renderHints() {
     for (const [slot, role] of hintSlots) renderHint(slot, role);
+    renderAppBlock();
   }
 
   function mountInstallHint(slot, role) {
     if (!slot) return;
     hintSlots.set(slot, role);
     renderHint(slot, role);
+  }
+
+  function mountAppBlock(section, role) {
+    if (!section) return;
+    appBlock = { section, role, body: section.querySelector('.app-block__body') };
+    renderAppBlock();
   }
 
   window.addEventListener('beforeinstallprompt', (event) => {
@@ -224,6 +283,7 @@ window.DekanatPwa = (function () {
   });
   window.addEventListener('appinstalled', () => {
     installPrompt = null;
+    installedNow = true;
     renderHints();
   });
 
@@ -233,5 +293,5 @@ window.DekanatPwa = (function () {
     });
   }
 
-  return { signOut, signedIn, sessionConfirmed, mountInstallHint };
+  return { signOut, signedIn, sessionConfirmed, mountInstallHint, mountAppBlock };
 })();

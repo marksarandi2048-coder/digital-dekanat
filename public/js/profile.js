@@ -75,7 +75,7 @@
     }
     render(data.user, !id);
     if (!id && data.useful) renderUseful(data.useful);
-    if (!id) window.DekanatPwa.mountInstallHint(document.getElementById('install-hint'), data.user.role);
+    if (!id) window.DekanatPwa.mountAppBlock(document.getElementById('app-block'), data.user.role);
   }
 
   // ---------- Полезное: группа, куратор, деканат ----------

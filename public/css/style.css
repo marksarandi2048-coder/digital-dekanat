@@ -6452,3 +6452,38 @@ button.appt-arrow {
   color: var(--color-muted);
   cursor: pointer;
 }
+
+/* На компьютере кнопка «Установить» стоит справа в одну строку с текстом */
+@media (min-width: 900px) {
+  .install-hint {
+    align-items: center;
+  }
+
+  .install-hint__body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: var(--space-4);
+    align-items: center;
+  }
+
+  .install-hint__title,
+  .install-hint__text {
+    grid-column: 1;
+  }
+
+  .install-hint__button {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-top: 0;
+  }
+}
+
+/* Блок «Приложение» в профиле */
+.app-block__text {
+  margin: 0;
+}
+
+.app-block__body .install-hint__button {
+  margin-top: var(--space-3);
+}
