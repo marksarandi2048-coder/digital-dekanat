@@ -7537,6 +7537,45 @@ button.appt-arrow {
   --plaque-line: var(--journal-rule-soft);
 }
 
+/* Нижнее меню телефона: бумага, золотая линия сверху, у активного пункта — золотая отметка */
+@media (max-width: 899px) {
+  .has-bottom-nav .nav {
+    background-color: var(--journal-bg);
+    background-image: var(--journal-grain);
+    border-top: 1px solid var(--journal-rule);
+  }
+
+  .has-bottom-nav .nav__item {
+    position: relative;
+  }
+
+  .has-bottom-nav .nav__item svg {
+    stroke-width: 1.6;
+  }
+
+  .has-bottom-nav .nav__item[aria-current="page"],
+  .has-bottom-nav .nav__item[data-phone-current] {
+    color: var(--color-text);
+    font-weight: 700;
+  }
+
+  .has-bottom-nav .nav__item[aria-current="page"] svg,
+  .has-bottom-nav .nav__item[data-phone-current] svg {
+    color: var(--journal-kicker);
+  }
+
+  .has-bottom-nav .nav__item[aria-current="page"]::before,
+  .has-bottom-nav .nav__item[data-phone-current]::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 22%;
+    right: 22%;
+    height: 3px;
+    background: var(--journal-rule);
+  }
+}
+
 @keyframes journal-rise {
   from {
     opacity: 0;
