@@ -137,11 +137,101 @@ window.DekanatPwa = (function () {
     }
   });
 
+  // ---------- Подсказка «Установите кабинет как приложение» ----------
+  const HINT_HIDDEN_KEY = 'dekanat-install-hint-hidden'; // настройка устройства, не личные данные
+  const SHARE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
+  const CLOSE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  let installPrompt = null; // браузер разрешил показать своё окно установки
+  const hintSlots = new Map(); // блок на странице → роль пользователя
+
+  const isInstalled = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  function make(tag, className, text) {
+    const node = document.createElement(tag);
+    node.className = className;
+    if (text) node.textContent = text;
+    return node;
+  }
+
+  function hintDescription(role) {
+    const box = make('p', 'install-hint__text');
+    if (isIos()) {
+      const share = make('span', 'install-hint__share');
+      share.innerHTML = SHARE_ICON; // наша постоянная иконка, не данные пользователя
+      box.append('Нажмите ', share, ' «Поделиться» → «На экран Домой»');
+    } else {
+      box.textContent = role === 'student'
+        ? 'Расписание и билет будут под рукой даже без интернета'
+        : 'Кабинет будет открываться с главного экрана';
+    }
+    return box;
+  }
+
+  async function install() {
+    const prompt = installPrompt;
+    if (!prompt) return;
+    installPrompt = null;
+    await prompt.prompt();
+    renderHints();
+  }
+
+  function renderHint(slot, role) {
+    const canShow = !isInstalled() && !store('get', HINT_HIDDEN_KEY) && (installPrompt || isIos());
+    slot.replaceChildren();
+    slot.hidden = !canShow;
+    if (!canShow) return;
+
+    const hint = make('section', 'install-hint');
+    hint.setAttribute('aria-label', 'Установка приложения');
+    const icon = make('img', 'install-hint__icon');
+    icon.src = '/img/logo.svg';
+    icon.alt = '';
+    const body = make('div', 'install-hint__body');
+    body.append(make('p', 'install-hint__title', 'Установите кабинет как приложение'), hintDescription(role));
+    if (installPrompt) {
+      const button = make('button', 'button button--secondary button--small install-hint__button', 'Установить');
+      button.type = 'button';
+      button.addEventListener('click', install);
+      body.append(button);
+    }
+    const close = make('button', 'install-hint__close');
+    close.type = 'button';
+    close.setAttribute('aria-label', 'Скрыть подсказку');
+    close.innerHTML = CLOSE_ICON; // наша постоянная иконка, не данные пользователя
+    close.addEventListener('click', () => {
+      store('set', HINT_HIDDEN_KEY, '1');
+      renderHints();
+    });
+    hint.append(icon, body, close);
+    slot.append(hint);
+  }
+
+  function renderHints() {
+    for (const [slot, role] of hintSlots) renderHint(slot, role);
+  }
+
+  function mountInstallHint(slot, role) {
+    if (!slot) return;
+    hintSlots.set(slot, role);
+    renderHint(slot, role);
+  }
+
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault(); // вместо всплывающей полосы браузера — наша спокойная подсказка
+    installPrompt = event;
+    renderHints();
+  });
+  window.addEventListener('appinstalled', () => {
+    installPrompt = null;
+    renderHints();
+  });
+
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).catch(() => {});
     });
   }
 
-  return { signOut, signedIn, sessionConfirmed };
+  return { signOut, signedIn, sessionConfirmed, mountInstallHint };
 })();

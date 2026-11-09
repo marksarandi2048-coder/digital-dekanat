@@ -6385,3 +6385,70 @@ button.appt-arrow {
   text-align: center;
   text-decoration: none;
 }
+
+/* ---------- Подсказка об установке ---------- */
+#install-hint:not([hidden]) {
+  margin-bottom: var(--space-4);
+}
+
+.install-hint {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  padding-right: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+}
+
+.install-hint__icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+}
+
+.install-hint__body {
+  min-width: 0;
+}
+
+.install-hint__title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.install-hint__text {
+  margin: var(--space-1) 0 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-small);
+}
+
+.install-hint__share {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.2em;
+  color: var(--color-primary);
+}
+
+.install-hint__button {
+  margin-top: var(--space-2);
+  min-height: 44px;
+}
+
+.install-hint__close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 12px;
+  border: 0;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+}

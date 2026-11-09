@@ -428,6 +428,7 @@
     document.getElementById('date-label').textContent = D.capitalize(`${D.weekdayLong(data.now.date)}, ${D.dayMonth(data.now.date)}`);
     if (data.role === 'staff') renderStaff(data);
     else renderStudent(data);
+    window.DekanatPwa.mountInstallHint(document.getElementById('install-hint'), data.role);
     loading.hidden = true;
     errorBox.hidden = true;
     content.hidden = false;
