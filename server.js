@@ -4,7 +4,8 @@ const path = require('node:path');
 const express = require('express');
 const session = require('express-session');
 
-require('./src/db'); // создаёт файл базы и таблицы, если их ещё нет
+const { db } = require('./src/db'); // создаёт файл базы и таблицы, если их ещё нет
+const { seedIfEmpty } = require('./scripts/seed');
 const authRoutes = require('./src/routes/auth');
 const profileRoutes = require('./src/routes/profile');
 const scheduleRoutes = require('./src/routes/schedule');
@@ -19,16 +20,17 @@ const appointmentRoutes = require('./src/routes/appointments');
 const helpRoutes = require('./src/routes/help');
 const assistantRoutes = require('./src/routes/assistant');
 const { findById } = require('./src/users');
-const { PUBLIC_URL } = require('./src/config');
+const { PUBLIC_URL, IS_PROD, DB_PATH } = require('./src/config');
 const { checkPathFor } = require('./src/studentCard');
 const { nowInMoscow } = require('./src/dates');
 const { buildServiceWorker } = require('./src/serviceWorker');
 const { languageMiddleware, tr } = require('./src/i18n');
+const { SweepingMemoryStore } = require('./src/sessionStore');
 const { dataLanguageMiddleware } = require('./src/dataEn');
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 if (!SESSION_SECRET) {
-  console.error('Ошибка: в файле .env не задан SESSION_SECRET. Пример — в .env.example.');
+  console.error('Ошибка: не задан SESSION_SECRET (локально — в файле .env по образцу .env.example, на хостинге — в его переменных окружения).');
   process.exit(1);
 }
 if (SESSION_SECRET.length < 32) {
@@ -36,14 +38,21 @@ if (SESSION_SECRET.length < 32) {
 }
 
 const PORT = Number(process.env.PORT) || 3000;
-const IS_PROD = process.env.NODE_ENV === 'production';
 const COOKIE_NAME = 'dekanat.sid';
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 const app = express();
 app.disable('x-powered-by');
 app.set('sessionCookieName', COOKIE_NAME);
+// На хостинге сервер стоит за HTTPS-прокси (на Amvera — nginx): доверяем одному прокси перед нами,
+// чтобы Express видел настоящий протокол (https) и адрес посетителя из заголовков X-Forwarded-*.
 if (IS_PROD) app.set('trust proxy', 1);
+if (IS_PROD && !PUBLIC_URL.startsWith('https://')) {
+  console.warn(`Внимание: PUBLIC_URL «${PUBLIC_URL}» — не https-адрес. QR-коды справок будут вести на него.`);
+}
+
+// Пустая база (первый запуск на хостинге) — заполняем демо-данными. Заполненную не трогаем.
+if (seedIfEmpty()) console.log('База была пустой и заполнена демо-данными.');
 
 // Защитные заголовки: скрипты и стили грузятся только с нашего сервера.
 app.use((req, res, next) => {
@@ -57,13 +66,27 @@ app.use((req, res, next) => {
   next();
 });
 
+// Cookie входа помечен Secure и уходит только по HTTPS. Если прокси не передал X-Forwarded-Proto: https,
+// браузер cookie не получит и войти не выйдет — один раз пишем об этом в журнал, чтобы было понятно почему.
+let proxyWarned = false;
+app.use((req, res, next) => {
+  if (IS_PROD && req.secure) res.set('Strict-Transport-Security', 'max-age=15552000');
+  if (IS_PROD && !req.secure && !proxyWarned) {
+    proxyWarned = true;
+    console.warn(`Внимание: запрос пришёл не по HTTPS (X-Forwarded-Proto: «${req.get('x-forwarded-proto') || 'нет'}»). Cookie входа выдаётся только по HTTPS.`);
+  }
+  next();
+});
+
 app.use(express.json({ limit: '20kb' }));
 
-// Сессии. Пока хранятся в памяти сервера: после перезапуска нужно войти заново.
+// Сессии хранятся в памяти сервера: после перезапуска нужно войти заново. Это сделано нарочно:
+// в сессии живёт и переписка с помощником, а её по решению проекта на диск не записываем.
 app.use(
   session({
     name: COOKIE_NAME,
     secret: SESSION_SECRET,
+    store: new SweepingMemoryStore(),
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -215,7 +238,25 @@ app.use((err, req, res, next) => {
   res.status(status).sendFile(path.join(PUBLIC_DIR, status >= 500 ? '500.html' : '404.html'));
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Цифровой деканат запущен: http://localhost:${PORT}`);
   console.log(`Адрес для QR-кодов справок (PUBLIC_URL): ${PUBLIC_URL}`);
+  console.log(`База: ${DB_PATH}`);
 });
+
+// Остановка (перезапуск или новая версия на хостинге): дожидаемся текущих запросов
+// и закрываем базу, чтобы последние изменения из журнала SQLite были записаны в файл.
+function shutdown(signal) {
+  console.log(`Получен ${signal}, останавливаюсь…`);
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    db.close();
+    process.exit(0);
+  };
+  server.close(finish);
+  setTimeout(finish, 5000).unref(); // не ждём дольше 5 секунд (например, долгий запрос к помощнику)
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));

@@ -4,7 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const Database = require('better-sqlite3');
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'data', 'dekanat.db');
+const { DB_PATH } = require('./config');
+
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
 const db = new Database(DB_PATH);

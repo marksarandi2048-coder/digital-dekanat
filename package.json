@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node --env-file-if-exists=.env server.js",
-    "seed": "node --env-file-if-exists=.env scripts/seed.js"
+    "seed": "node --env-file-if-exists=.env scripts/seed.js",
+    "seed:reset": "node --env-file-if-exists=.env scripts/seed.js --force"
   },
   "engines": {
     "node": ">=22.9"

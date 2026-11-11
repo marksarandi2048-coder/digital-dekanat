@@ -1,0 +1,16 @@
+# Сборка и запуск на Amvera (https://docs.amvera.ru/applications/environments/nodejs-server.html).
+# Сборка: Amvera берёт код из git и выполняет npm install в образе node:22.
+# Запуск: node server.js. Секреты и настройки задаются в разделе «Переменные» кабинета Amvera, не здесь.
+meta:
+  environment: node
+  toolchain:
+    name: npm
+    version: 22
+
+run:
+  scriptName: server.js
+  # Постоянное хранилище: здесь живёт база SQLite (переменная DATA_DIR=/data).
+  # Всё, что вне /data, может пропасть при перезапуске или пересборке.
+  persistenceMount: /data
+  # Порт, который слушает сервер (переменная PORT=3000).
+  containerPort: 3000
