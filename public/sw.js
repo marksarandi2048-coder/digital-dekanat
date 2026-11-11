@@ -160,19 +160,11 @@ function handlePage(event, url) {
   );
 }
 
+// Файлы сайта сохраняются при установке: версия в имени хранилища меняется вместе с любым файлом.
+// Поэтому при каждом открытии страницы копию не перезаписываем: лишняя запись задерживала стили и скрипты,
+// и браузер отменял плавный переход между страницами.
 function handleShellFile(event, url) {
-  const network = fetch(event.request);
-  event.waitUntil(
-    network
-      .then(async (res) => {
-        if (res.ok && res.type === 'basic') {
-          const cache = await caches.open(SHELL_CACHE);
-          await cache.put(url.pathname, res.clone());
-        }
-      })
-      .catch(() => {}),
-  );
-  event.respondWith(networkOrCopy(network.then((res) => res.clone()), () => caches.match(url.pathname, { cacheName: SHELL_CACHE })));
+  event.respondWith(networkOrCopy(fetch(event.request), () => caches.match(url.pathname, { cacheName: SHELL_CACHE })));
 }
 
 self.addEventListener('install', (event) => {

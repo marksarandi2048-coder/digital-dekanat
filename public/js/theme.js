@@ -27,6 +27,15 @@
 
   apply(read());
 
+  // Переход между страницами листает вперёд, а при «Назад» — в обратную сторону.
+  // Сам переход рисует браузер (стили в style.css), здесь только отмечаем направление.
+  window.addEventListener('pagereveal', (event) => {
+    const vt = event.viewTransition;
+    const nav = window.navigation && window.navigation.activation;
+    if (!vt || !nav || nav.navigationType !== 'traverse' || !nav.from) return;
+    if (nav.from.index > nav.entry.index) vt.types.add('back');
+  });
+
   window.DekanatTheme = {
     THEMES,
     get: read,

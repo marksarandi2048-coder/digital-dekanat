@@ -3419,8 +3419,9 @@ a.tile:active,
   transform: translateY(0) scale(0.99);
 }
 
-/* 3. Переключение разделов: плавная смена страницы (в браузерах, которые это умеют).
-   Меню при этом стоит на месте. */
+/* 3. Переключение разделов — как перелистывание: страница уходит влево и гаснет, новая мягко приходит справа.
+   «Назад» листает в обратную сторону (тип back ставит theme.js). Шапка, меню и кнопка помощника стоят на месте.
+   Браузеры без View Transitions просто открывают страницу. */
 @view-transition {
   navigation: auto;
 }
@@ -3429,22 +3430,67 @@ a.tile:active,
   view-transition-name: app-header;
 }
 
+.assistant-fab {
+  view-transition-name: assistant-fab;
+}
+
+/* Листается видимая часть экрана. Не main целиком: длинную страницу (5000 px на телефоне) браузер
+   не может «сфотографировать» и молча отменяет переход. Под листом — цвет страницы, чтобы края не мелькали. */
+::view-transition {
+  background: var(--journal-bg);
+}
+
+:root {
+  --page-turn: 28px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --page-turn: 18px;
+  }
+}
+
 ::view-transition-old(root) {
-  animation: 140ms ease-out both vt-fade-out;
+  animation: 180ms cubic-bezier(0.4, 0, 1, 1) both vt-turn-out;
 }
 
 ::view-transition-new(root) {
-  animation: var(--dur) var(--ease) both vt-fade-in;
+  animation: 340ms var(--ease) 40ms both vt-turn-in;
 }
 
-@keyframes vt-fade-out {
-  to { opacity: 0; }
+:active-view-transition-type(back)::view-transition-old(root) {
+  animation-name: vt-turn-out-back;
 }
 
-@keyframes vt-fade-in {
+:active-view-transition-type(back)::view-transition-new(root) {
+  animation-name: vt-turn-in-back;
+}
+
+@keyframes vt-turn-out {
+  to {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--page-turn)));
+  }
+}
+
+@keyframes vt-turn-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateX(var(--page-turn));
+  }
+}
+
+@keyframes vt-turn-out-back {
+  to {
+    opacity: 0;
+    transform: translateX(var(--page-turn));
+  }
+}
+
+@keyframes vt-turn-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--page-turn)));
   }
 }
 
