@@ -148,7 +148,7 @@
       const split = s.entries.length > 1;
       const li = positioned(el('li', `tl-slot${split ? ' tl-slot--split' : ''}`), rangeStart, s.start, s.end);
       for (const e of s.entries) {
-        const btn = card(e.lesson, e.ghost, { showEnd: true, detailed: !split });
+        const btn = card(e.lesson, e.ghost, { showEnd: true, detailed: !split, note: true });
         li.append(btn);
         if (!e.ghost && e.lesson.status !== 'cancelled') s.live = addLiveRow(btn);
       }

@@ -39,10 +39,38 @@ window.DekanatLesson = (function () {
   const roomText = (room) => (/^\d+[а-яА-Яa-zA-Z]?$/.test(room) ? tr('lesson_card.aud_room', { room }) : room);
   const slotText = (date, pair, time) => tr('lesson_card.p0_p1_pair_para', { p0: D.capitalize(D.weekdayShort(date)), p1: D.dayMonth(date), pair, p3: time ? ` (${time.start}–${time.end})` : '' });
 
+  // Короткая подпись изменения прямо на карточке: «ауд. 408 вместо 312», «Обычно ведёт Зимина Е. А.».
+  // Подробности и причина — в панели по нажатию.
+  function changeNote(lesson, ghost) {
+    const c = lesson.change || {};
+    const when = (date) => `${D.weekdayShort(date)}, ${D.dayMonth(date)}`;
+    if (ghost) return tr('lesson_card.note_moved_away', { when: `${when(lesson.date)}${lesson.time ? `, ${lesson.time.start}` : ''}` });
+    switch (lesson.status) {
+      case 'room_changed': {
+        if (!c.oldRoom) return null;
+        const sameBuilding = !c.oldBuilding || c.oldBuilding === lesson.building;
+        return tr('lesson_card.note_room', {
+          room: sameBuilding ? roomText(lesson.room) : D.place(lesson.building, lesson.room),
+          old: sameBuilding ? c.oldRoom : D.place(c.oldBuilding, c.oldRoom),
+        });
+      }
+      case 'teacher_changed':
+        return c.oldTeacher ? tr('lesson_card.note_teacher', { teacher: D.shortName(c.oldTeacher) }) : null;
+      case 'moved':
+        if (c.oldDate && c.oldDate !== lesson.date) return tr('lesson_card.note_moved', { when: when(c.oldDate) });
+        return c.oldTime ? tr('lesson_card.note_moved', { when: c.oldTime.start }) : null;
+      case 'cancelled':
+        return tr('lesson_card.note_cancelled');
+      default:
+        return null;
+    }
+  }
+
   // ---------- Карточка пары: полоска цвета, время, короткое название, аудитория ----------
   // showEnd — показать время целиком («09:00–10:20»), а не только начало.
   // detailed — полное название, вид занятия и преподаватель (где на карточке есть место).
-  function card(lesson, ghost, { showEnd = false, detailed = false } = {}) {
+  // note — короткая подпись изменения под сведениями (на таймлайне «Сегодня»).
+  function card(lesson, ghost, { showEnd = false, detailed = false, note = false } = {}) {
     const kind = ghost ? 'moved_away' : lesson.status;
     const btn = el('button', `wk-card disc-c${Number.isInteger(lesson.color) ? lesson.color : 0}${kind !== 'normal' ? ` wk-card--${kind}` : ''}`);
     btn.type = 'button';
@@ -64,6 +92,8 @@ window.DekanatLesson = (function () {
       }
       btn.append(meta);
     }
+    const noteText = note && kind !== 'normal' ? changeNote(lesson, ghost) : null;
+    if (noteText) btn.append(el('span', `wk-card__change wk-card__change--${kind}`, D.capitalize(noteText)));
 
     // Полное описание для программ экранного доступа.
     const parts = [lesson.discipline, time ? `${time.start}–${time.end}` : tr('lesson_card.pair_para', { pair })];
