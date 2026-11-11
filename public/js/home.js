@@ -230,6 +230,20 @@
     return h.node;
   }
 
+  // Строка дня под приветствием: что идёт сейчас, что дальше или когда следующие пары.
+  // Названия короткие («ТМО»), чтобы строка помещалась на телефоне.
+  function dayLine(s, today) {
+    if (!s) return '';
+    const name = (l) => l.shortName || l.discipline;
+    if (s.current) return tr('home.day_now', { name: name(s.current.lesson), left: D.duration(s.current.left) });
+    if (s.next) return tr('home.day_next', { name: name(s.next.lesson), start: s.next.lesson.time.start, in: D.duration(s.next.in) });
+    const up = s.upcoming;
+    if (!up) return tr('home.day_none');
+    const params = { count: up.count, p: D.plural(up.count, tr('home.para'), tr('home.pary_2'), tr('home.par')), start: up.lesson.time.start };
+    if (up.date === addDays(today, 1)) return tr('home.day_tomorrow', params);
+    return tr('home.day_later', { ...params, when: D.capitalize(`${D.weekdayLong(up.date)}, ${D.dayMonth(up.date)}`) });
+  }
+
   function addDays(dateStr, n) {
     const d = new Date(`${dateStr}T00:00:00Z`);
     d.setUTCDate(d.getUTCDate() + n);
@@ -506,6 +520,9 @@
     cover.dataset.sky = skyFor(data.now.time);
     const today = D.capitalize(`${D.weekdayLong(data.now.date)}, ${D.dayMonth(data.now.date)}`);
     document.getElementById('date-label').textContent = data.rating ? `${today} · ${data.rating.semester}` : today;
+    const day = document.getElementById('day-line');
+    day.textContent = data.role === 'staff' ? '' : dayLine(data.schedule, data.now.date);
+    day.hidden = !day.textContent;
     if (data.role === 'staff') renderStaff(data);
     else renderStudent(data);
     window.DekanatPwa.mountInstallHint(document.getElementById('install-hint'), data.role);
