@@ -213,6 +213,8 @@
       resetForm();
       await load();
       statusBox.scrollIntoView({ block: 'center' });
+      // Новая запись (не перенос) — золотое конфетти от сообщения «Вы записаны».
+      if (!moving && window.DekanatConfetti) window.DekanatConfetti.burst(statusBox);
     });
     box.append(submit);
     if (moving) {

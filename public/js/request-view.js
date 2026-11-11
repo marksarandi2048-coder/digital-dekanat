@@ -244,6 +244,8 @@ window.RequestView = (function () {
     parts.push(trackCard, details(r, isStaff), messages(r, isStaff, ctx));
 
     opts.container.replaceChildren(...parts);
+    // Справка готова — студент видит это впервые: золотое конфетти от метки статуса.
+    if (!isStaff && r.statusClass === 'ready' && window.DekanatConfetti) window.DekanatConfetti.once(`request-${r.id}`, sub.firstChild);
     return r;
   }
 

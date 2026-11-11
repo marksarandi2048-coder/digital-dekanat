@@ -68,7 +68,10 @@
       const li = el('li', 'bonus-mine__item');
       const head = el('div', 'bonus-mine__head');
       head.append(el('p', 'bonus-mine__title', m.title), el('span', 'bonus__points', `+${num(m.points)}`));
-      li.append(head, badge(m.status));
+      const mark = badge(m.status);
+      li.append(head, mark);
+      // Баллы начислены — при первом показе золотое конфетти от метки.
+      if (m.status === 'awarded' && window.DekanatConfetti) window.DekanatConfetti.once(`bonus-${m.id}`, mark);
       if (STATUS[m.status].step) {
         const track = el('div', 'bonus-track');
         track.setAttribute('aria-hidden', 'true');
