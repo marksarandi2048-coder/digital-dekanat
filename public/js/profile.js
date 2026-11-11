@@ -38,6 +38,11 @@
     els.fields.replaceChildren();
     addField(tr('profile.fakultet'), user.faculty);
     if (user.role === 'student') {
+      const again = document.getElementById('tour-again');
+      if (again && window.DekanatTour) {
+        again.hidden = false;
+        again.onclick = () => window.DekanatTour.restart();
+      }
       addField(tr('profile.napravlenie'), user.program);
       addField(tr('profile.kurs'), user.course ? tr('profile.course_kurs', { course: user.course }) : null);
       addField(tr('profile.gruppa'), user.group);

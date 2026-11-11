@@ -529,6 +529,8 @@
     loading.hidden = true;
     errorBox.hidden = true;
     content.hidden = false;
+    // Первый вход студента: приглашение в короткий тур (один раз, см. tour.js)
+    if (window.DekanatTour) window.DekanatTour.offer(data.role);
   }
 
   // Первая загрузка — с анимацией появления, дальше обновления раз в минуту без неё.

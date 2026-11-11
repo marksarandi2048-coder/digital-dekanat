@@ -8260,3 +8260,130 @@ button.appt-arrow {
     clip-path: inset(0 0 0 0);
   }
 }
+
+/* =================== Тур по кабинету =================== */
+.tour {
+  --tour-dim: rgba(9, 14, 34, 0.58);
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+}
+
+[data-theme="dark"] .tour {
+  --tour-dim: rgba(3, 5, 14, 0.7);
+}
+
+/* Нет элемента для подсветки — затемнён весь экран */
+.tour--plain {
+  background: var(--tour-dim);
+}
+
+/* «Окошко»: огромная тень вокруг затемняет всё, кроме подсвеченного элемента */
+.tour__hole {
+  position: fixed;
+  border: 2px solid var(--journal-rule);
+  border-radius: 6px;
+  box-shadow: 0 0 0 200vmax var(--tour-dim), 0 0 0 6px rgba(184, 144, 58, 0.22);
+  pointer-events: none;
+  transition:
+    top 380ms var(--ease),
+    left 380ms var(--ease),
+    width 380ms var(--ease),
+    height 380ms var(--ease);
+}
+
+.tour__card {
+  position: fixed;
+  width: min(360px, calc(100vw - 32px));
+  padding: var(--space-4);
+  border: 1px solid var(--sheet-border);
+  border-top: 3px solid var(--journal-rule);
+  border-radius: 4px;
+  background: var(--journal-card);
+  color: var(--color-text);
+  box-shadow: 0 10px 34px rgba(5, 10, 30, 0.35);
+  animation: tour-card-in 260ms var(--ease) both;
+}
+
+/* Без подсветки карточка — по центру экрана */
+.tour--plain .tour__card {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: none;
+}
+
+@keyframes tour-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.tour__counter {
+  margin: 0 0 var(--space-1);
+  color: var(--journal-kicker);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tour__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.tour__title:focus {
+  outline: none;
+}
+
+.tour__text {
+  margin: var(--space-2) 0 var(--space-4);
+  line-height: 1.45;
+}
+
+.tour__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.tour__skip,
+.tour__next {
+  min-height: 44px;
+}
+
+.tour__next {
+  min-width: 112px;
+}
+
+/* Телефон: карточка во всю ширину, прижата к низу над нижним меню */
+@media (max-width: 640px) {
+  .tour__card,
+  .tour--plain .tour__card {
+    top: auto;
+    left: 16px;
+    right: 16px;
+    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 12px);
+    width: auto;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour__hole,
+  .tour__card {
+    transition: none;
+    animation: none;
+  }
+}
+
+.tour-again:not([hidden]) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
