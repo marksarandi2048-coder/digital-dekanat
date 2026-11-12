@@ -17,8 +17,6 @@ const DATA_EN = {
   'Воронцова Ирина Павловна': 'Vorontsova Irina Pavlovna',
   'Сергеев Андрей Николаевич': 'Sergeev Andrei Nikolaevich',
   // Семестры
-  'Весенний семестр 2025/26': 'Spring semester 2025/26',
-  'Осенний семестр 2026/27': 'Fall semester 2026/27',
   // Дисциплины
   'Английский язык': 'English',
   'Бухгалтерский учёт': 'Accounting',
@@ -42,6 +40,15 @@ const DATA_EN = {
   'Французский язык': 'French',
   Эконометрика: 'Econometrics',
   'Экономическая теория': 'Economic Theory',
+  'Всемирная история': 'World History',
+  'Введение в политологию': 'Introduction to Political Science',
+  Математика: 'Mathematics',
+  'Русский язык и культура речи': 'Russian Language and Speech Culture',
+  'Математический анализ': 'Calculus',
+  'Теория вероятностей': 'Probability Theory',
+  'Институциональная экономика': 'Institutional Economics',
+  'Экономическая история': 'Economic History',
+  Финансы: 'Finance',
   // Короткие названия
   Английский: 'English',
   Бухучёт: 'Accounting',
@@ -128,6 +135,9 @@ const DATA_EN = {
   'Статья в сборнике студенческих научных работ': 'Paper in a collection of student research',
   // Общественная активность
   'Староста группы': 'Group representative',
+  'Участница программы адаптации первокурсников': 'Participant in the first-year orientation program',
+  'Участник студенческого клуба дебатов': 'Member of the student debate club',
+  'Тезисы на студенческой конференции «Экономика и общество»': 'Abstract at the “Economy and Society” student conference',
   'Участник студенческого научного общества': 'Member of the Student Research Society',
   'Член студенческого научного общества, участник Модели ООН': 'Member of the Student Research Society, Model UN participant',
   // Демо-заявки и переписка
@@ -171,7 +181,15 @@ function latin(text) {
   }).join('');
 }
 
-const lookup = (text) => (Object.hasOwn(DATA_EN, text) ? DATA_EN[text] : text);
+// Названия семестров зависят от учебного года, поэтому переводятся по образцу, а не по словарю.
+const SEMESTER = /^(Весенний|Осенний) семестр (\d{4}\/\d{2})$/;
+
+function lookup(text) {
+  if (Object.hasOwn(DATA_EN, text)) return DATA_EN[text];
+  const m = SEMESTER.exec(text);
+  if (m) return `${m[1] === 'Весенний' ? 'Spring' : 'Fall'} semester ${m[2]}`;
+  return text;
+}
 const isEnglish = () => currentLang() === 'en';
 
 // Для текстов, которые сервер собирает из нескольких частей.

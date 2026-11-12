@@ -8249,6 +8249,152 @@ button.appt-arrow {
   pointer-events: none;
 }
 
+/* =================== «Рейтинг по семестрам»: график и сравнение двух семестров =================== */
+.hist {
+  min-width: 0;
+}
+
+.hist__hint {
+  margin: 0 0 var(--space-3);
+}
+
+.hist-chart {
+  position: relative;
+  min-height: 190px;
+}
+
+.hist-chart__svg {
+  display: block;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.hist-chart__grid { stroke: var(--color-border); stroke-width: 1; }
+.hist-chart__axis { fill: var(--color-muted); font-size: 12px; }
+.hist-chart__line { fill: none; stroke: var(--color-primary); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.hist-chart__line--prelim { stroke-dasharray: 5 5; }
+.hist-chart__dot { fill: var(--color-primary); stroke: var(--color-surface); stroke-width: 2; }
+.hist-chart__dot--prelim { fill: var(--color-surface); stroke: var(--color-primary); }
+.hist-chart__dot--chosen { stroke-width: 3; }
+.hist-chart__value { fill: var(--color-text); font-size: 14px; font-weight: 700; }
+.hist-chart__label { fill: var(--color-muted); font-size: 12px; }
+.hist-chart__label--chosen { fill: var(--color-text); font-weight: 600; }
+.hist-chart__hit { fill: transparent; cursor: pointer; }
+
+.hist-tip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  min-width: 160px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-button);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-hover);
+  color: var(--color-text);
+  font-size: 13px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.hist__legend {
+  margin: var(--space-1) 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Два списка: подпись над списком, оба одной ширины; на широком экране — рядом */
+.hist__pickers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0 var(--space-3);
+}
+
+.hist__picker {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+  min-width: 0;
+  margin: 0;
+}
+
+/* Длинное название семестра не раздвигает экран: список сжимается до ширины блока */
+.hist__picker select {
+  width: 100%;
+  min-width: 0;
+}
+
+.hist__table-wrap {
+  overflow-x: auto;
+}
+
+.hist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.hist-table th,
+.hist-table td {
+  padding: var(--space-2) var(--space-1);
+  border-bottom: 1px solid var(--color-border);
+  text-align: right;
+  vertical-align: top;
+}
+
+.hist-table th[scope="row"],
+.hist-table thead th:first-child {
+  padding-left: 0;
+  text-align: left;
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+.hist-table thead th {
+  color: var(--color-text);
+  font-weight: 600;
+  vertical-align: bottom;
+}
+
+.hist-table thead th > span {
+  display: block;
+  white-space: nowrap;
+}
+
+.hist-table__season {
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+.hist-table__main th[scope="row"],
+.hist-table__main td {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.hist-table__prelim {
+  display: block;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.hist-table__diff {
+  white-space: nowrap;
+}
+
+.hist-diff--up { color: var(--color-ok); }
+.hist-diff--down { color: var(--color-bad); }
+.hist-diff--same { color: var(--color-muted); }
+
+.hist__note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--font-size-small);
+}
+
 /* =================== Тур по кабинету =================== */
 .tour {
   --tour-dim: rgba(9, 14, 34, 0.58);

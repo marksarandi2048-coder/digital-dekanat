@@ -194,6 +194,7 @@ function runSeed() {
 
   let lessonCount = 0;
   let resultCount = 0;
+  let semesterCount = 0;
   let requestCount = 0;
   let announcementCount = 0;
   let colorInfo = { colored: 0, conflicts: 0 };
@@ -274,7 +275,7 @@ function runSeed() {
       }
     }
 
-    ({ resultCount } = seedGrades({ db, today, teacherId, disciplineIdFor, userIdByLogin }));
+    ({ resultCount, semesterCount } = seedGrades({ db, today, teacherId, disciplineIdFor, userIdByLogin }));
     ({ requestCount } = seedRequests({ db, today, userIdByLogin }));
     ({ announcementCount } = seedAnnouncements({ db, today, userIdByLogin }));
     seedBonus({ db, today, userIdByLogin });
@@ -296,7 +297,7 @@ function runSeed() {
   console.log(`База заполнена: ${DB_PATH}`);
   console.log(`Заявок: ${requestCount}, объявлений: ${announcementCount}`);
   console.log(`Цвета дисциплин: ${colorInfo.colored} дисциплин, повторов внутри группы: ${colorInfo.conflicts}`);
-  console.log(`Оценок по дисциплинам: ${resultCount} (2 семестра)`);
+  console.log(`Оценок по дисциплинам: ${resultCount} (${semesterCount} семестра)`);
   console.log(`Занятий: ${lessonCount} (с ${firstMonday} по ${lastDate}, изменения на неделе с ${currentMonday})`);
   for (const u of users) {
     console.log(`  ${u.role === 'staff' ? 'сотрудник' : 'студент  '}  ${u.login} / ${u.password}  — ${u.full_name}`);

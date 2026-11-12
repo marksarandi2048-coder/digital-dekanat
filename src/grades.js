@@ -6,6 +6,8 @@ const { calculate, statusOf } = require('./rating');
 const { colorOf } = require('./colors');
 
 const semestersQuery = db.prepare('SELECT * FROM semesters ORDER BY starts_on DESC');
+// Семестры, в которых у группы студента были дисциплины.
+const groupSemestersQuery = db.prepare('SELECT DISTINCT semester_id FROM assessments WHERE group_name = ?');
 
 // Дисциплины группы студента в семестре + его оценки (если есть).
 const disciplinesQuery = db.prepare(`
@@ -30,6 +32,39 @@ function listSemesters(today) {
   // Текущий — тот, в который попадает сегодняшняя дата; иначе самый поздний начавшийся.
   const current = all.find((s) => s.starts_on <= today && today <= s.ends_on) || all.find((s) => s.starts_on <= today) || all[0];
   return all.map((s) => ({ id: s.id, name: s.name, startsOn: s.starts_on, endsOn: s.ends_on, isCurrent: current && s.id === current.id }));
+}
+
+// Семестры конкретного студента: те, где у него были дисциплины, и текущий.
+// Второкурсник не видит семестров, когда он ещё не учился.
+function listStudentSemesters(student, today) {
+  const ids = new Set(groupSemestersQuery.all(student.group_name).map((r) => r.semester_id));
+  return listSemesters(today).filter((s) => s.isCurrent || ids.has(s.id));
+}
+
+const round2 = (n) => Math.round(n * 100) / 100;
+
+// История рейтинга: по семестрам от раннего к позднему. Для графика и сравнения двух семестров.
+// Средний балл — по оценкам 2–5 (экзамены и дифференцированные оценки); «зачтено» в него не входит.
+function ratingHistory(student, semesters, today) {
+  return semesters
+    .slice()
+    .sort((a, b) => (a.startsOn < b.startsOn ? -1 : 1))
+    .map((s) => {
+      const d = semesterData(student, s.id, today);
+      const marks = d.disciplines.map((x) => Number(x.grade)).filter((n) => n >= 2 && n <= 5);
+      return {
+        id: s.id,
+        name: s.name,
+        startsOn: s.startsOn,
+        isCurrent: s.isCurrent,
+        isFinal: d.summary.isFinal,
+        total: d.rating.total,
+        max: d.rating.max,
+        blocks: d.rating.blocks.map(({ key, label, points, max }) => ({ key, label, points, max })),
+        average: marks.length ? round2(marks.reduce((a, b) => a + b, 0) / marks.length) : null,
+        marksCount: marks.length,
+      };
+    });
 }
 
 function semesterData(student, semesterId, today) {
@@ -92,4 +127,4 @@ function semesterData(student, semesterId, today) {
   return { disciplines, social, bonuses, rating, summary };
 }
 
-module.exports = { listSemesters, semesterData };
+module.exports = { listSemesters, listStudentSemesters, semesterData, ratingHistory };

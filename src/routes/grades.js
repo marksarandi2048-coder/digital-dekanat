@@ -5,7 +5,7 @@ const express = require('express');
 const { db } = require('../db');
 const { requireAuth } = require('../access');
 const { findById } = require('../users');
-const { listSemesters, semesterData } = require('../grades');
+const { listStudentSemesters, semesterData, ratingHistory } = require('../grades');
 const { forecast } = require('../forecast');
 const { nowInMoscow } = require('../dates');
 
@@ -32,7 +32,7 @@ function resolveStudent(req) {
 router.get('/grades', requireAuth, (req, res) => {
   const { student, students } = resolveStudent(req);
   const today = nowInMoscow().date;
-  const semesters = listSemesters(today);
+  const semesters = student ? listStudentSemesters(student, today) : [];
   if (!student || !semesters.length) {
     return res.json({ today, students, student: null, semesters, semester: null });
   }
@@ -55,6 +55,7 @@ router.get('/grades', requireAuth, (req, res) => {
     semesters,
     semester,
     previous,
+    history: ratingHistory(student, semesters, today),
     ...data,
   });
 });
