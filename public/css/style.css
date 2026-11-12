@@ -203,8 +203,13 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  --radius: 6px;
-  --radius-small: 4px;
+  /* Скругления — единые для всего сайта (обе темы) */
+  --radius-card: 14px;   /* карточки, плитки, листы */
+  --radius-button: 10px; /* кнопки, поля ввода, выпадающие списки */
+  --radius-window: 16px; /* окна, панели, шторки */
+  --radius-chip: 6px;    /* значки и метки */
+  --radius: var(--radius-card);
+  --radius-small: var(--radius-button);
   --shadow: 0 1px 2px rgba(19, 36, 90, 0.08);
   --shadow-hover: 0 6px 18px rgba(19, 36, 90, 0.14);
 
@@ -343,8 +348,6 @@
   --font-heading: var(--font-main);
   --heading-weight: 700;
 
-  --radius: 14px;
-  --radius-small: 8px;
   --shadow: 0 1px 2px rgba(5, 8, 20, 0.25), 0 6px 18px rgba(5, 8, 20, 0.18);
   --shadow-hover: 0 2px 4px rgba(5, 8, 20, 0.3), 0 12px 26px rgba(5, 8, 20, 0.3);
 }
@@ -3922,6 +3925,7 @@ main[tabindex="-1"]:focus {
   padding: 0;
   border: 0;
   border-left: 1px solid var(--color-border);
+  border-radius: var(--radius-window) 0 0 var(--radius-window);
   background: var(--color-surface);
   color: var(--color-text);
   box-shadow: var(--shadow-hover);
@@ -4051,7 +4055,7 @@ main[tabindex="-1"]:focus {
     max-height: 85dvh;
     margin: auto 0 0;
     border-left: 0;
-    border-radius: var(--radius) var(--radius) 0 0;
+    border-radius: var(--radius-window) var(--radius-window) 0 0;
     padding-bottom: env(safe-area-inset-bottom);
   }
 
@@ -6767,6 +6771,7 @@ button.appt-arrow {
   padding: 0;
   border: 0;
   border-left: 1px solid var(--color-border);
+  border-radius: var(--radius-window) 0 0 var(--radius-window);
   background: var(--color-surface);
   color: var(--color-text);
   box-shadow: var(--shadow-hover);
@@ -6953,6 +6958,7 @@ button.appt-arrow {
   .assistant {
     width: 100vw;
     border-left: 0;
+    border-radius: 0;
   }
 }
 
@@ -7036,7 +7042,7 @@ button.appt-arrow {
   padding: var(--space-4);
   background: var(--journal-card);
   border: 1px solid var(--sheet-border);
-  border-radius: 3px;
+  border-radius: var(--radius-card);
   box-shadow: var(--sheet-shadow);
 }
 
@@ -7229,7 +7235,7 @@ button.appt-arrow {
 
 .journal .status-badge,
 .journal .badge {
-  border-radius: 2px;
+  border-radius: var(--radius-chip);
 }
 
 /* Передовица: пара на бумаге, без цветной коробки */
@@ -7321,7 +7327,7 @@ button.appt-arrow {
   padding: var(--space-3) var(--space-4) var(--space-4);
   background: var(--guilloche), var(--hero-bg);
   border: 1px solid var(--journal-rule);
-  border-radius: 3px;
+  border-radius: var(--radius-card);
 }
 
 .journal .tile--card .tile__title {
@@ -7346,7 +7352,7 @@ button.appt-arrow {
 }
 
 .journal .button {
-  border-radius: 2px;
+  border-radius: var(--radius-button);
   background: var(--journal-button-bg);
   color: var(--journal-button-text);
   transition:
@@ -7405,7 +7411,7 @@ button.appt-arrow {
 /* Страница «Сегодня» */
 .journal .day-chip,
 .journal .day-nav__day {
-  border-radius: 2px;
+  border-radius: var(--radius-button);
 }
 
 .journal .day-chip:not(.day-chip--changes) {
@@ -7453,7 +7459,7 @@ button.appt-arrow {
 /* Плашки-подсказки и панель деталей — прямые углы, бумага */
 .journal .notice,
 .journal .week-tools__changes {
-  border-radius: 2px;
+  border-radius: var(--radius-button);
 }
 
 .journal .sheet {
@@ -7483,7 +7489,7 @@ button.appt-arrow {
 .journal .status,
 .journal .tag,
 .journal .summary .verdict {
-  border-radius: 2px;
+  border-radius: var(--radius-chip);
 }
 
 .journal .subject__head .section-title {
@@ -7498,7 +7504,7 @@ button.appt-arrow {
 .journal .tl-live__label,
 .journal .tl-gap__chip,
 .journal .tl-now__time {
-  border-radius: 2px;
+  border-radius: var(--radius-chip);
 }
 
 /* Кнопки выбора и поля — белые, с золотой рамкой (выбранная — синяя) */
@@ -7577,7 +7583,7 @@ button.appt-arrow {
 
 .journal .login-feature,
 .journal .login-lang {
-  border-radius: 2px;
+  border-radius: var(--radius-button);
 }
 
 /* Плашки: текст с тонкой цветной линией слева, без заливки. Цвет линии говорит о смысле, значение есть и в тексте. */
@@ -7902,9 +7908,12 @@ button.appt-arrow {
 }
 
 .assistant-msg,
-.assistant-error,
+.assistant-error {
+  border-radius: var(--radius-card);
+}
+
 .assistant__input {
-  border-radius: 2px;
+  border-radius: var(--radius-button);
 }
 
 .assistant-msg--user {
@@ -7929,7 +7938,7 @@ button.appt-arrow {
 }
 
 .assistant .button {
-  border-radius: 2px;
+  border-radius: var(--radius-button);
   background: var(--journal-button-bg);
   color: var(--journal-button-text);
 }
@@ -8057,7 +8066,7 @@ button.appt-arrow {
   margin-bottom: var(--space-4);
   padding: var(--space-5);
   border: 1px solid var(--journal-rule);
-  border-radius: 3px;
+  border-radius: var(--radius-card);
   background: var(--cover-sky);
 }
 
@@ -8303,7 +8312,7 @@ button.appt-arrow {
 .tour__hole {
   position: fixed;
   border: 2px solid var(--journal-rule);
-  border-radius: 6px;
+  border-radius: var(--radius-card);
   box-shadow: 0 0 0 200vmax var(--tour-dim), 0 0 0 6px rgba(184, 144, 58, 0.22);
   pointer-events: none;
   transition:
@@ -8319,7 +8328,7 @@ button.appt-arrow {
   padding: var(--space-4);
   border: 1px solid var(--sheet-border);
   border-top: 3px solid var(--journal-rule);
-  border-radius: 4px;
+  border-radius: var(--radius-window);
   background: var(--journal-card);
   color: var(--color-text);
   box-shadow: 0 10px 34px rgba(5, 10, 30, 0.35);
