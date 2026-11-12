@@ -6978,8 +6978,8 @@ button.appt-arrow {
   --color-primary-hover: var(--journal-button-hover);
   --color-primary-text: var(--journal-button-text);
   --font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
-  --radius: 2px;
-  --radius-small: 2px;
+  --radius: var(--radius-card);
+  --radius-small: var(--radius-button);
   --color-border-strong: var(--control-border);
   --shadow: var(--sheet-shadow);
   --shadow-hover: var(--sheet-shadow-hover);
