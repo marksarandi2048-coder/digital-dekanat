@@ -1105,7 +1105,7 @@
   "tour.assistant_text": "ИИ-помощник отвечает по вашим данным: расписание, оценки, сроки, заявки. Ответы ИИ могут ошибаться, цифры сверяйте в разделах.",
   "profile.tour_again": "Показать тур ещё раз",
   "grades.history_title": "Рейтинг по семестрам",
-  "grades.history_hint": "Рейтинг из 100 баллов, надбавка — сверху. Выберите два семестра, чтобы сравнить.",
+  "grades.history_hint": "Рейтинг из 100 баллов, надбавка — сверху.",
   "grades.history_one": "Пока есть только один семестр. Сравнение появится, когда начнётся следующий.",
   "grades.history_compare": "Сравнить",
   "grades.history_with": "с",
@@ -1114,7 +1114,6 @@
   "grades.history_diff": "Разница",
   "grades.history_autumn": "Осень",
   "grades.history_spring": "Весна",
-  "grades.history_provisional": "{name} ещё идёт: рейтинг предварительный, невыставленное считается как 0.",
   "grades.history_chart": "График рейтинга по семестрам: {list}",
   "grades.history_up": "больше на {p0}",
   "grades.history_down": "меньше на {p0}",
@@ -1122,5 +1121,8 @@
   "grades.history_no_marks": "нет оценок",
   "grades.history_prelim": "предв.",
   "grades.history_tip_avg": "Средний балл: {p0}",
-  "grades.history_legend": "Пустой кружок и пунктир — семестр ещё идёт, рейтинг предварительный."
+  "grades.history_legend": "Пустой кружок и пунктир — семестр ещё идёт.",
+  "grades.history_toggle": "Сравнить семестры",
+  "grades.history_toggle_hide": "Скрыть сравнение",
+  "grades.history_ongoing": "семестр ещё идёт"
 });

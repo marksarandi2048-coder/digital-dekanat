@@ -359,9 +359,11 @@
     }
     const extra = el('div', 'split__pair');
     extra.append(renderSocial(data.social), renderBonuses(data.bonuses, data.rating.blocks.find((b) => b.key === 'bonus'), !data.students && data.semester.isCurrent));
+    // «Рейтинг по семестрам» — первым в правой колонке, вровень с верхом сводки; на телефоне — сразу после неё.
+    main.append(window.DekanatHistory.render(data));
     // Калькулятор — только студенту и только за текущий семестр.
     if (!data.students && data.semester.isCurrent && data.disciplines.length) main.append(window.DekanatForecast.render(data));
-    main.append(subjects, window.DekanatHistory.render(data), extra);
+    main.append(subjects, extra);
 
     content.className = 'split';
     content.replaceChildren(side, main);

@@ -1105,7 +1105,7 @@
   "tour.assistant_text": "The AI assistant answers from your data: schedule, grades, deadlines, requests. AI answers can be wrong, so check the numbers in each section.",
   "profile.tour_again": "Show the tour again",
   "grades.history_title": "Rating by semester",
-  "grades.history_hint": "Rating out of 100, with the bonus on top. Choose two semesters to compare.",
+  "grades.history_hint": "Rating out of 100, with the bonus on top.",
   "grades.history_one": "There is only one semester so far. The comparison will appear when the next one starts.",
   "grades.history_compare": "Compare",
   "grades.history_with": "with",
@@ -1114,7 +1114,6 @@
   "grades.history_diff": "Change",
   "grades.history_autumn": "Fall",
   "grades.history_spring": "Spring",
-  "grades.history_provisional": "{name} is still in progress: the rating is provisional, anything not yet posted counts as 0.",
   "grades.history_chart": "Rating by semester chart: {list}",
   "grades.history_up": "up by {p0}",
   "grades.history_down": "down by {p0}",
@@ -1122,5 +1121,8 @@
   "grades.history_no_marks": "no grades",
   "grades.history_prelim": "prov.",
   "grades.history_tip_avg": "Average grade: {p0}",
-  "grades.history_legend": "Hollow dot and dashed line: the semester is still in progress, the rating is provisional."
+  "grades.history_legend": "Hollow dot and dashed line: the semester is still in progress.",
+  "grades.history_toggle": "Compare semesters",
+  "grades.history_toggle_hide": "Hide comparison",
+  "grades.history_ongoing": "semester in progress"
 });

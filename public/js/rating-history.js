@@ -27,8 +27,8 @@
   // ---------- График ----------
   function drawChart(box, history, picked, onPick) {
     const W = Math.max(280, Math.round(box.clientWidth));
-    const H = W < 500 ? 190 : 220;
-    const pad = { left: 34, right: 18, top: 28, bottom: 44 };
+    const H = 150; // невысокий: блок стоит рядом со сводкой и не должен её перерастать
+    const pad = { left: 34, right: 18, top: 24, bottom: 40 };
     const totals = history.map((h) => h.total);
     const hi = Math.max(100, Math.ceil(Math.max(...totals) / 10) * 10);
     const rawLo = Math.max(0, Math.min(...totals) - 5);
@@ -113,13 +113,21 @@
   }
 
   // ---------- Сравнение ----------
-  function diffCell(a, b, digits) {
+  // ongoing — один из семестров ещё идёт: разница не окончательная, поэтому серая и без стрелок.
+  function diffCell(a, b, digits, ongoing) {
     const td = el('td', 'hist-table__diff');
     if (a === null || b === null) {
       td.textContent = '—';
       return td;
     }
     const d = Math.round((b - a) * 100) / 100;
+    if (ongoing) {
+      const text = `${d > 0 ? '+' : d < 0 ? '−' : ''}${fmt(Math.abs(d), digits)}`;
+      const span = el('span', 'hist-diff hist-diff--ongoing', text);
+      span.setAttribute('aria-label', `${text}, ${tr('grades.history_ongoing')}`);
+      td.append(span);
+      return td;
+    }
     if (d === 0) {
       td.append(el('span', 'hist-diff hist-diff--same', `= ${fmt(0)}`));
       td.setAttribute('aria-label', tr('grades.history_same'));
@@ -148,8 +156,10 @@
       if (!h.isFinal) th.append(el('span', 'hist-table__prelim', tr('grades.history_prelim')));
       head.append(th);
     }
+    const ongoing = !first.isFinal || !second.isFinal;
     const thDiff = el('th', null, tr('grades.history_diff'));
     thDiff.scope = 'col';
+    if (ongoing) thDiff.append(el('span', 'hist-table__prelim', tr('grades.history_ongoing')));
     head.append(thDiff);
     const thead = el('thead');
     thead.append(head);
@@ -161,7 +171,7 @@
       th.scope = 'row';
       tr_.append(th);
       for (const v of [a, b]) tr_.append(el('td', null, v === null ? text : fmt(v, digits)));
-      tr_.append(diffCell(a, b, digits));
+      tr_.append(diffCell(a, b, digits, ongoing));
       tbody.append(tr_);
     };
     addRow(tr('grades.history_rating'), first.total, second.total, 1, true);
@@ -171,7 +181,7 @@
     }
     addRow(tr('grades.history_average'), first.average, second.average, 2, true, tr('grades.history_no_marks'));
     table.append(thead, tbody);
-    return { table, prelim: [first, second].find((h) => !h.isFinal) };
+    return table;
   }
 
   function picker(id, label, history, value, onChange) {
@@ -215,10 +225,27 @@
     const compare = el('div', 'hist__compare');
     card.append(chart);
     if (history.some((h) => !h.isFinal)) card.append(el('p', 'hist__legend', tr('grades.history_legend')));
-    card.append(pickers, compare);
+
+    // Таблица сравнения спрятана под кнопкой, чтобы блок оставался компактным.
+    const panel = el('div', 'hist__panel');
+    panel.id = 'hist-panel';
+    panel.hidden = true;
+    panel.append(pickers, compare);
+    const toggle = el('button', 'button button--secondary button--small hist__toggle', tr('grades.history_toggle'));
+    toggle.type = 'button';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-controls', panel.id);
+    const setOpen = (open) => {
+      panel.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.textContent = tr(open ? 'grades.history_toggle_hide' : 'grades.history_toggle');
+    };
+    toggle.addEventListener('click', () => setOpen(panel.hidden));
+    card.append(toggle, panel);
 
     function update() {
       drawChart(chart, history, [a, b], (id) => {
+        setOpen(true); // нажатие на точку сразу показывает сравнение
         if (id === b) return;
         if (id === a) a = b;
         b = id;
@@ -228,11 +255,9 @@
         picker('hist-a', tr('grades.history_compare'), history, a, (id) => { if (id === b) b = a; a = id; update(); }),
         picker('hist-b', tr('grades.history_with'), history, b, (id) => { if (id === a) a = b; b = id; update(); }),
       );
-      const { table, prelim } = renderTable(history, a, b);
       const scroll = el('div', 'hist__table-wrap');
-      scroll.append(table);
+      scroll.append(renderTable(history, a, b));
       compare.replaceChildren(scroll);
-      if (prelim) compare.append(el('p', 'muted hist__note', tr('grades.history_provisional', { name: prelim.name })));
     }
 
     // Рисуем, когда блок уже на странице (нужна его ширина), и перерисовываем при смене ширины.

@@ -8309,12 +8309,13 @@ button.appt-arrow {
 }
 
 .hist__hint {
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-small);
 }
 
 .hist-chart {
   position: relative;
-  min-height: 190px;
+  min-height: 150px;
 }
 
 .hist-chart__svg {
@@ -8429,6 +8430,10 @@ button.appt-arrow {
   font-weight: 700;
 }
 
+.hist-table thead th > .hist-table__prelim {
+  white-space: normal;
+}
+
 .hist-table__prelim {
   display: block;
   color: var(--color-muted);
@@ -8443,10 +8448,16 @@ button.appt-arrow {
 .hist-diff--up { color: var(--color-ok); }
 .hist-diff--down { color: var(--color-bad); }
 .hist-diff--same { color: var(--color-muted); }
+/* Один из семестров ещё идёт: разница не окончательная — серая, без стрелок */
+.hist-diff--ongoing { color: var(--color-muted); font-weight: 400; }
 
-.hist__note {
-  margin: var(--space-3) 0 0;
-  font-size: var(--font-size-small);
+/* Кнопка «Сравнить семестры» и раскрывающаяся под ней таблица */
+.hist__toggle {
+  margin-top: var(--space-3);
+}
+
+.hist__panel {
+  margin-top: var(--space-1);
 }
 
 /* =================== Тур по кабинету =================== */
