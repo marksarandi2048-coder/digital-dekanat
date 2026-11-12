@@ -94,9 +94,9 @@
       <select id="group-select"></select>
     </div>
     <ul class="day-chips" id="day-chips" hidden data-i18n-attr="aria-label=page.svodka_dnya"></ul>
-    <!-- На телефоне блоки идут в этом порядке, на компьютере (от 1100 px) справа — колонка -->
+    <!-- На телефоне блоки идут в этом порядке: сначала шкала пар, под ней объявление, дедлайны и «Что взять».
+         На компьютере (от 1100 px) объявление, дедлайны и «Что взять» — колонка справа -->
     <div class="today-layout">
-      <div class="today-side today-side--important" id="today-important" hidden></div>
       <div class="today-main">
         <nav class="day-nav" id="day-nav" hidden data-i18n-attr="aria-label=page.dni_nedeli">
           <div class="day-nav__days" id="day-nav-days"></div>
@@ -106,11 +106,12 @@
         <p class="state state--error" id="state-error" role="alert" hidden></p>
         <div id="content" hidden></div>
       </div>
+      <div class="today-side today-side--important" id="today-important" hidden></div>
+      <div class="today-side today-side--deadlines" id="today-deadlines" hidden></div>
       <section class="today-side today-side--bring today-bring" id="today-bring" aria-labelledby="today-bring-title" hidden>
         <h2 class="today-bring__title" id="today-bring-title" data-i18n="page.chto_vzyat_s_soboy"></h2>
         <div id="today-bring-list"></div>
       </section>
-      <div class="today-side today-side--deadlines" id="today-deadlines" hidden></div>
     </div>
   </main>
 

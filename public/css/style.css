@@ -5099,10 +5099,27 @@ main[tabindex="-1"]:focus {
   }
 }
 
-/* Телефон: «Идёт сейчас» и минуты должны уместиться в одну строку */
+/* Телефон: шкала плотнее (пара 80 минут — около 115 px вместо 150), карточки компактнее.
+   «Идёт сейчас» и минуты должны уместиться в одну строку */
 @media (max-width: 640px) {
+  .tl {
+    --tl-px: 1.42px;
+    margin-top: var(--space-3);
+  }
+
   .tl-slot:not(.tl-slot--split) .wk-card {
-    padding-inline: var(--space-2);
+    padding: 2px var(--space-2);
+    row-gap: 0;
+  }
+
+  .tl-slot .wk-card__name {
+    font-size: 15px;
+    line-height: 1.25;
+  }
+
+  .tl-slot .wk-card__meta {
+    font-size: 13px;
+    line-height: 1.25;
   }
 
   .tl-live {
@@ -7851,6 +7868,43 @@ button.appt-arrow {
   stroke-width: 1.6;
   width: 24px;
   height: 24px;
+}
+
+/* Телефон: кнопка меньше и уходит при прокрутке вниз, возвращается при прокрутке вверх */
+@media (max-width: 899px) {
+  .assistant-fab {
+    transition:
+      transform var(--dur) var(--ease),
+      opacity var(--dur) var(--ease),
+      background-color var(--dur-fast) var(--ease);
+  }
+
+  .assistant-fab--away {
+    opacity: 0;
+    transform: translateY(12px) scale(0.6);
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --fab-size: 42px;
+  }
+
+  .assistant-fab {
+    right: var(--space-3);
+  }
+
+  .assistant-fab svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+  .assistant-fab {
+    transition: opacity 1ms;
+  }
 }
 
 @media (min-width: 900px) {

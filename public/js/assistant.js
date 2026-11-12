@@ -215,6 +215,7 @@
     fab.append(icon('chat'), el('span', 'assistant-fab__label', tr('assistant.title')));
     fab.addEventListener('click', open);
     document.body.append(fab);
+    hideOnScroll(fab);
     document.body.classList.add('has-assistant');
 
     // Раздел в «Помощи»: виден только тем, кому доступен помощник.
@@ -223,6 +224,29 @@
       section.hidden = false;
       document.getElementById('assistant-help-open').addEventListener('click', open);
     }
+  }
+
+  // Телефон: при прокрутке вниз кнопка уходит, чтобы не закрывать текст, при прокрутке вверх — возвращается.
+  // У самого верха страницы и при фокусе с клавиатуры кнопка видна всегда.
+  function hideOnScroll(fab) {
+    const narrow = window.matchMedia('(max-width: 899px)');
+    let lastY = window.scrollY;
+    let queued = false;
+    const apply = () => {
+      queued = false;
+      const y = window.scrollY;
+      if (!narrow.matches || y < 80) fab.classList.remove('assistant-fab--away');
+      else if (y > lastY + 8) fab.classList.add('assistant-fab--away');
+      else if (y < lastY - 8) fab.classList.remove('assistant-fab--away');
+      else return; // мелкое дрожание пальца не считается
+      lastY = y;
+    };
+    window.addEventListener('scroll', () => {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(apply);
+    }, { passive: true });
+    fab.addEventListener('focus', () => fab.classList.remove('assistant-fab--away'));
   }
 
   async function init() {
