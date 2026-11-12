@@ -8249,48 +8249,6 @@ button.appt-arrow {
   pointer-events: none;
 }
 
-/* Золотой штрих под крупными числами: рейтинг, «через 3 дня», счётчики Главной, прогноз экзаменов.
-   Мазок кистью — своя SVG-маска, цвет — золото линеек темы. При появлении прописывается слева направо. */
-:root {
-  --gold-stroke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M2 12.5C30 8.5 62 7 98 7.6 134 8.2 166 9.4 198 6.4L197.4 10.6C170 13.6 138 13 104 12.8 68 12.6 36 14.4 3.6 17.2 1.2 16.6.6 13.6 2 12.5z'/%3E%3C/svg%3E");
-}
-
-.journal .j-num:not(.j-num--plus),
-.rating__value,
-.fc__value {
-  position: relative;
-  display: inline-block;
-  isolation: isolate;
-}
-
-.journal .j-num:not(.j-num--plus)::after,
-.rating__value::after,
-.fc__value::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: -4%;
-  right: -4%;
-  bottom: 0.04em;
-  height: 0.17em;
-  min-height: 5px;
-  background: var(--journal-rule);
-  opacity: 0.85;
-  -webkit-mask: var(--gold-stroke) center / 100% 100% no-repeat;
-  mask: var(--gold-stroke) center / 100% 100% no-repeat;
-  pointer-events: none;
-  animation: gold-stroke-draw 700ms var(--ease) 450ms backwards;
-}
-
-@keyframes gold-stroke-draw {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
 /* =================== Тур по кабинету =================== */
 .tour {
   --tour-dim: rgba(9, 14, 34, 0.58);
