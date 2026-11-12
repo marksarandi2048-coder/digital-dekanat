@@ -9,7 +9,7 @@
 const { tr, currentLang, currentLocale } = require('./i18n');
 const { translated } = require('./dataEn');
 const { getSchedule } = require('./schedule');
-const { listSemesters, semesterData } = require('./grades');
+const { listStudentSemesters, semesterData } = require('./grades');
 const { deadlines } = require('./notifications');
 const { listForStudent, toListItem } = require('./requests');
 const { statusHint } = require('./requestTypes');
@@ -191,7 +191,7 @@ const gradeLabel = (grade) => {
 
 function getGradesTool(user, args) {
   const today = nowInMoscow().date;
-  const semesters = listSemesters(today);
+  const semesters = listStudentSemesters(user, today); // «прошлый» — прошлый семестр этого студента
   const currentIndex = semesters.findIndex((s) => s.isCurrent);
   const semester = args.semester === 'previous' ? semesters[currentIndex + 1] : semesters[currentIndex];
   if (!semester) return { semester: null, disciplines: [] };
