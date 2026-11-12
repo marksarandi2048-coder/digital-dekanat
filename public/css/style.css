@@ -8042,15 +8042,17 @@ button.appt-arrow {
   }
 }
 
-/* =================== Обложка Главной: небо по времени суток, высотка, параллакс =================== */
+/* =================== Обложка Главной: небо по времени суток, глобус со щитом, параллакс =================== */
 .cover {
   --cover-text: #fff8e6;
   --cover-kicker: #f6dd9f;
   --cover-y: 0px;
   isolation: isolate;
   overflow: hidden;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
+  gap: var(--space-4);
   min-height: clamp(210px, 21vw, 270px);
   margin-bottom: var(--space-4);
   padding: var(--space-5);
@@ -8070,38 +8072,22 @@ button.appt-arrow {
 
 .cover[data-sky="dawn"] {
   --cover-sky: linear-gradient(180deg, #16225a 0%, #4a3f7e 50%, #c98a6a 84%, #f0c27a 100%);
-  --cover-far: #3a3a74;
-  --cover-stone: #17235a;
-  --cover-near: #0f1743;
   --cover-cloud: rgba(255, 214, 170, 0.34);
-  --cover-win: 0.7;
 }
 
 .cover[data-sky="day"] {
   --cover-sky: linear-gradient(180deg, #123072 0%, #2a5aa6 55%, #7ea6d8 90%, #e8d3a0 100%);
-  --cover-far: #48719f;
-  --cover-stone: #16306e;
-  --cover-near: #102556;
   --cover-cloud: rgba(255, 255, 255, 0.5);
-  --cover-win: 0.3;
 }
 
 .cover[data-sky="sunset"] {
   --cover-sky: linear-gradient(180deg, #141c4e 0%, #6b3566 50%, #d9743f 84%, #f2b457 100%);
-  --cover-far: #4c2a5e;
-  --cover-stone: #171a4c;
-  --cover-near: #0e1136;
   --cover-cloud: rgba(255, 180, 130, 0.36);
-  --cover-win: 0.85;
 }
 
 .cover[data-sky="night"] {
   --cover-sky: linear-gradient(180deg, #060b22 0%, #0e1a48 60%, #1c2f6e 100%);
-  --cover-far: #17265c;
-  --cover-stone: #0f1b4c;
-  --cover-near: #070d28;
   --cover-cloud: rgba(170, 190, 240, 0.12);
-  --cover-win: 1;
 }
 
 .cover__art {
@@ -8114,24 +8100,29 @@ button.appt-arrow {
 }
 
 .cover__layer--sky { transform: translateY(calc(var(--cover-y) * 0.3)); }
-.cover__layer--far { transform: translateY(calc(var(--cover-y) * 0.2)); }
-.cover__layer--tower { transform: translateY(calc(var(--cover-y) * 0.1)); }
-
-.cover__layer--far { fill: var(--cover-far); }
-.cover__layer--near { fill: var(--cover-near); }
 .cover__clouds { fill: var(--cover-cloud); }
-.cover__stone { fill: var(--cover-stone); }
-.cover__windows rect { opacity: var(--cover-win); }
-#cover-win rect { fill: #f3cf85; }
 
-.cover__gold {
-  fill: none;
-  stroke: #e6c67c;
-  stroke-width: 1.4;
-  stroke-linecap: square;
+/* Глобус с меридианами и наш щит с книгой — своя иллюстрация, не символика вуза.
+   Стоит в своей колонке сетки, поэтому никогда не заезжает на текст. */
+.cover__emblem {
+  position: relative;
+  z-index: 2;
+  grid-column: 2;
+  grid-row: 1;
+  width: clamp(150px, 17vw, 210px);
+  height: auto;
+  overflow: visible;
+  transform: translateY(calc(var(--cover-y) * 0.1));
+  filter: drop-shadow(0 6px 18px rgba(7, 12, 38, 0.35));
 }
 
-.cover__finial { fill: #f3d68f; }
+.cover__land { fill: rgba(230, 198, 124, 0.2); }
+.cover__grid { fill: none; stroke: rgba(230, 198, 124, 0.55); stroke-width: 1.1; }
+.cover__shine { fill: none; stroke: rgba(255, 248, 230, 0.45); stroke-width: 3; stroke-linecap: round; }
+.cover__rim { fill: none; stroke: #e6c67c; stroke-width: 2.2; }
+.cover__orbit { fill: none; stroke: #e6c67c; stroke-width: 1.6; opacity: 0.9; }
+.cover__satellite { fill: #f6dd9f; }
+.cover__spark { fill: #f6dd9f; }
 .cover__stars { fill: #fff6dd; opacity: 0; }
 .cover__body { opacity: 0; }
 
@@ -8159,7 +8150,9 @@ button.appt-arrow {
 .cover__text {
   position: relative;
   z-index: 2;
-  max-width: 64%;
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
   transform: translateY(calc(var(--cover-y) * 0.06));
 }
 
@@ -8196,10 +8189,11 @@ button.appt-arrow {
 }
 
 @media (max-width: 640px) {
-  /* На телефоне обложка во всю ширину экрана, рисунок ниже и правее текста */
+  /* На телефоне обложка во всю ширину экрана, глобус маленький справа от текста */
   .cover {
-    min-height: 216px;
-    align-items: flex-start;
+    min-height: 0;
+    align-items: start;
+    gap: var(--space-3);
     margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) var(--space-4);
     padding: var(--space-4);
     border-width: 0 0 1px;
@@ -8214,19 +8208,19 @@ button.appt-arrow {
     height: 68%;
   }
 
-  .cover__text {
-    max-width: 100%;
+  .cover__emblem {
+    width: 84px;
   }
 
   .journal .cover .page-title {
-    font-size: 32px;
+    font-size: 30px;
+    overflow-wrap: anywhere;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cover__layer--sky,
-  .cover__layer--far,
-  .cover__layer--tower,
+  .cover__emblem,
   .cover__text {
     transform: none;
   }
