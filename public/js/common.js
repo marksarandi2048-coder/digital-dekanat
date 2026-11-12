@@ -361,6 +361,8 @@ window.Dekanat = (function () {
       return;
     }
     window.DekanatPwa.sessionConfirmed(data.role);
+    // Блоки только для студента (например, «Пройти тур заново» в Помощи).
+    for (const node of document.querySelectorAll('[data-student-only]')) node.hidden = data.role !== 'student';
     // Пункт «Уведомления» в боковом меню (на компьютере) — с тем же счётчиком.
     const navItem = document.getElementById('nav-notifications');
     const navCount = document.getElementById('nav-count');

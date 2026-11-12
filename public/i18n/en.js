@@ -1103,7 +1103,7 @@
   "tour.appointment_text": "Choose a topic, a day and a free slot, then come to the dean’s office at your time, no queue.",
   "tour.assistant_title": "“Ask the Dean’s Office”",
   "tour.assistant_text": "The AI assistant answers from your data: schedule, grades, deadlines, requests. AI answers can be wrong, so check the numbers in each section.",
-  "profile.tour_again": "Show the tour again",
+  "profile.tour_again": "Take the tour again",
   "grades.history_title": "Rating by semester",
   "grades.history_hint": "Rating out of 100, with the bonus on top.",
   "grades.history_one": "There is only one semester so far. The comparison will appear when the next one starts.",
@@ -1124,5 +1124,7 @@
   "grades.history_legend": "Hollow dot and dashed line: the semester is still in progress.",
   "grades.history_toggle": "Compare semesters",
   "grades.history_toggle_hide": "Hide comparison",
-  "grades.history_ongoing": "semester in progress"
+  "grades.history_ongoing": "semester in progress",
+  "help.tour_title": "Portal tour",
+  "help.tour_text": "Six short tips: where to find today’s schedule, your student ID, grades, requests and the “Ask the Dean’s Office” assistant. You can take it any time."
 });

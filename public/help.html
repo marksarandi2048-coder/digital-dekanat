@@ -91,6 +91,12 @@
       <p class="assistant-note" data-i18n="assistant.disclaimer"></p>
     </section>
     <div id="help-box"></div>
+    <!-- Тур только для студента: его шаги — страницы студента. Показывает common.js, когда известна роль -->
+    <section class="card tour-help" id="tour-help" aria-labelledby="tour-help-title" data-student-only hidden>
+      <h2 class="tour-help__title" id="tour-help-title" data-i18n="help.tour_title"></h2>
+      <p class="tour-help__text" data-i18n="help.tour_text"></p>
+      <button class="button button--secondary tour-help__start" id="tour-help-start" type="button" data-i18n="profile.tour_again"></button>
+    </section>
   </main>
 
   <footer class="app-footer" data-i18n="page.vse_dannye_vymyshleny"></footer>
